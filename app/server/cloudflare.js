@@ -47,7 +47,7 @@ const getDNSRecord = async (zoneId, domain) => {
 const upsertRecord = async (domain, ip) => {
   const zone = await getZone(domain);
   if (!zone) {
-    throw "Zone not found";
+    throw new Error("Zone not found");
   }
 
   const record = await getDNSRecord(zone.id, domain);
@@ -72,13 +72,21 @@ const upsertRecord = async (domain, ip) => {
 const deleteRecord = async (domain) => {
   const zone = await getZone(domain);
   if (!zone) {
-    throw "Zone not found";
+    throw new Error("Zone not found");
   }
   const record = await getDNSRecord(zone.id, domain);
   if (!record) {
-    throw "Record not found";
+    throw new Error("Record not found");
   }
   return cf.dnsRecords.del(zone.id, record.id);
+};
+
+module.exports = async (app) => {
+  // Detect app domain zone availability
+  const zone = await getZone(app.get("domain"));
+  if (!zone) {
+    throw new Error("Could not connect to CloudFlare zone");
+  }
 };
 
 module.exports.getZone = getZone;

@@ -24,4 +24,8 @@ COPY app /app
 
 WORKDIR /app
 
+RUN npm install -g nodemon
+
 RUN npm install
+
+CMD ["node", "server/index.js"]

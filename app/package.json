@@ -9,8 +9,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@feathersjs/express": "^4.5.4",
+    "@feathersjs/feathers": "^4.5.3",
+    "@feathersjs/socketio": "^4.5.4",
+    "axios": "^0.19.2",
     "cloudflare": "^2.7.0",
+    "feathers-nedb": "^5.1.0",
     "nanoid": "^3.1.10",
+    "nedb": "^1.8.0",
     "parse-domain": "^3.0.2"
   }
 }

@@ -1,4 +1,7 @@
-module.exports.generateId = require("nanoid").customAlphabet("1234567890abcdef", 5);
+module.exports.generateId = require("nanoid").customAlphabet(
+  "1234567890abcdef",
+  5
+);
 module.exports.exec = function exec(cmd, opts) {
   const exec = require("child_process").exec;
   return new Promise((resolve, reject) => {
@@ -21,4 +24,7 @@ module.exports.readFile = function readFile(path) {
       }
     });
   });
+};
+module.exports.sleep = function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
