@@ -26,6 +26,7 @@ WORKDIR /app
 
 RUN npm install -g nodemon
 
-RUN npm install
+RUN npm install --production=false \
+  && npm run build
 
 CMD ["node", "server/index.js"]
