@@ -1,0 +1,26 @@
+body,
+html {
+  width: 100%;
+  height: 100%;
+  line-height: 1.5;
+}
+
+body {
+  background-color: #ae1253;
+  background-image: linear-gradient(
+    -90deg,
+    #ae1253 0,
+    #ff0080 50%,
+    #ae1253 100%
+  );
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, open_sanslight,
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 500;
+}

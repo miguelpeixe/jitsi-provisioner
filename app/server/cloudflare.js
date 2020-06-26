@@ -83,6 +83,7 @@ const deleteRecord = async (domain) => {
 
 module.exports = async (app) => {
   // Detect app domain zone availability
+  if(app.get("demo")) return;
   const zone = await getZone(app.get("domain"));
   if (!zone) {
     throw new Error("Could not connect to CloudFlare zone");

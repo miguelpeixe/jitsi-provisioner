@@ -2,6 +2,8 @@ const path = require("path");
 const axios = require("axios");
 const { processHooks } = require("@feathersjs/commons").hooks;
 
+const DEMO = false;
+
 const { generateId, exec, readFile, sleep } = require("../../utils");
 const cloudflare = require("../../cloudflare");
 
@@ -70,10 +72,13 @@ const verifyCloudFlare = (options = {}) => {
 
     await updateStatus(service, data._id, "veriyfing-dns");
 
-    const zone = await cloudflare.getZone(data.domain);
-
-    if (!zone) {
-      fail(service, data._id, "Could not connect to zone in CloudFlare");
+    if (!DEMO) {
+      const zone = await cloudflare.getZone(data.domain);
+      if (!zone) {
+        fail(service, data._id, "Could not connect to zone in CloudFlare");
+      }
+    } else {
+      await sleep(1 * 1000);
     }
 
     return context;
@@ -88,7 +93,11 @@ const createPath = (options = {}) => {
 
     await updateStatus(service, data._id, "creating-directory");
 
-    await exec(`mkdir -p ${data.path}`);
+    if (!DEMO) {
+      await exec(`mkdir -p ${data.path}`);
+    } else {
+      await sleep(1 * 1000);
+    }
 
     return context;
   };
@@ -102,8 +111,12 @@ const createSSHKeys = (options = {}) => {
 
     await updateStatus(service, data._id, "creating-ssh-keys");
 
-    await exec(`ssh-keygen -t rsa -b 2048 -N "" -m PEM -f ${data.key.path} && \
+    if (!DEMO) {
+      await exec(`ssh-keygen -t rsa -b 2048 -N "" -m PEM -f ${data.key.path} && \
       chmod 400 ${data.key.path}`);
+    } else {
+      await sleep(1 * 1000);
+    }
 
     return context;
   };
@@ -117,11 +130,15 @@ const createPlan = (options = {}) => {
 
     await updateStatus(service, data._id, "creating-plan");
 
-    await app.terraformExec(`terraform plan \
-            -input=false \
-            ${getParsedVars(data)} \
-            -state=${data.path}/terraform.tfstate \
-            -out=${data.path}/tfcreate`);
+    if (!DEMO) {
+      await app.terraformExec(`terraform plan \
+        -input=false \
+        ${getParsedVars(data)} \
+        -state=${data.path}/terraform.tfstate \
+        -out=${data.path}/tfcreate`);
+    } else {
+      await sleep(1 * 1000);
+    }
 
     return context;
   };
@@ -135,11 +152,19 @@ const createInstance = (options = {}) => {
 
     await updateStatus(service, data._id, "provisioning");
 
-    await app.terraformExec(`terraform apply \
-            -input=false \
-            -auto-approve \
-            -state=${data.path}/terraform.tfstate \
-            "${data.path}/tfcreate"`);
+    if (!DEMO) {
+      await app.terraformExec(`terraform apply \
+              -input=false \
+              -auto-approve \
+              -state=${data.path}/terraform.tfstate \
+              "${data.path}/tfcreate"`);
+    } else {
+      await sleep(1 * 1000);
+    }
+
+    await service.patch(data._id, {
+      provisionedAt: new Date(),
+    });
 
     return context;
   };
@@ -153,17 +178,21 @@ const fetchPublicIp = (options = {}) => {
 
     await updateStatus(service, data._id, "fetching-ip");
 
-    const tfstate = await readFile(path.join(data.path, "terraform.tfstate"));
+    if (!DEMO) {
+      const tfstate = await readFile(path.join(data.path, "terraform.tfstate"));
 
-    const publicIp = JSON.parse(tfstate).resources.find(
-      (resource) => resource.type == "aws_instance"
-    ).instances[0].attributes.public_ip;
+      const publicIp = JSON.parse(tfstate).resources.find(
+        (resource) => resource.type == "aws_instance"
+      ).instances[0].attributes.public_ip;
 
-    if (publicIp) {
-      service.patch(data._id, { publicIp });
-      context.result.publicIp = publicIp;
+      if (publicIp) {
+        service.patch(data._id, { publicIp });
+        context.result.publicIp = publicIp;
+      } else {
+        fail(service, data._id, "Could not fetch public ip");
+      }
     } else {
-      fail(service, data._id, "Could not fetch public ip");
+      await sleep(1 * 1000);
     }
   };
 };
@@ -176,11 +205,15 @@ const setDNSRecord = (options = {}) => {
 
     await updateStatus(service, data._id, "setting-dns");
 
-    if (!data.publicIp) {
-      fail(service, data._id, "Public IP not found");
-    }
+    if (!DEMO) {
+      if (!data.publicIp) {
+        fail(service, data._id, "Public IP not found");
+      }
 
-    await cloudflare.upsertRecord(data.domain, data.publicIp);
+      await cloudflare.upsertRecord(data.domain, data.publicIp);
+    } else {
+      await sleep(2 * 1000);
+    }
 
     return context;
   };
@@ -193,33 +226,38 @@ const getApp = (options = {}) => {
     const data = context.result;
     await updateStatus(service, data._id, "installing");
 
-    await sleep(30 * 1000); // Sleep 30 seconds before flooding requests
-
-    const startTime = Date.now();
-    const timeout = 5 * 60 * 1000; // 5 minutes before giving up
-
     let online;
-    let error;
-    let attemptTime = Date.now();
-    while (!online && startTime + timeout >= attemptTime) {
-      try {
-        const res = await axios.get(`https://${data.domain}`);
-        online = res.status;
-      } catch (e) {
-        online = false;
-        error = e.code;
-      } finally {
-        if (!online) {
-          await sleep(5 * 1000); // Sleep 5 seconds before another attempt
-          attemptTime = Date.now();
+    if (!DEMO) {
+      await sleep(40 * 1000); // Sleep 40 seconds before flooding requests
+
+      const startTime = Date.now();
+      const timeout = 5 * 60 * 1000; // 5 minutes before giving up
+
+      let error;
+      let attemptTime = Date.now();
+      while (!online && startTime + timeout >= attemptTime) {
+        try {
+          const res = await axios.get(`https://${data.domain}`);
+          online = res.status;
+        } catch (e) {
+          online = false;
+          error = e.code;
+        } finally {
+          if (!online) {
+            await sleep(5 * 1000); // Sleep 5 seconds before another attempt
+            attemptTime = Date.now();
+          }
         }
       }
+    } else {
+      await sleep(1 * 1000);
+      online = 200;
     }
 
     if (!online) {
       await updateStatus(service, data._id, "timeout");
     } else {
-      await updateStatus(service, data._id, "ready");
+      await updateStatus(service, data._id, "running");
       await service.patch(data._id, { readyAt: new Date() });
     }
 
@@ -234,19 +272,24 @@ const destroy = (options = {}) => {
 
     const data = await service.get(context.id);
 
-    try {
-      await updateStatus(service, context.id, "terminating-server");
-      await app.terraformExec(`terraform destroy \
-          -input=false \
-          -auto-approve \
-          ${getParsedVars(data)} \
-          -state=${data.path}/terraform.tfstate`);
-      await updateStatus(service, context.id, "removing-files");
-      await exec(`rm -r ${data.path}`);
-      await updateStatus(service, context.id, "removing-dns-records");
-      await cloudflare.deleteRecord(data.domain);
-    } catch (e) {
-      console.error(e);
+    await updateStatus(service, context.id, "terminating-server");
+
+    if (!DEMO) {
+      try {
+        await app.terraformExec(`terraform destroy \
+            -input=false \
+            -auto-approve \
+            ${getParsedVars(data)} \
+            -state=${data.path}/terraform.tfstate`);
+        await updateStatus(service, context.id, "removing-files");
+        await exec(`rm -r ${data.path}`);
+        await updateStatus(service, context.id, "removing-dns-records");
+        await cloudflare.deleteRecord(data.domain);
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      await sleep(1 * 1000);
     }
 
     await service.remove(context.id);
@@ -256,7 +299,7 @@ const destroy = (options = {}) => {
 };
 
 const handleCreate = (options = {}) => {
-  return (context) => {
+  return async (context) => {
     processHooks.call(
       this,
       [

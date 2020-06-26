@@ -2,6 +2,7 @@ const path = require("path");
 const { exec } = require("./utils");
 
 module.exports = async (app) => {
+  if (app.get("demo")) return;
   const terraformPath = path.join(app.get("appPath"), "terraform");
   app.set("terraformPath", terraformPath);
 
@@ -11,8 +12,8 @@ module.exports = async (app) => {
 
   console.log("Initializing Terraform");
 
-  process.env.TF_VAR_aws_access_key = process.env.AWS_ACCESS_KEY;
-  process.env.TF_VAR_aws_secret_key = process.env.AWS_SECRET_KEY;
+  process.env.TF_VAR_aws_access_key = process.env.AWS_ACCESS_KEY_ID;
+  process.env.TF_VAR_aws_secret_key = process.env.AWS_SECRET_ACCESS_KEY;
   process.env.TF_VAR_email_address = process.env.EMAIL;
 
   // process.env.TF_LOG = "TRACE";

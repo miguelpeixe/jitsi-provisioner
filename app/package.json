@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build:setup && npm run build:client",
+    "build:setup": "rm -rf public/*",
+    "build:client": "webpack --config webpack.config.js --mode=production"
   },
   "author": "",
   "license": "ISC",
@@ -12,11 +15,40 @@
     "@feathersjs/express": "^4.5.4",
     "@feathersjs/feathers": "^4.5.3",
     "@feathersjs/socketio": "^4.5.4",
+    "@feathersjs/socketio-client": "^4.5.4",
+    "aws-sdk": "^2.705.0",
     "axios": "^0.19.2",
     "cloudflare": "^2.7.0",
     "feathers-nedb": "^5.1.0",
+    "moment": "^2.27.0",
     "nanoid": "^3.1.10",
     "nedb": "^1.8.0",
-    "parse-domain": "^3.0.2"
+    "normalize.css": "^8.0.1",
+    "parse-domain": "^3.0.2",
+    "preact": "^10.4.4",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-select": "^3.1.0",
+    "socket.io-client": "^2.3.0",
+    "styled-components": "^5.1.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.10.3",
+    "@babel/core": "^7.10.3",
+    "@babel/plugin-proposal-class-properties": "^7.10.1",
+    "@babel/plugin-proposal-export-default-from": "^7.10.1",
+    "@babel/plugin-proposal-object-rest-spread": "^7.10.3",
+    "@babel/plugin-transform-spread": "^7.10.1",
+    "@babel/preset-env": "^7.10.3",
+    "@babel/preset-react": "^7.10.1",
+    "babel-loader": "^8.1.0",
+    "connect-history-api-fallback": "^1.6.0",
+    "css-loader": "^3.6.0",
+    "html-webpack-plugin": "^4.3.0",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-middleware": "^3.7.2",
+    "webpack-hot-middleware": "^2.25.0"
   }
 }
