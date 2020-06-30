@@ -18,6 +18,9 @@ const Container = styled.form`
     border-radius: 4px;
     margin: 0 0 1rem;
   }
+  input:last-child {
+    margin: 0;
+  }
 `;
 
 export default class Login extends Component {
@@ -52,7 +55,7 @@ export default class Login extends Component {
       <Card>
         <Container onSubmit={this._handleSubmit}>
           <Card.Header>
-            <h3>Login</h3>
+            <h3>Authenticate</h3>
           </Card.Header>
           <Card.Content>
             <input
