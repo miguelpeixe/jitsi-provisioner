@@ -41,7 +41,7 @@ const Header = styled.header`
   top: 0;
   left: 0;
   bottom: 0;
-  padding: 4rem 2rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -85,10 +85,8 @@ const Header = styled.header`
       margin: 0 0 0 0.5rem;
     }
   }
-  @media (max-width: 350px) {
+  @media (max-width: 370px) {
     font-size: 0.8em;
-    p {
-    }
   }
 `;
 
@@ -508,7 +506,7 @@ export default class App extends Component {
                           <td>{this._getPublicIp(instance)}</td>
                         </tr>
                         <tr>
-                          <th>Estimated total cost</th>
+                          <th>Estimated cost</th>
                           <td>
                             {instance.provisionedAt ? (
                               <LiveCost

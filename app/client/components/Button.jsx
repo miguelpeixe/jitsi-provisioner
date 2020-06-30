@@ -68,7 +68,7 @@ const Submit = styled.input`
 
 const Badge = styled.span`
   position: relative;
-  top: -0.1rem;
+  top: -0.05rem;
   font-size: 0.8em;
   border-radius: 4px;
   line-height: 1;

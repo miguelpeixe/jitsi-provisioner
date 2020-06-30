@@ -7,15 +7,13 @@ const Container = styled.div`
   border-radius: 4px;
   font-size: 0.9em;
   margin-top: 1rem;
-  @media (max-width: 700px) {
-    padding: 0.5rem;
-  }
 `;
 
 const Summary = styled.div`
   display: flex;
   font-size: 0.8em;
   cursor: pointer;
+  align-items: center;
   h4 {
     flex: 1 1 100%;
     margin: 0;

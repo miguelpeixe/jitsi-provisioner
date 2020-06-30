@@ -14,8 +14,7 @@ body {
     #ae1253 100%
   );
   color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, open_sanslight,
-    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", "Open Sans", Helvetica, Arial, sans-serif;
 }
 
 /* Webkit scrollbar styles */
