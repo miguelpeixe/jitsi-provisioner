@@ -27,12 +27,16 @@ export default class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: false,
       username: "",
       password: "",
     };
   }
   auth = () => {
     const { username, password } = this.state;
+    this.setState({
+      loading: true,
+    });
     client
       .authenticate({
         strategy: "local",
@@ -40,7 +44,12 @@ export default class Login extends Component {
         password,
       })
       .catch((err) => {
-        console.log("with credentials", err);
+        console.error(err.message);
+      })
+      .finally(() => {
+        this.setState({
+          loading: false,
+        });
       });
   };
   _handleSubmit = (ev) => {
@@ -51,8 +60,9 @@ export default class Login extends Component {
     this.setState({ [target.name]: target.value });
   };
   render() {
+    const { loading } = this.state;
     return (
-      <Card>
+      <Card loading={loading}>
         <Container onSubmit={this._handleSubmit}>
           <Card.Header>
             <h3>Authenticate</h3>
@@ -73,7 +83,7 @@ export default class Login extends Component {
             />
           </Card.Content>
           <Card.Footer>
-            <Button.Submit type="submit" value="Login" />
+            <Button.Submit type="submit" value="Login" disabled={loading} />
           </Card.Footer>
         </Container>
       </Card>
