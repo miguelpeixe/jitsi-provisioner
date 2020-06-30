@@ -4,7 +4,7 @@ const path = require("path");
 
 const hooks = require("./users.hooks");
 
-module.exports = (app) => {
+module.exports = async (app) => {
   const Model = new NeDB({
     filename: path.join(app.get("dbPath"), "users.db"),
     autoload: true,
@@ -15,4 +15,22 @@ module.exports = (app) => {
   const service = app.service("users");
 
   service.hooks(hooks);
+
+  const demoUser = await service.find({ query: { role: "demo" } });
+
+  if (demoUser.length) {
+    for (const user of demoUser) {
+      await service.remove(user._id);
+    }
+  }
+
+  if (app.get("demo")) {
+    console.log("Creating demo user");
+    await service.create({
+      _id: "tkNzG1CgFfoWBOtM",
+      username: "admin",
+      password: "admin",
+      role: "demo",
+    });
+  }
 };

@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import moment from "moment";
 
-moment.relativeTimeThreshold("ss"); // 44
+const moment = require("moment");
 
 export default class Timer extends Component {
   constructor(props) {
@@ -16,7 +15,7 @@ export default class Timer extends Component {
     if (now - date < 60000) {
       return `${Math.round((now - date) / 1000)} seconds`;
     } else {
-      return moment(this.props.date).fromNow();
+      return moment(this.props.date).fromNow(true);
     }
   }
   componentDidMount() {

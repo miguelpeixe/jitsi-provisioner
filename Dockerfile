@@ -1,7 +1,7 @@
 FROM node:lts-slim
 
 ENV TERRAFORM_VERSION=0.12.26
-ENV DATA_DIR=/data
+ENV DATA_PATH=/data
 
 RUN \
   apt-get update && \
@@ -18,7 +18,7 @@ RUN \
   chmod +x terraform && \
   mv terraform /usr/bin && \
   rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-  mkdir -p ${DATA_DIR}
+  mkdir -p ${DATA_PATH}
 
 COPY app /app
 

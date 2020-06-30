@@ -38,8 +38,7 @@ module.exports = function (app) {
 
   // eslint-disable-next-line no-unused-vars
   app.publish((data, hook) => {
-    // TEMPORARY
-    return app.channel("anonymous");
+    return app.channel("authenticated");
   });
 
   // Here you can also add service specific event publishers

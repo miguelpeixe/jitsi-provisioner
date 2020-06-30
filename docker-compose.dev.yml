@@ -2,13 +2,14 @@ version: "3"
 services:
   app:
     image: miguelpeixe/jitsi-provisioner
-    restart: unless-stopped
+    command: ["nodemon", "server/index.js"]
+    build: .
     ports:
-      - 80:3030
+      - 3030:3030
     volumes:
       - ${DATA_PATH}:/data
+      - ./app:/app
     environment:
-      - NODE_ENV=production
       - DEMO
       - MAX_INSTANCES
       - JWT_SECRET

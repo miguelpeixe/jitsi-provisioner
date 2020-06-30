@@ -11,20 +11,24 @@ const getZone = async (domain) => {
   let zone;
   let zonePage = 1;
   let totalZonePages = 1; // Assume there's at least one
-  while (!zone && zonePage <= totalZonePages) {
-    const zones = await cf.zones.browse({
-      page: zonePage,
-    });
-    zone = zones.result.find((zone) => {
-      const parsedZone = parseDomain(zone.name);
-      return (
-        parsedDomain.domain == parsedZone.domain &&
-        JSON.stringify(parsedDomain.topLevelDomains) ==
-          JSON.stringify(parsedZone.topLevelDomains)
-      );
-    });
-    zonePage++;
-    totalZonePages = zones.result_info.total_pages;
+  try {
+    while (!zone && zonePage <= totalZonePages) {
+      const zones = await cf.zones.browse({
+        page: zonePage,
+      });
+      zone = zones.result.find((zone) => {
+        const parsedZone = parseDomain(zone.name);
+        return (
+          parsedDomain.domain == parsedZone.domain &&
+          JSON.stringify(parsedDomain.topLevelDomains) ==
+            JSON.stringify(parsedZone.topLevelDomains)
+        );
+      });
+      zonePage++;
+      totalZonePages = zones.result_info.total_pages;
+    }
+  } catch (e) {
+    throw new Error(e);
   }
   return zone;
 };
@@ -82,8 +86,8 @@ const deleteRecord = async (domain) => {
 };
 
 module.exports = async (app) => {
+  if (app.get("demo")) return;
   // Detect app domain zone availability
-  if(app.get("demo")) return;
   const zone = await getZone(app.get("domain"));
   if (!zone) {
     throw new Error("Could not connect to CloudFlare zone");

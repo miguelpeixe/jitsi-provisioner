@@ -1,8 +1,9 @@
 const path = require("path");
 const axios = require("axios");
 const { processHooks } = require("@feathersjs/commons").hooks;
+const { authenticate } = require("@feathersjs/authentication").hooks;
 
-const DEMO = false;
+const DEMO = parseInt(process.env.DEMO);
 
 const { generateId, exec, readFile, sleep } = require("../../utils");
 const cloudflare = require("../../cloudflare");
@@ -23,6 +24,17 @@ const getParsedVars = (instance) => {
     .join(" ");
 };
 
+const checkLimit = (options = {}) => {
+  return async (context) => {
+    const max = parseInt(process.env.MAX_INSTANCES);
+    if (!max) return context;
+    const instances = await context.service.find({});
+    if (instances.length >= max)
+      throw new Error("Maximum number of instances reached");
+    return context;
+  };
+};
+
 const processInstance = (options = {}) => {
   return async (context) => {
     const { data } = context;
@@ -32,7 +44,7 @@ const processInstance = (options = {}) => {
     const domain = app.get("domain");
 
     const id = generateId();
-    const instancePath = path.join(dataPath, `instance-${id}`);
+    const instancePath = path.join(dataPath, "instances", id);
     const serverName = `server-${id}`;
 
     context.data = {
@@ -178,21 +190,24 @@ const fetchPublicIp = (options = {}) => {
 
     await updateStatus(service, data._id, "fetching-ip");
 
+    let publicIp;
+
     if (!DEMO) {
       const tfstate = await readFile(path.join(data.path, "terraform.tfstate"));
 
-      const publicIp = JSON.parse(tfstate).resources.find(
+      publicIp = JSON.parse(tfstate).resources.find(
         (resource) => resource.type == "aws_instance"
       ).instances[0].attributes.public_ip;
-
-      if (publicIp) {
-        service.patch(data._id, { publicIp });
-        context.result.publicIp = publicIp;
-      } else {
-        fail(service, data._id, "Could not fetch public ip");
-      }
     } else {
       await sleep(1 * 1000);
+      publicIp = `100.0.0.${Math.floor(Math.random() * (255 - 1 + 1) + 1)}`;
+    }
+
+    if (publicIp) {
+      service.patch(data._id, { publicIp });
+      context.result.publicIp = publicIp;
+    } else {
+      fail(service, data._id, "Could not fetch public ip");
     }
   };
 };
@@ -329,6 +344,18 @@ const handleRemove = (options = {}) => {
   };
 };
 
+const checkStability = (options = {}) => {
+  return async (context) => {
+    if (context.params.provider) {
+      const instance = await context.service.get(context.id);
+      if (!instance.status.match(/running|failed|timeout|draft/)) {
+        throw new Error("Can't remove unstable instance");
+      }
+    }
+    return context;
+  };
+};
+
 const handleCreateError = (options = {}) => {
   return async (context) => {
     console.error(context.error);
@@ -343,13 +370,13 @@ const handleRemoveError = (options = {}) => {
 
 module.exports = {
   before: {
-    all: [],
+    all: [authenticate("jwt")],
     find: [],
     get: [],
-    create: [processInstance()],
+    create: [checkLimit(), processInstance()],
     update: [],
     patch: [],
-    remove: [handleRemove()],
+    remove: [checkStability(), handleRemove()],
   },
 
   after: {

@@ -1,5 +1,7 @@
 .data
 .git
 .env
+.env.bak
 app/node_modules
 app/terraform/.terraform
+app/public

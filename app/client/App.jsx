@@ -2,35 +2,19 @@ import React, { Component } from "react";
 import styled, { css } from "styled-components";
 import Select from "react-select";
 
-import client from "client";
+// import client from "feathers";
+const client = window.API;
 
+import Content from "components/Content.jsx";
+import Button from "components/Button.jsx";
+import Card from "components/Card.jsx";
+import Login from "components/Login.jsx";
+
+import ServerInfo from "components/ServerInfo.jsx";
 import Timer from "components/Timer.jsx";
+import LiveCost from "components/LiveCost.jsx";
 
-const regions = {
-  "af-south-1": "Africa (Cape Town)",
-  "ap-east-1": "Asia-Pacific (Hong Kong)",
-  "ap-south-1": "Asia-Pacific (Mumbai)",
-  "ap-northeast-3": "Asia Pacific (Osaka-Local)",
-  "ap-northeast-2": "Asia-Pacific (Seoul)",
-  "ap-southeast-1": "Asia-Pacific (Singapore)",
-  "ap-southeast-2": "Asia-Pacific (Sydney)",
-  "ap-northeast-1": "Asia-Pacific (Tokyo)",
-  "ca-central-1": "Canada (Central)",
-  "eu-central-1": "Europe (Frankfurt)",
-  "eu-west-1": "Europe (Ireland)",
-  "eu-west-2": "Europe (London)",
-  "eu-west-3": "Europe (Paris)",
-  "eu-north-1": "Europe (Stockholm)",
-  "eu-south-1": "Europe (Milan)",
-  "me-south-1": "Middle East (Bahrain)",
-  "sa-east-1": "South America (São Paulo)",
-  "us-east-1": "US East (N. Virginia)",
-  "us-east-2": "US East (Ohio)",
-  "us-west-1": "US West (Northern California)",
-  "us-west-2": "US West (Oregon)",
-  "us-gov-west-1": "AWS GovCloud (US-West)",
-  "us-gov-east-1": "AWS GovCloud (US-East)",
-};
+import regions from "regions";
 
 const Container = styled.div`
   display: flex;
@@ -51,7 +35,7 @@ const Spacer = styled.div`
 const Header = styled.header`
   flex: 0 0 auto;
   width: 17%;
-  min-width: 200px;
+  min-width: 170px;
   position: absolute;
   top: 0;
   left: 0;
@@ -62,6 +46,8 @@ const Header = styled.header`
   align-items: flex-end;
   font-size: 0.9em;
   text-align: right;
+  border-right: 1px solid #ae1253;
+  overflow: auto;
   h1 {
     margin: 0 0 1rem;
     font-size: 1.6em;
@@ -83,239 +69,40 @@ const Header = styled.header`
     flex-direction: row;
     align-items: center;
     padding: 1rem;
+    border-right: 0;
+    margin: 0;
+    text-align: left;
     * {
       flex: 0 0 auto;
     }
     h1 {
       flex: 1 1 100%;
+      font-size: 1em;
       margin: 0;
     }
-  }
-`;
-
-const Content = styled.section`
-  overflow: auto;
-  flex: 1 1 100%;
-`;
-
-const buttonStyles = css`
-  border-radius: 4px;
-  color: #fff;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  font-size: 0.9em;
-  font-weight: 600;
-  background: #252a34;
-  border: 0;
-  cursor: pointer;
-  outline: none;
-  line-height: inherit;
-  &:hover {
-    background: #333a48;
-  }
-  &:active {
-    background: #3b4354;
-  }
-  ${(props) =>
-    props.remove &&
-    css`
-      background-color: #b70000;
-      &:hover {
-        background: #d60000;
-      }
-      &:active {
-        background: #da0000;
-      }
-    `}
-  ${(props) =>
-    props.disabled &&
-    css`
-      background-color: #ccc !important;
-      cursor: default;
-    `}
-`;
-
-const Button = styled.a`
-  ${buttonStyles}
-`;
-
-const Submit = styled.input`
-  ${buttonStyles}
-`;
-
-const InstanceList = styled.ul`
-  margin: 4rem auto;
-  padding: 0;
-  max-width: 500px;
-  list-style: none;
-`;
-
-const Instance = styled.li`
-  background: #fff;
-  color: #333;
-  border-radius: 4px;
-  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
-  margin: 0 2rem 2rem;
-  ${(props) =>
-    props.new &&
-    css`
-      background-image: linear-gradient(
-        -90deg,
-        #ffebf5 0,
-        #ffffff 50%,
-        #ffebf5 100%
-      );
-    `}
-  h3 {
-    margin: 0 0 1rem;
-    font-family: monospace;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  a {
-    color: #61b9ff;
-    text-decoration: none;
-    &:hover,
-    &:active {
-      color: #4aafff;
+    p {
+      margin: 0 0 0 0.5rem;
     }
   }
-  nav {
-    a,
-    a:active,
-    a:hover {
-      color: #fff;
-    }
-  }
-  section {
-    padding: 1rem 2rem;
-    input[type="submit"] {
-      ${buttonStyles}
-    }
-    select {
-      background: transparent;
-      border: 0;
-    }
-    table {
-      font-size: 0.9em;
-      width: 100%;
-      border-spacing: 0;
-      th,
-      td {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        padding: 0.5rem 0;
-      }
-      th {
-        font-weight: 600;
-        color: rgba(0, 0, 0, 0.4);
-      }
-      td {
-        text-align: right;
-      }
-      tr:last-child {
-        th,
-        td {
-          border-bottom: 0;
-        }
-      }
-    }
-  }
-`;
-
-const InstanceHeader = styled.header`
-  display: flex;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  margin: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-  h3 {
-    flex: 1 1 100%;
-    margin: 0;
-    color: #252a34;
-  }
-  p {
+  @media (max-width: 350px) {
     font-size: 0.8em;
-    margin: 0 0 0 1rem;
-    flex: 0 0 auto;
-    color: rgba(0, 0, 0, 0.5);
+    p {
+    }
   }
 `;
 
-const Buttons = styled.nav`
-  display: flex;
-  margin: 0;
-  padding: 1rem 1.5rem;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 0 0 4px 4px;
-  a,
-  input {
-    text-align: center;
-    flex: 1 1 100%;
-    margin: 0 0.5rem;
+const Info = styled.aside`
+  @media (max-width: 700px) {
+    display: none;
   }
 `;
-
-const InstanceInfoContainer = styled.div`
-  padding: 0.5rem 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  font-size: 0.9em;
-  margin-top: 1rem;
-  p {
-    margin: 0;
-    text-align: center;
-    font-style: italic;
-  }
-`;
-
-class InstanceInfo extends Component {
-  render() {
-    const { instance, region } = this.props;
-    console.log(instance);
-    if (!instance) return;
-    return (
-      <InstanceInfoContainer>
-        {instance.pricing[region] ? (
-          <table>
-            <tr>
-              <th>Name</th>
-              <td>{instance.prettyName}</td>
-            </tr>
-            <tr>
-              <th>vCPU count</th>
-              <td>{instance.vcpu}</td>
-            </tr>
-            <tr>
-              <th>Clock speed</th>
-              <td>{instance.clockSpeed}</td>
-            </tr>
-            <tr>
-              <th>Memory</th>
-              <td>{instance.memory} GiB</td>
-            </tr>
-            <tr>
-              <th>Network speed</th>
-              <td>{instance.network}</td>
-            </tr>
-            <tr>
-              <th>Estimated cost</th>
-              <td>
-                <strong>${instance.pricing[region]}/hour</strong>
-              </td>
-            </tr>
-          </table>
-        ) : (
-          <p>Not available</p>
-        )}
-      </InstanceInfoContainer>
-    );
-  }
-}
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
+      auth: false,
       instances: [],
       newInstance: false,
       awsInstances: [],
@@ -334,40 +121,13 @@ export default class App extends Component {
     this.service = client.service("instances");
   }
   componentDidMount() {
-    client
-      .service("aws")
-      .find()
-      .then((data) => {
-        let allOptions = [];
-        this.setState({ awsInstances: data });
-        for (const option of data) {
-          allOptions.push({
-            value: option._id,
-            label: option._id,
-          });
-        }
-
-        this.setState({
-          instanceOptions: [
-            {
-              label: "Recommended",
-              options: [
-                {
-                  label: "t3.large",
-                  value: "t3.large",
-                },
-              ],
-            },
-            {
-              label: "All options",
-              options: allOptions,
-            },
-          ],
-        });
-      });
-
-    this.service.find().then((instances) => {
-      this.setState({ instances });
+    client.on("login", (auth) => {
+      this.setState({ auth });
+      this._fetchAWS();
+      this._fetchInstances();
+    });
+    client.on("logout", () => {
+      this.setState({ auth: false, instances: [] });
     });
     this.service.on("created", (instance) => {
       this.setState({
@@ -392,11 +152,60 @@ export default class App extends Component {
       }
     });
   }
-  _getInstance = (instance = false) => {
+  _fetchAWS = () => {
+    client
+      .service("aws")
+      .find()
+      .then((data) => {
+        let allOptions = [];
+        this.setState({ awsInstances: data });
+        for (const option of data) {
+          allOptions.push({
+            value: option._id,
+            label: option._id,
+          });
+        }
+        this.setState({
+          instanceOptions: [
+            {
+              label: "Recommended",
+              options: [
+                {
+                  label: "t3.large",
+                  value: "t3.large",
+                },
+              ],
+            },
+            {
+              label: "All options",
+              options: allOptions,
+            },
+          ],
+        });
+      });
+  };
+  _fetchInstances = () => {
+    this.service
+      .find({
+        query: {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      })
+      .then((instances) => {
+        this.setState({ instances });
+      });
+  };
+  _getServer = (instance = false) => {
     const { awsInstances } = this.state;
     instance = instance || this.state.formData.type;
     if (!awsInstances.length || !instance) return;
     return awsInstances.find((item) => item._id == instance);
+  };
+  _handleLogoutClick = (ev) => {
+    ev.preventDefault();
+    client.logout();
   };
   _handleNewClick = () => (ev) => {
     ev.preventDefault();
@@ -434,14 +243,6 @@ export default class App extends Component {
     );
     return option;
   };
-  _canTerminate = (instance) => {
-    return (
-      instance.status == "draft" ||
-      instance.status == "failed" ||
-      instance.status == "running" ||
-      instance.status == "timeout"
-    );
-  };
   _getLink = (instance) => {
     if (instance.status == "running") {
       const url = `https://${instance.domain}`;
@@ -453,8 +254,21 @@ export default class App extends Component {
     }
     return "--";
   };
+  _getPublicIp = (instance) => {
+    if (instance.publicIp) {
+      return instance.publicIp;
+    }
+    return "--";
+  };
+  _canTerminate = (instance) => {
+    return instance.status.match(/draft|failed|running|timeout/);
+  };
+  _isLoading = (instance) => {
+    return !this._canTerminate(instance);
+  };
   render() {
     const {
+      auth,
       newInstance,
       regionOptions,
       instanceOptions,
@@ -465,45 +279,68 @@ export default class App extends Component {
       <Container>
         <Header>
           <h1>Jitsi Provisioner</h1>
-          {instances.length ? (
-            <Button href="#" onClick={this._handleNewClick()}>
-              New instance
-            </Button>
+          {auth && instances.length ? (
+            <p>
+              <Button href="#" onClick={this._handleNewClick()}>
+                New instance
+              </Button>
+            </p>
           ) : null}
           <Spacer />
-          <p>
-            Always remember to check{" "}
-            <a
-              href="https://aws.amazon.com/ec2/pricing/on-demand/"
-              target="_blank"
-              rel="external"
-            >
-              Amazon EC2 pricing table
-            </a>{" "}
-            and your{" "}
-            <a
-              href="https://console.aws.amazon.com/billing/home"
-              target="_blank"
-              rel="external"
-            >
-              billing dashboard
-            </a>
-            .
-          </p>
-          <p>
-            This project is experimental and has no relation to{" "}
-            <a href="https://jitsi.org/" rel="external" target="_blank">
-              Jitsi.org
-            </a>
-            .
-          </p>
+          {auth ? (
+            <p>
+              <Button href="#" onClick={this._handleLogoutClick}>
+                Logout
+              </Button>
+            </p>
+          ) : null}
+          <Info>
+            <p>
+              Always remember to check{" "}
+              <a
+                href="https://aws.amazon.com/ec2/pricing/on-demand/"
+                target="_blank"
+                rel="external"
+              >
+                Amazon EC2 pricing table
+              </a>{" "}
+              and your{" "}
+              <a
+                href="https://console.aws.amazon.com/billing/home"
+                target="_blank"
+                rel="external"
+              >
+                billing dashboard
+              </a>
+              .
+            </p>
+            <p>
+              Cost estimates provided by{" "}
+              <a
+                href="https://github.com/powdahound/ec2instances.info"
+                target="_blank"
+                rel="external"
+              >
+                ec2instances.info
+              </a>
+              . The data shown is not guaranteed to be accurate or current.
+            </p>
+            <p>
+              This project is experimental and has no relation to{" "}
+              <a href="https://jitsi.org/" rel="external" target="_blank">
+                Jitsi.org
+              </a>
+              .
+            </p>
+          </Info>
         </Header>
         <Content>
-          <InstanceList>
-            {newInstance || !instances.length ? (
-              <Instance new>
+          {!auth ? <Login /> : null}
+          <Card.List>
+            {auth && (newInstance || !instances.length) ? (
+              <Card.ListItem new>
                 <form onSubmit={this._handleSubmit}>
-                  <InstanceHeader>
+                  <Card.Header>
                     <h3>New instance</h3>
                     {instances.length ? (
                       <p>
@@ -512,8 +349,8 @@ export default class App extends Component {
                         </a>
                       </p>
                     ) : null}
-                  </InstanceHeader>
-                  <section>
+                  </Card.Header>
+                  <Card.Content>
                     <table>
                       <tr>
                         <th>Region</th>
@@ -550,20 +387,24 @@ export default class App extends Component {
                         </td>
                       </tr>
                     </table>
-                    <InstanceInfo
-                      instance={this._getInstance()}
+                    <ServerInfo
+                      full
+                      instance={this._getServer()}
                       region={formData.region}
                     />
-                  </section>
-                  <Buttons>
-                    <Submit type="submit" value="Create new instance" />
-                  </Buttons>
+                  </Card.Content>
+                  <Card.Footer>
+                    <Button.Submit type="submit" value="Create new instance" />
+                  </Card.Footer>
                 </form>
-              </Instance>
+              </Card.ListItem>
             ) : null}
             {instances.map((instance) => (
-              <Instance key={instance._id}>
-                <InstanceHeader>
+              <Card.ListItem
+                key={instance._id}
+                loading={this._isLoading(instance)}
+              >
+                <Card.Header>
                   <h3>{instance.serverName}</h3>
                   {instance.provisionedAt ? (
                     <p>
@@ -571,12 +412,12 @@ export default class App extends Component {
                     </p>
                   ) : null}
                   <p>{instance.status}</p>
-                </InstanceHeader>
-                <section>
+                </Card.Header>
+                <Card.Content>
                   <table>
                     <tr>
                       <th>Region</th>
-                      <td>{instance.region}</td>
+                      <td>{regions[instance.region]}</td>
                     </tr>
                     <tr>
                       <th>Type</th>
@@ -586,13 +427,35 @@ export default class App extends Component {
                       <th>URL</th>
                       <td>{this._getLink(instance)}</td>
                     </tr>
+                    <tr>
+                      <th>Public IP</th>
+                      <td>{this._getPublicIp(instance)}</td>
+                    </tr>
+                    <tr>
+                      <th>Estimated total cost</th>
+                      <td>
+                        {instance.provisionedAt ? (
+                          <LiveCost
+                            date={instance.provisionedAt}
+                            hourlyPrice={
+                              this._getServer(instance.type).pricing[
+                                instance.region
+                              ]
+                            }
+                          />
+                        ) : (
+                          "--"
+                        )}
+                      </td>
+                    </tr>
                   </table>
-                  <InstanceInfo
-                    instance={this._getInstance(instance.type)}
+                  <ServerInfo
+                    instance={this._getServer(instance.type)}
                     region={instance.region}
                   />
-                </section>
-                <Buttons>
+                  {/* <table></table> */}
+                </Card.Content>
+                <Card.Footer>
                   <Button
                     remove
                     disabled={!this._canTerminate(instance)}
@@ -602,6 +465,7 @@ export default class App extends Component {
                     Terminate
                   </Button>{" "}
                   <Button
+                    jitsi
                     disabled={instance.status !== "running"}
                     href={`https://${instance.domain}`}
                     target="_blank"
@@ -609,10 +473,10 @@ export default class App extends Component {
                   >
                     Launch Jitsi
                   </Button>
-                </Buttons>
-              </Instance>
+                </Card.Footer>
+              </Card.ListItem>
             ))}
-          </InstanceList>
+          </Card.List>
         </Content>
       </Container>
     );

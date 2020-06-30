@@ -2,62 +2,66 @@ const path = require("path");
 const webpack = require("webpack");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 
-const env = process.env.WEBPACK_MODE || "development";
+module.exports = (env, argv) => {
+  const entry = {
+    api: path.resolve("client/api"),
+    main: path.resolve("client/index"),
+  };
 
-let entry = [path.resolve("client")];
-
-const htmlPlugin = new HTMLWebpackPlugin({
-  template: path.resolve(__dirname, "client", "index.html"),
-  filename: "index.html",
-  inject: "body",
-});
-
-let plugins;
-
-if (env !== "production") {
-  entry = entry.concat([
-    "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=2000&overlay=false&reload=true",
-  ]);
-  plugins = [
-    htmlPlugin,
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(),
+  const plugins = [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/,
+    }),
+    new webpack.DefinePlugin({
+      DEMO: JSON.stringify(process.env.DEMO),
+      MAX_INSTANCES: JSON.stringify(process.env.MAX_INSTANCES),
+    }),
+    new HTMLWebpackPlugin({
+      template: path.resolve(__dirname, "client", "index.html"),
+      filename: "index.html",
+      inject: "body",
+    }),
   ];
-} else {
-  plugins = [htmlPlugin, new webpack.NoEmitOnErrorsPlugin()];
-}
 
-module.exports = {
-  mode: env || "development",
-  devtool: "#source-map",
-  entry,
-  resolve: {
-    alias: {
-      react: "preact/compat",
-      "react-dom/test-utils": "preact/test-utils",
-      "react-dom": "preact/compat",
+  if (!env.production) {
+    entry.hmr =
+      "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=2000&overlay=false&reload=true";
+    plugins.push(new webpack.HotModuleReplacementPlugin());
+  }
+
+  return {
+    mode: env.production ? "production" : "development",
+    devtool: "source-map",
+    entry,
+    resolve: {
+      alias: {
+        react: "preact/compat",
+        "react-dom/test-utils": "preact/test-utils",
+        "react-dom": "preact/compat",
+      },
+      modules: ["client", "node_modules"],
     },
-    modules: ["client", "node_modules"],
-  },
-  output: {
-    path: path.resolve(__dirname, "public"),
-    publicPath: "/",
-    filename: "[name]-[hash].js",
-  },
-  plugins,
-  module: {
-    rules: [
-      {
-        test: /\.js(x)?$/,
-        use: {
-          loader: "babel-loader",
+    output: {
+      path: path.resolve(__dirname, "public"),
+      publicPath: "/",
+      filename: "[name].[hash].js",
+    },
+    plugins,
+    module: {
+      rules: [
+        {
+          test: /\.js(x)?$/,
+          use: {
+            loader: "babel-loader",
+          },
+          exclude: /node_modules/,
         },
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
-      },
-    ],
-  },
+        {
+          test: /\.css$/,
+          use: ["style-loader", "css-loader"],
+        },
+      ],
+    },
+  };
 };
