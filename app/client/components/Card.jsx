@@ -18,7 +18,7 @@ const cardStyles = css`
   ${(props) =>
     props.info &&
     css`
-      font-size: 0.9em;
+      font-size: 0.8em;
       background: transparent;
       color: #fff;
       border: 2px solid rgba(0, 0, 0, 0.2);
@@ -118,6 +118,9 @@ const Content = styled.section`
   h4 {
     margin: 0;
     font-weight: 600;
+  }
+  *:last-child {
+    margin-bottom: 0;
   }
   @media (max-width: 700px) {
     padding: 1rem;
