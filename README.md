@@ -4,6 +4,11 @@ A lightweight app that deploys [Jitsi Meet](https://jitsi.org/) servers in the c
 
 This app is built using [Featherjs](https://feathersjs.com/) with [NeDB](https://github.com/louischatriot/nedb), [Terraform](https://www.terraform.io/), [CloudFlare Node API](https://github.com/cloudflare/node-cloudflare) and [ec2instances.info](https://github.com/powdahound/ec2instances.info) for AWS instance types and cost estimates database.
 
+You can see a demo at https://meet.peixe.co, authenticate with:
+
+Username: admin
+Password: admin
+
 ## Requirements
 
 - [Amazon Web Services](https://aws.amazon.com/) account
