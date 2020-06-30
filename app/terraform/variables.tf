@@ -34,7 +34,7 @@ variable "email_address" {
   description = "Email to use for the certificate generation"
   default     = ""
 }
-variable "domain_name" {
-  description = "Domain of the Jitsi Server"
+variable "hostname" {
+  description = "Hostname of the Jitsi Server"
   default     = ""
 }

@@ -28,3 +28,15 @@ module.exports.readFile = function readFile(path) {
 module.exports.sleep = function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
+module.exports.dnsLookup = function dnsLookup(hostname) {
+  const lookup = require("dns").lookup;
+  return new Promise((resolve, reject) => {
+    lookup(hostname, (err, address, family) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ address, family });
+      }
+    });
+  });
+};

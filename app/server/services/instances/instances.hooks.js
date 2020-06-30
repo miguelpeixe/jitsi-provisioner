@@ -3,10 +3,10 @@ const axios = require("axios");
 const { processHooks } = require("@feathersjs/commons").hooks;
 const { authenticate } = require("@feathersjs/authentication").hooks;
 
-const DEMO = parseInt(process.env.DEMO);
-
-const { generateId, exec, readFile, sleep } = require("../../utils");
+const { generateId, exec, readFile, sleep, dnsLookup } = require("../../utils");
 const cloudflare = require("../../cloudflare");
+
+const DEMO = parseInt(process.env.DEMO);
 
 const updateStatus = async (service, id, status) => {
   return await service.patch(id, { status });
@@ -45,21 +45,22 @@ const processInstance = (options = {}) => {
 
     const id = generateId();
     const instancePath = path.join(dataPath, "instances", id);
-    const serverName = `server-${id}`;
+    const name = `server-${id}`;
+    const hostname = `${name}.${domain}`;
 
     context.data = {
       _id: id,
+      name: name,
+      hostname: hostname,
       status: "draft",
       createdAt: new Date(),
       region: data.region || "sa-east-1",
       type: data.type || "t3.large",
       path: instancePath,
-      serverName: serverName,
       key: {
         path: path.join(instancePath, "key.pem"),
-        name: `jitsi-${serverName}`,
+        name: `jitsi-${name}`,
       },
-      domain: `${serverName}.${domain}`,
     };
 
     context.data.terraformVars = {
@@ -68,7 +69,7 @@ const processInstance = (options = {}) => {
       ssh_key_name: context.data.key.name,
       ssh_key_path: context.data.key.path,
       ssh_pubkey_path: `${context.data.key.path}.pub`,
-      domain_name: context.data.domain,
+      hostname: context.data.hostname,
       security_group_name: `jitsi-${context.data.serverName}`,
     };
 
@@ -85,9 +86,13 @@ const verifyCloudFlare = (options = {}) => {
     await updateStatus(service, data._id, "veriyfing-dns");
 
     if (!DEMO) {
-      const zone = await cloudflare.getZone(data.domain);
+      const zone = await cloudflare.getZone(data.hostname);
       if (!zone) {
-        fail(service, data._id, "Could not connect to zone in CloudFlare");
+        await fail(
+          service,
+          data._id,
+          "Could not connect to zone in CloudFlare"
+        );
       }
     } else {
       await sleep(1 * 1000);
@@ -207,7 +212,7 @@ const fetchPublicIp = (options = {}) => {
       service.patch(data._id, { publicIp });
       context.result.publicIp = publicIp;
     } else {
-      fail(service, data._id, "Could not fetch public ip");
+      await fail(service, data._id, "Could not fetch public ip");
     }
   };
 };
@@ -222,10 +227,10 @@ const setDNSRecord = (options = {}) => {
 
     if (!DEMO) {
       if (!data.publicIp) {
-        fail(service, data._id, "Public IP not found");
+        await fail(service, data._id, "Public IP not found");
       }
 
-      await cloudflare.upsertRecord(data.domain, data.publicIp);
+      await cloudflare.upsertRecord(data.hostname, data.publicIp);
     } else {
       await sleep(2 * 1000);
     }
@@ -234,17 +239,59 @@ const setDNSRecord = (options = {}) => {
   };
 };
 
-const getApp = (options = {}) => {
+const waitDNS = (options = {}) => {
   return async (context) => {
     const app = context.app;
     const service = context.service;
     const data = context.result;
-    await updateStatus(service, data._id, "installing");
+
+    await updateStatus(service, data._id, "waiting-dns");
+
+    if (!DEMO) {
+      if (!data.publicIp) {
+        await fail(service, data._id, "Public IP not found");
+      }
+
+      const startTime = Date.now();
+      const timeout = 5 * 60 * 1000; // 5 minutes before giving up
+
+      await sleep(40 * 1000); // Sleep for 40 seconds before flooding dns lookups
+
+      let error;
+      let address;
+      let attemptTime = Date.now();
+      while (address != data.publicIp && startTime + timeout >= attemptTime) {
+        try {
+          const res = await dnsLookup(data.hostname);
+          address = res.address;
+        } catch (e) {
+          address = false;
+          error = e.code;
+        } finally {
+          await sleep(5 * 1000); // Wait 5 seconds before another lookup
+          attemptTime = Date.now();
+        }
+      }
+
+      if (address != data.publicIp) {
+        await updateStatus(service, data._id, "timeout");
+        throw new Error("Could not resolve hostname");
+      }
+    } else {
+      await sleep(2 * 1000);
+    }
+  };
+};
+
+const waitApp = (options = {}) => {
+  return async (context) => {
+    const app = context.app;
+    const service = context.service;
+    const data = context.result;
+    await updateStatus(service, data._id, "finishing-installation");
 
     let online;
     if (!DEMO) {
-      await sleep(40 * 1000); // Sleep 40 seconds before flooding requests
-
       const startTime = Date.now();
       const timeout = 5 * 60 * 1000; // 5 minutes before giving up
 
@@ -252,14 +299,14 @@ const getApp = (options = {}) => {
       let attemptTime = Date.now();
       while (!online && startTime + timeout >= attemptTime) {
         try {
-          const res = await axios.get(`https://${data.domain}`);
+          const res = await axios.get(`https://${data.hostname}`);
           online = res.status;
         } catch (e) {
           online = false;
           error = e.code;
         } finally {
           if (!online) {
-            await sleep(5 * 1000); // Sleep 5 seconds before another attempt
+            await sleep(5 * 1000); // Wait 5 seconds before another fetch
             attemptTime = Date.now();
           }
         }
@@ -299,7 +346,7 @@ const destroy = (options = {}) => {
         await updateStatus(service, context.id, "removing-files");
         await exec(`rm -r ${data.path}`);
         await updateStatus(service, context.id, "removing-dns-records");
-        await cloudflare.deleteRecord(data.domain);
+        await cloudflare.deleteRecord(data.hostname);
       } catch (e) {
         console.error(e);
       }
@@ -325,7 +372,8 @@ const handleCreate = (options = {}) => {
         createInstance(),
         fetchPublicIp(),
         setDNSRecord(),
-        getApp(),
+        waitDNS(),
+        waitApp(),
       ],
       context
     );

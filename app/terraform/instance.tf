@@ -30,7 +30,7 @@ resource "aws_instance" "jitsi-server" {
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.jitsi-security-group.id]
   key_name               = var.ssh_key_name
-  user_data              = templatefile("install.tpl", { email_address = var.email_address, domain_name = var.domain_name })
+  user_data              = templatefile("install.tpl", { email_address = var.email_address, hostname = var.hostname })
   tags = {
     Name = "jitsi-meet-server"
   }

@@ -10,8 +10,8 @@ module.exports = (env, argv) => {
 
   const plugins = [
     new webpack.DefinePlugin({
-      DEMO: JSON.stringify(process.env.DEMO),
-      MAX_INSTANCES: JSON.stringify(process.env.MAX_INSTANCES),
+      DEMO: JSON.stringify(!!parseInt(process.env.DEMO)),
+      MAX_INSTANCES: JSON.stringify(parseInt(process.env.MAX_INSTANCES)),
     }),
     new webpack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,

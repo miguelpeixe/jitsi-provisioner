@@ -17,3 +17,7 @@ services:
       - CLOUDFLARE_SECRET_KEY
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
+    network_mode: bridge
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4

@@ -283,7 +283,7 @@ export default class App extends Component {
   };
   _getLink = (instance) => {
     if (instance.status == "running") {
-      const url = `https://${instance.domain}`;
+      const url = `https://${instance.hostname}`;
       return (
         <a href={url} rel="external" target="_blank">
           {url}
@@ -481,7 +481,7 @@ export default class App extends Component {
                     loading={this._isLoading(instance)}
                   >
                     <Card.Header>
-                      <h3>{instance.serverName}</h3>
+                      <h3>{instance.name}</h3>
                       {instance.provisionedAt ? (
                         <p>
                           <Timer date={instance.provisionedAt} />
@@ -542,7 +542,7 @@ export default class App extends Component {
                       <Button
                         jitsi
                         disabled={instance.status !== "running"}
-                        href={`https://${instance.domain}`}
+                        href={`https://${instance.hostname}`}
                         target="_blank"
                         rel="external"
                       >

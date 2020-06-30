@@ -1,9 +1,8 @@
 version: "3"
 services:
   app:
-    image: miguelpeixe/jitsi-provisioner
-    command: ["nodemon", "server/index.js"]
     build: .
+    command: ["nodemon", "server/index.js"]
     ports:
       - 3030:3030
     volumes:
@@ -18,3 +17,7 @@ services:
       - CLOUDFLARE_SECRET_KEY
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
+    network_mode: bridge
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
