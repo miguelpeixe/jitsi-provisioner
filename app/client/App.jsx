@@ -119,6 +119,7 @@ export default class App extends Component {
       },
     };
     this.service = client.service("instances");
+    this.contentRef = React.createRef();
   }
   componentDidMount() {
     client.on("login", (auth) => {
@@ -210,6 +211,7 @@ export default class App extends Component {
   _handleNewClick = () => (ev) => {
     ev.preventDefault();
     this.setState({ newInstance: true });
+    this.contentRef.current.base.scrollTop = 0;
   };
   _handleCloseNewClick = (ev) => {
     ev.preventDefault();
@@ -334,7 +336,7 @@ export default class App extends Component {
             </p>
           </Info>
         </Header>
-        <Content>
+        <Content id="content" ref={this.contentRef}>
           {!auth ? <Login /> : null}
           <Card.List>
             {auth && (newInstance || !instances.length) ? (
@@ -453,7 +455,6 @@ export default class App extends Component {
                     instance={this._getServer(instance.type)}
                     region={instance.region}
                   />
-                  {/* <table></table> */}
                 </Card.Content>
                 <Card.Footer>
                   <Button
@@ -463,7 +464,7 @@ export default class App extends Component {
                     onClick={this._handleRemoveClick(instance)}
                   >
                     Terminate
-                  </Button>{" "}
+                  </Button>
                   <Button
                     jitsi
                     disabled={instance.status !== "running"}

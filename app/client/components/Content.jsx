@@ -21,10 +21,11 @@ const Content = styled.div`
   }
 `;
 
-export default function (props) {
+export default function (p) {
+  const { children, ...props } = p;
   return (
-    <Container>
-      <Content>{this.props.children}</Content>
+    <Container {...props}>
+      <Content>{children}</Content>
     </Container>
   );
 }

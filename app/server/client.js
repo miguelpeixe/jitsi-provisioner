@@ -3,7 +3,6 @@ const path = require("path");
 
 module.exports = (app) => {
   const env = app.get("env");
-  console.log(env);
   const webpackConfig = require("../webpack.config")({
     production: env == "production",
   });
