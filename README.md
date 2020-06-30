@@ -6,8 +6,10 @@ This app is built using [Featherjs](https://feathersjs.com/) with [NeDB](https:/
 
 You can see a demo at https://meet.peixe.co, authenticate with:
 
+```
 Username: admin
 Password: admin
+```
 
 ## Requirements
 
