@@ -80,6 +80,6 @@ module.exports = async (app) => {
     if (hasAny.length) shouldUpdate = false;
   }
   if (shouldUpdate) {
-    // await updateAws();
+    await updateAws();
   }
 };
