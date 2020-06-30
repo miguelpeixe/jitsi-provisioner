@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build && node server/index.js",
     "build": "npm run build:setup && npm run build:client",
     "build:setup": "rm -rf public/*",
     "build:client": "webpack --config webpack.config.js --env.production"
