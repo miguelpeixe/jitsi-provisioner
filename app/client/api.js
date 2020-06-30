@@ -9,10 +9,6 @@ const client = feathers();
 client.configure(socketio(socket));
 client.configure(auth({ storageKey: "auth" }));
 
-client.reAuthenticate().catch((err) => {
-  client.logout();
-});
-
 window.API = client;
 
 export default client;

@@ -28,6 +28,7 @@ const cardStyles = css`
   ${(props) =>
     props.loading &&
     css`
+      background-image: none;
       animation-name: loading;
       animation-duration: 0.75s;
       animation-timing-function: linear;

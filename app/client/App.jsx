@@ -6,6 +6,7 @@ import Select from "react-select";
 const client = window.API;
 
 import Content from "components/Content.jsx";
+import Loading from "components/Loading.jsx";
 import Button from "components/Button.jsx";
 import Card from "components/Card.jsx";
 import Login from "components/Login.jsx";
@@ -101,11 +102,16 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: true,
-      auth: false,
-      instances: [],
+      // state
+      ready: false,
+      loading: false,
+      creating: false,
       newInstance: false,
+      // data
+      auth: null,
+      instances: [],
       awsInstances: [],
+      // form options
       regionOptions: Object.keys(regions).map((value) => {
         return {
           label: regions[value],
@@ -113,6 +119,7 @@ export default class App extends Component {
         };
       }),
       instanceOptions: [],
+      // form data
       formData: {
         region: "us-east-1",
         type: "t3.large",
@@ -122,6 +129,16 @@ export default class App extends Component {
     this.contentRef = React.createRef();
   }
   componentDidMount() {
+    client
+      .reAuthenticate()
+      .catch((err) => {
+        client.logout();
+      })
+      .finally(() => {
+        this.setState({
+          ready: true,
+        });
+      });
     client.on("login", (auth) => {
       this.setState({ auth });
       this._fetchAWS();
@@ -186,6 +203,9 @@ export default class App extends Component {
       });
   };
   _fetchInstances = () => {
+    this.setState({
+      loading: true,
+    });
     this.service
       .find({
         query: {
@@ -196,6 +216,11 @@ export default class App extends Component {
       })
       .then((instances) => {
         this.setState({ instances });
+      })
+      .finally(() => {
+        this.setState({
+          loading: false,
+        });
       });
   };
   _getServer = (instance = false) => {
@@ -220,9 +245,19 @@ export default class App extends Component {
   _handleSubmit = (ev) => {
     ev.preventDefault();
     const { formData } = this.state;
-    this.service.create(formData).then(() => {
-      this.setState({ newInstance: false });
+    this.setState({
+      creating: true,
     });
+    this.service
+      .create(formData)
+      .then(() => {
+        this.setState({ newInstance: false });
+      })
+      .finally(() => {
+        this.setState({
+          creating: false,
+        });
+      });
   };
   _handleCreateClick = () => (ev) => {
     ev.preventDefault();
@@ -270,13 +305,19 @@ export default class App extends Component {
   };
   render() {
     const {
-      auth,
+      ready,
+      loading,
+      creating,
       newInstance,
+      auth,
+      instances,
       regionOptions,
       instanceOptions,
       formData,
-      instances,
     } = this.state;
+    if (!ready) {
+      return <Loading full />;
+    }
     return (
       <Container>
         <Header>
@@ -337,147 +378,157 @@ export default class App extends Component {
           </Info>
         </Header>
         <Content id="content" ref={this.contentRef}>
-          {!auth ? <Login /> : null}
-          <Card.List>
-            {auth && (newInstance || !instances.length) ? (
-              <Card.ListItem new>
-                <form onSubmit={this._handleSubmit}>
-                  <Card.Header>
-                    <h3>New instance</h3>
-                    {instances.length ? (
-                      <p>
-                        <a href="#" onClick={this._handleCloseNewClick}>
-                          Cancel
-                        </a>
-                      </p>
-                    ) : null}
-                  </Card.Header>
-                  <Card.Content>
-                    <table>
-                      <tr>
-                        <th>Region</th>
-                        <td>
-                          <Select
-                            options={regionOptions}
-                            onChange={(selected) => {
-                              this.setState({
-                                formData: {
-                                  ...formData,
-                                  region: selected.value,
-                                },
-                              });
-                            }}
-                            value={this._getRegionValue()}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Type</th>
-                        <td>
-                          <Select
-                            options={instanceOptions}
-                            onChange={(selected) => {
-                              this.setState({
-                                formData: {
-                                  ...formData,
-                                  type: selected.value,
-                                },
-                              });
-                            }}
-                            value={this._getTypeValue()}
-                          />
-                        </td>
-                      </tr>
-                    </table>
-                    <ServerInfo
-                      full
-                      instance={this._getServer()}
-                      region={formData.region}
-                    />
-                  </Card.Content>
-                  <Card.Footer>
-                    <Button.Submit type="submit" value="Create new instance" />
-                  </Card.Footer>
-                </form>
-              </Card.ListItem>
-            ) : null}
-            {instances.map((instance) => (
-              <Card.ListItem
-                key={instance._id}
-                loading={this._isLoading(instance)}
-              >
-                <Card.Header>
-                  <h3>{instance.serverName}</h3>
-                  {instance.provisionedAt ? (
-                    <p>
-                      <Timer date={instance.provisionedAt} />
-                    </p>
-                  ) : null}
-                  <p>{instance.status}</p>
-                </Card.Header>
-                <Card.Content>
-                  <table>
-                    <tr>
-                      <th>Region</th>
-                      <td>{regions[instance.region]}</td>
-                    </tr>
-                    <tr>
-                      <th>Type</th>
-                      <td>{instance.type}</td>
-                    </tr>
-                    <tr>
-                      <th>URL</th>
-                      <td>{this._getLink(instance)}</td>
-                    </tr>
-                    <tr>
-                      <th>Public IP</th>
-                      <td>{this._getPublicIp(instance)}</td>
-                    </tr>
-                    <tr>
-                      <th>Estimated total cost</th>
-                      <td>
-                        {instance.provisionedAt ? (
-                          <LiveCost
-                            date={instance.provisionedAt}
-                            hourlyPrice={
-                              this._getServer(instance.type).pricing[
-                                instance.region
-                              ]
-                            }
-                          />
-                        ) : (
-                          "--"
-                        )}
-                      </td>
-                    </tr>
-                  </table>
-                  <ServerInfo
-                    instance={this._getServer(instance.type)}
-                    region={instance.region}
-                  />
-                </Card.Content>
-                <Card.Footer>
-                  <Button
-                    remove
-                    disabled={!this._canTerminate(instance)}
-                    href="#"
-                    onClick={this._handleRemoveClick(instance)}
+          {loading ? (
+            <Loading full />
+          ) : (
+            <>
+              {!auth ? <Login /> : null}
+              <Card.List>
+                {auth && (newInstance || !instances.length) ? (
+                  <Card.ListItem new loading={creating}>
+                    <form onSubmit={this._handleSubmit}>
+                      <Card.Header>
+                        <h3>New instance</h3>
+                        {instances.length ? (
+                          <p>
+                            <a href="#" onClick={this._handleCloseNewClick}>
+                              Cancel
+                            </a>
+                          </p>
+                        ) : null}
+                      </Card.Header>
+                      <Card.Content>
+                        <table>
+                          <tr>
+                            <th>Region</th>
+                            <td>
+                              <Select
+                                options={regionOptions}
+                                onChange={(selected) => {
+                                  this.setState({
+                                    formData: {
+                                      ...formData,
+                                      region: selected.value,
+                                    },
+                                  });
+                                }}
+                                value={this._getRegionValue()}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Type</th>
+                            <td>
+                              <Select
+                                options={instanceOptions}
+                                onChange={(selected) => {
+                                  this.setState({
+                                    formData: {
+                                      ...formData,
+                                      type: selected.value,
+                                    },
+                                  });
+                                }}
+                                value={this._getTypeValue()}
+                              />
+                            </td>
+                          </tr>
+                        </table>
+                        <ServerInfo
+                          full
+                          instance={this._getServer()}
+                          region={formData.region}
+                        />
+                      </Card.Content>
+                      <Card.Footer>
+                        <Button.Submit
+                          disabled={creating}
+                          type="submit"
+                          value="Create new instance"
+                        />
+                      </Card.Footer>
+                    </form>
+                  </Card.ListItem>
+                ) : null}
+                {instances.map((instance) => (
+                  <Card.ListItem
+                    key={instance._id}
+                    loading={this._isLoading(instance)}
                   >
-                    Terminate
-                  </Button>
-                  <Button
-                    jitsi
-                    disabled={instance.status !== "running"}
-                    href={`https://${instance.domain}`}
-                    target="_blank"
-                    rel="external"
-                  >
-                    Launch Jitsi
-                  </Button>
-                </Card.Footer>
-              </Card.ListItem>
-            ))}
-          </Card.List>
+                    <Card.Header>
+                      <h3>{instance.serverName}</h3>
+                      {instance.provisionedAt ? (
+                        <p>
+                          <Timer date={instance.provisionedAt} />
+                        </p>
+                      ) : null}
+                      <p>{instance.status}</p>
+                    </Card.Header>
+                    <Card.Content>
+                      <table>
+                        <tr>
+                          <th>Region</th>
+                          <td>{regions[instance.region]}</td>
+                        </tr>
+                        <tr>
+                          <th>Type</th>
+                          <td>{instance.type}</td>
+                        </tr>
+                        <tr>
+                          <th>URL</th>
+                          <td>{this._getLink(instance)}</td>
+                        </tr>
+                        <tr>
+                          <th>Public IP</th>
+                          <td>{this._getPublicIp(instance)}</td>
+                        </tr>
+                        <tr>
+                          <th>Estimated total cost</th>
+                          <td>
+                            {instance.provisionedAt ? (
+                              <LiveCost
+                                date={instance.provisionedAt}
+                                hourlyPrice={
+                                  this._getServer(instance.type).pricing[
+                                    instance.region
+                                  ]
+                                }
+                              />
+                            ) : (
+                              "--"
+                            )}
+                          </td>
+                        </tr>
+                      </table>
+                      <ServerInfo
+                        instance={this._getServer(instance.type)}
+                        region={instance.region}
+                      />
+                    </Card.Content>
+                    <Card.Footer>
+                      <Button
+                        remove
+                        disabled={!this._canTerminate(instance)}
+                        href="#"
+                        onClick={this._handleRemoveClick(instance)}
+                      >
+                        Terminate
+                      </Button>
+                      <Button
+                        jitsi
+                        disabled={instance.status !== "running"}
+                        href={`https://${instance.domain}`}
+                        target="_blank"
+                        rel="external"
+                      >
+                        Launch Jitsi
+                      </Button>
+                    </Card.Footer>
+                  </Card.ListItem>
+                ))}
+              </Card.List>
+            </>
+          )}
         </Content>
       </Container>
     );
