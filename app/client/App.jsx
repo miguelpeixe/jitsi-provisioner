@@ -235,6 +235,7 @@ export default class App extends Component {
   };
   _handleNewClick = () => (ev) => {
     ev.preventDefault();
+    if (!this._canCreate()) return;
     this.setState({ newInstance: true });
     this.contentRef.current.base.scrollTop = 0;
   };
@@ -297,6 +298,10 @@ export default class App extends Component {
     }
     return "--";
   };
+  _canCreate = () => {
+    const { instances } = this.state;
+    return !window.MAX_INSTANCES || instances.length < window.MAX_INSTANCES;
+  };
   _canTerminate = (instance) => {
     return instance.status.match(/draft|failed|running|timeout/);
   };
@@ -324,8 +329,17 @@ export default class App extends Component {
           <h1>Jitsi Provisioner</h1>
           {auth && instances.length ? (
             <p>
-              <Button href="#" onClick={this._handleNewClick()}>
+              <Button
+                href="#"
+                disabled={!this._canCreate()}
+                onClick={this._handleNewClick()}
+              >
                 New instance
+                {window.MAX_INSTANCES ? (
+                  <Button.Badge>
+                    {instances.length}/{window.MAX_INSTANCES}
+                  </Button.Badge>
+                ) : null}
               </Button>
             </p>
           ) : null}
@@ -382,6 +396,14 @@ export default class App extends Component {
             <Loading full />
           ) : (
             <>
+              {window.DEMO ? (
+                <Card info>
+                  <Card.Content>
+                    <h4>Demo mode is enabled</h4>
+                    No instances are actually created.
+                  </Card.Content>
+                </Card>
+              ) : null}
               {!auth ? <Login /> : null}
               <Card.List>
                 {auth && (newInstance || !instances.length) ? (

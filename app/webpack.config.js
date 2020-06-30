@@ -9,13 +9,13 @@ module.exports = (env, argv) => {
   };
 
   const plugins = [
+    new webpack.DefinePlugin({
+      DEMO: JSON.stringify(!!process.env.DEMO),
+      MAX_INSTANCES: JSON.stringify(process.env.MAX_INSTANCES),
+    }),
     new webpack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment$/,
-    }),
-    new webpack.DefinePlugin({
-      DEMO: JSON.stringify(process.env.DEMO),
-      MAX_INSTANCES: JSON.stringify(process.env.MAX_INSTANCES),
     }),
     new HTMLWebpackPlugin({
       template: path.resolve(__dirname, "client", "index.html"),

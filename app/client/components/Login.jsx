@@ -28,8 +28,8 @@ export default class Login extends Component {
     super(props);
     this.state = {
       loading: false,
-      username: "",
-      password: "",
+      username: window.DEMO ? "admin" : "",
+      password: window.DEMO ? "admin" : "",
     };
   }
   auth = () => {
@@ -60,7 +60,7 @@ export default class Login extends Component {
     this.setState({ [target.name]: target.value });
   };
   render() {
-    const { loading } = this.state;
+    const { loading, username, password } = this.state;
     return (
       <Card loading={loading}>
         <Container onSubmit={this._handleSubmit}>
@@ -68,18 +68,25 @@ export default class Login extends Component {
             <h3>Authenticate</h3>
           </Card.Header>
           <Card.Content>
+            {window.DEMO ? (
+              <p>
+                Authenticate with <strong>admin/admin</strong> credentials.
+              </p>
+            ) : null}
             <input
               type="text"
               name="username"
               onChange={this._handleChange}
               placeholder="Username"
               autocapitalize="none"
+              value={username}
             />
             <input
               type="password"
               name="password"
               onChange={this._handleChange}
               placeholder="Password"
+              value={password}
             />
           </Card.Content>
           <Card.Footer>

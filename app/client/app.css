@@ -41,7 +41,11 @@ h4 {
   font-weight: 500;
 }
 
-.not-found {
+p {
+  margin: 0 0 1rem;
+}
+
+nar.not-found {
   text-align: center;
   margin: 0;
   padding: 2rem;

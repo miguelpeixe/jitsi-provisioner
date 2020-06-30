@@ -5,7 +5,7 @@ const buttonStyles = css`
   border-radius: 4px;
   color: #fff;
   text-decoration: none;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.8rem;
   font-size: 0.9em;
   font-weight: 600;
   border: 0;
@@ -52,9 +52,9 @@ const buttonStyles = css`
   ${(props) =>
     props.disabled &&
     css`
-      background-color: #ccc !important;
+      background-color: rgba(0, 0, 0, 0.1) !important;
       background-image: none !important;
-      cursor: default;
+      cursor: not-allowed;
     `}
 `;
 
@@ -66,6 +66,21 @@ const Submit = styled.input`
   ${buttonStyles}
 `;
 
+const Badge = styled.span`
+  position: relative;
+  top: -0.1rem;
+  font-size: 0.8em;
+  border-radius: 4px;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.3rem 0.3rem;
+  display: inline-block;
+  margin-left: 0.5rem;
+  letter-spacing: 0.08rem;
+  font-weight: normal;
+`;
+
 Button.Submit = Submit;
+Button.Badge = Badge;
 
 export default Button;

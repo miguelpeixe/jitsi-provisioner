@@ -16,6 +16,15 @@ const cardStyles = css`
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
   margin: 0 2rem 2rem;
   ${(props) =>
+    props.info &&
+    css`
+      font-size: 0.9em;
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+    `}
+  ${(props) =>
     props.new &&
     css`
       background-image: linear-gradient(
@@ -103,6 +112,12 @@ const Content = styled.section`
         border-bottom: 0;
       }
     }
+  }
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+    font-weight: 600;
   }
   @media (max-width: 700px) {
     padding: 1rem;
