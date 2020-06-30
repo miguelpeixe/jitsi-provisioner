@@ -125,7 +125,7 @@ const Content = styled.section`
   @media (max-width: 700px) {
     padding: 1rem;
   }
-  @media (max-width: 600px) {
+  @media (max-width: 370px) {
     font-size: 0.8em;
   }
 `;
