@@ -29,7 +29,7 @@ $ cp env.example .env
 Generate JWT secret by running the random secret generator:
 
 ```
-$ ./gen-secrets.sh`
+$ ./gen-secrets.sh
 ```
 
 Edit `.env` and set your [AWS Access Key](https://console.aws.amazon.com/iam/home?#/security_credentials), [CloudFlare Global API Key](https://dash.cloudflare.com/profile/api-tokens) and other required information.
