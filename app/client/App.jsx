@@ -399,8 +399,7 @@ export default class App extends Component {
                   <Card.Content>
                     <h4>Demo mode is enabled</h4>
                     <p>
-                      Fake data is generated and no instances are being
-                      deployed.
+                      Fake data is generated and no instance is deployed.
                     </p>
                   </Card.Content>
                 </Card>
