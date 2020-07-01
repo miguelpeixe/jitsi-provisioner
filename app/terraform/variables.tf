@@ -1,3 +1,7 @@
+variable "name" {
+  description = "Server name"
+  default = ""
+}
 variable "aws_access_key" {
   description = "Access key from AWS"
   default = ""

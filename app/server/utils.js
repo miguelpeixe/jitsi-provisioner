@@ -1,6 +1,6 @@
 module.exports.generateId = require("nanoid").customAlphabet(
   "1234567890abcdef",
-  5
+  6
 );
 module.exports.exec = function exec(cmd, opts) {
   const exec = require("child_process").exec;

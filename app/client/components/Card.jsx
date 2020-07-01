@@ -102,6 +102,7 @@ const Content = styled.section`
     th {
       font-weight: 600;
       color: rgba(0, 0, 0, 0.4);
+      text-align: left;
     }
     td {
       text-align: right;

@@ -64,6 +64,7 @@ const processInstance = (options = {}) => {
     };
 
     context.data.terraformVars = {
+      name: `jitsi-${name}`,
       aws_region: context.data.region,
       instance_type: context.data.type,
       ssh_key_name: context.data.key.name,

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import styled, { css } from "styled-components";
-import Select from "react-select";
 
 // import client from "feathers";
 const client = window.API;
@@ -10,10 +9,8 @@ import Loading from "components/Loading.jsx";
 import Button from "components/Button.jsx";
 import Card from "components/Card.jsx";
 import Login from "components/Login.jsx";
-
-import ServerInfo from "components/ServerInfo.jsx";
-import Timer from "components/Timer.jsx";
-import LiveCost from "components/LiveCost.jsx";
+import NewInstance from "components/NewInstance.jsx";
+import InstanceList from "components/InstanceList.jsx";
 
 import regions from "regions";
 
@@ -103,25 +100,11 @@ export default class App extends Component {
       // state
       ready: false,
       loading: false,
-      creating: false,
       newInstance: false,
       // data
       auth: null,
       instances: [],
       awsInstances: [],
-      // form options
-      regionOptions: Object.keys(regions).map((value) => {
-        return {
-          label: regions[value],
-          value,
-        };
-      }),
-      instanceOptions: [],
-      // form data
-      formData: {
-        region: "us-east-1",
-        type: "t3.large",
-      },
     };
     this.service = client.service("instances");
     this.contentRef = React.createRef();
@@ -175,29 +158,6 @@ export default class App extends Component {
       .then((data) => {
         let allOptions = [];
         this.setState({ awsInstances: data });
-        for (const option of data) {
-          allOptions.push({
-            value: option._id,
-            label: option._id,
-          });
-        }
-        this.setState({
-          instanceOptions: [
-            {
-              label: "Recommended",
-              options: [
-                {
-                  label: "t3.large",
-                  value: "t3.large",
-                },
-              ],
-            },
-            {
-              label: "All options",
-              options: allOptions,
-            },
-          ],
-        });
       });
   };
   _fetchInstances = () => {
@@ -221,15 +181,13 @@ export default class App extends Component {
         });
       });
   };
-  _getServer = (instance = false) => {
-    const { awsInstances } = this.state;
-    instance = instance || this.state.formData.type;
-    if (!awsInstances.length || !instance) return;
-    return awsInstances.find((item) => item._id == instance);
-  };
   _handleLogoutClick = (ev) => {
     ev.preventDefault();
     client.logout();
+  };
+  _canCreate = () => {
+    const { instances } = this.state;
+    return !window.MAX_INSTANCES || instances.length < window.MAX_INSTANCES;
   };
   _handleNewClick = () => (ev) => {
     ev.preventDefault();
@@ -237,86 +195,22 @@ export default class App extends Component {
     this.setState({ newInstance: true });
     this.contentRef.current.base.scrollTop = 0;
   };
-  _handleCloseNewClick = (ev) => {
-    ev.preventDefault();
+  _handleSubmit = (ev) => {
+    if (ev && ev.preventDefault) ev.preventDefault();
     this.setState({ newInstance: false });
   };
-  _handleSubmit = (ev) => {
-    ev.preventDefault();
-    const { formData } = this.state;
-    this.setState({
-      creating: true,
-    });
-    this.service
-      .create(formData)
-      .then(() => {
-        this.setState({ newInstance: false });
-      })
-      .finally(() => {
-        this.setState({
-          creating: false,
-        });
-      });
-  };
-  _handleCreateClick = () => (ev) => {
-    ev.preventDefault();
-    this.service.create({});
-  };
-  _handleRemoveClick = (instance) => (ev) => {
-    ev.preventDefault();
-    if (this._canTerminate(instance)) {
-      this.service.remove(instance._id);
-    }
-  };
-  _getTypeValue = () => {
-    const { formData } = this.state;
-    return { label: formData.type, value: formData.type };
-  };
-  _getRegionValue = () => {
-    const { regionOptions, formData } = this.state;
-    const option = regionOptions.find(
-      (option) => formData.region == option.value
-    );
-    return option;
-  };
-  _getLink = (instance) => {
-    if (instance.status == "running") {
-      const url = `https://${instance.hostname}`;
-      return (
-        <a href={url} rel="external" target="_blank">
-          {url}
-        </a>
-      );
-    }
-    return "--";
-  };
-  _getPublicIp = (instance) => {
-    if (instance.publicIp) {
-      return instance.publicIp;
-    }
-    return "--";
-  };
-  _canCreate = () => {
-    const { instances } = this.state;
-    return !window.MAX_INSTANCES || instances.length < window.MAX_INSTANCES;
-  };
-  _canTerminate = (instance) => {
-    return instance.status.match(/draft|failed|running|timeout/);
-  };
-  _isLoading = (instance) => {
-    return !this._canTerminate(instance);
+  _handleCancel = (ev) => {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    this.setState({ newInstance: false });
   };
   render() {
     const {
       ready,
       loading,
-      creating,
       newInstance,
+      awsInstances,
       auth,
       instances,
-      regionOptions,
-      instanceOptions,
-      formData,
     } = this.state;
     if (!ready) {
       return <Loading full />;
@@ -398,157 +292,20 @@ export default class App extends Component {
                 <Card info>
                   <Card.Content>
                     <h4>Demo mode is enabled</h4>
-                    <p>
-                      Fake data is generated and no instance is deployed.
-                    </p>
+                    <p>Fake data is generated and no instance is deployed.</p>
                   </Card.Content>
                 </Card>
               ) : null}
               {!auth ? <Login /> : null}
-              <Card.List>
-                {auth && (newInstance || !instances.length) ? (
-                  <Card.ListItem new loading={creating}>
-                    <form onSubmit={this._handleSubmit}>
-                      <Card.Header>
-                        <h3>New instance</h3>
-                        {instances.length ? (
-                          <p>
-                            <a href="#" onClick={this._handleCloseNewClick}>
-                              Cancel
-                            </a>
-                          </p>
-                        ) : null}
-                      </Card.Header>
-                      <Card.Content>
-                        <table>
-                          <tr>
-                            <th>Region</th>
-                            <td>
-                              <Select
-                                options={regionOptions}
-                                onChange={(selected) => {
-                                  this.setState({
-                                    formData: {
-                                      ...formData,
-                                      region: selected.value,
-                                    },
-                                  });
-                                }}
-                                value={this._getRegionValue()}
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Type</th>
-                            <td>
-                              <Select
-                                options={instanceOptions}
-                                onChange={(selected) => {
-                                  this.setState({
-                                    formData: {
-                                      ...formData,
-                                      type: selected.value,
-                                    },
-                                  });
-                                }}
-                                value={this._getTypeValue()}
-                              />
-                            </td>
-                          </tr>
-                        </table>
-                        <ServerInfo
-                          full
-                          instance={this._getServer()}
-                          region={formData.region}
-                        />
-                      </Card.Content>
-                      <Card.Footer>
-                        <Button.Submit
-                          disabled={creating}
-                          type="submit"
-                          value="Create new instance"
-                        />
-                      </Card.Footer>
-                    </form>
-                  </Card.ListItem>
-                ) : null}
-                {instances.map((instance) => (
-                  <Card.ListItem
-                    key={instance._id}
-                    loading={this._isLoading(instance)}
-                  >
-                    <Card.Header>
-                      <h3>{instance.name}</h3>
-                      {instance.provisionedAt ? (
-                        <p>
-                          <Timer date={instance.provisionedAt} />
-                        </p>
-                      ) : null}
-                      <p>{instance.status}</p>
-                    </Card.Header>
-                    <Card.Content>
-                      <table>
-                        <tr>
-                          <th>Region</th>
-                          <td>{regions[instance.region]}</td>
-                        </tr>
-                        <tr>
-                          <th>Type</th>
-                          <td>{instance.type}</td>
-                        </tr>
-                        <tr>
-                          <th>URL</th>
-                          <td>{this._getLink(instance)}</td>
-                        </tr>
-                        <tr>
-                          <th>Public IP</th>
-                          <td>{this._getPublicIp(instance)}</td>
-                        </tr>
-                        <tr>
-                          <th>Estimated cost</th>
-                          <td>
-                            {instance.provisionedAt ? (
-                              <LiveCost
-                                date={instance.provisionedAt}
-                                hourlyPrice={
-                                  this._getServer(instance.type).pricing[
-                                    instance.region
-                                  ]
-                                }
-                              />
-                            ) : (
-                              "--"
-                            )}
-                          </td>
-                        </tr>
-                      </table>
-                      <ServerInfo
-                        instance={this._getServer(instance.type)}
-                        region={instance.region}
-                      />
-                    </Card.Content>
-                    <Card.Footer>
-                      <Button
-                        remove
-                        disabled={!this._canTerminate(instance)}
-                        href="#"
-                        onClick={this._handleRemoveClick(instance)}
-                      >
-                        Terminate
-                      </Button>
-                      <Button
-                        jitsi
-                        disabled={instance.status !== "running"}
-                        href={`https://${instance.hostname}`}
-                        target="_blank"
-                        rel="external"
-                      >
-                        Launch Jitsi
-                      </Button>
-                    </Card.Footer>
-                  </Card.ListItem>
-                ))}
-              </Card.List>
+              {auth && (newInstance || !instances.length) ? (
+                <NewInstance
+                  allowCancel={instances.length}
+                  onSubmit={this._handleSubmit}
+                  onCancel={this._handleCancel}
+                  instances={awsInstances}
+                />
+              ) : null}
+              <InstanceList instances={instances} awsInstances={awsInstances} />
             </>
           )}
         </Content>

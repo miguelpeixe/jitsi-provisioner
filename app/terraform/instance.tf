@@ -32,6 +32,6 @@ resource "aws_instance" "jitsi-server" {
   key_name               = var.ssh_key_name
   user_data              = templatefile("install.tpl", { email_address = var.email_address, hostname = var.hostname })
   tags = {
-    Name = "jitsi-meet-server"
+    Name = var.name
   }
 }
