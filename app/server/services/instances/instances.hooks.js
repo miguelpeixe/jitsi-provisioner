@@ -78,6 +78,23 @@ const processInstance = (options = {}) => {
   };
 };
 
+const validateData = (options = {}) => {
+  return async (context) => {
+    const { data } = context;
+
+    // AWS instance availability
+    const awsInstance = await context.app.service("aws").get(data.type);
+    if (!awsInstance) {
+      throw new Error("AWS instance not found");
+    }
+    if (!awsInstance.pricing[data.region]) {
+      throw new Error("AWS instance not available in the selected region");
+    }
+
+    return context;
+  };
+};
+
 const verifyCloudFlare = (options = {}) => {
   return async (context) => {
     const app = context.app;
@@ -422,7 +439,7 @@ module.exports = {
     all: [authenticate("jwt")],
     find: [],
     get: [],
-    create: [checkLimit(), processInstance()],
+    create: [checkLimit(), processInstance(), validateData()],
     update: [],
     patch: [],
     remove: [checkStability(), handleRemove()],

@@ -103,7 +103,9 @@ export default class ServerInfo extends Component {
                 </tr>
               </table>
             ) : (
-              <p>Not available</p>
+              <p style={{ textAlign: "center" }}>
+                Instance type not available in this region
+              </p>
             )}
           </div>
         ) : null}

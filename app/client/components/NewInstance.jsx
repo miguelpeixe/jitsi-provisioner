@@ -15,6 +15,7 @@ export default class NewInstance extends Component {
     super(props);
     this.state = {
       loading: false,
+      valid: true,
       formData: {
         region: "us-east-1",
         type: "t3.large",
@@ -22,6 +23,20 @@ export default class NewInstance extends Component {
     };
     this.service = client.service("instances");
   }
+  componentDidUpdate(prevProps, prevState) {
+    const { formData } = this.state;
+    if (JSON.stringify(prevState.formData) != JSON.stringify(formData)) {
+      this.setState({ valid: this._validate() });
+    }
+  }
+  _validate = () => {
+    const { formData } = this.state;
+    const server = this._getServer();
+    if (!server.pricing[formData.region]) {
+      return false;
+    }
+    return true;
+  };
   _handleSubmit = (ev) => {
     ev.preventDefault();
     const { formData } = this.state;
@@ -101,7 +116,7 @@ export default class NewInstance extends Component {
   };
   render() {
     const { allowCancel } = this.props;
-    const { loading, formData } = this.state;
+    const { loading, valid, formData } = this.state;
     return (
       <Card new loading={loading}>
         <form onSubmit={this._handleSubmit}>
@@ -160,7 +175,7 @@ export default class NewInstance extends Component {
           </Card.Content>
           <Card.Footer>
             <Button.Submit
-              disabled={loading}
+              disabled={loading || !valid}
               type="submit"
               value="Create new instance"
             />
