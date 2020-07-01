@@ -70,7 +70,7 @@ const processInstance = (options = {}) => {
       ssh_key_path: context.data.key.path,
       ssh_pubkey_path: `${context.data.key.path}.pub`,
       hostname: context.data.hostname,
-      security_group_name: `jitsi-${context.data.serverName}`,
+      security_group_name: `jitsi-${context.data.name}`,
     };
 
     return context;
