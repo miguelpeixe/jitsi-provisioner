@@ -3,6 +3,7 @@ const axios = require("axios");
 const { processHooks } = require("@feathersjs/commons").hooks;
 const { authenticate } = require("@feathersjs/authentication").hooks;
 
+const logger = require("../../logger");
 const { generateId, exec, readFile, sleep, dnsLookup } = require("../../utils");
 const cloudflare = require("../../cloudflare");
 
@@ -73,6 +74,8 @@ const processInstance = (options = {}) => {
       hostname: context.data.hostname,
       security_group_name: `jitsi-${context.data.name}`,
     };
+
+    logger.info(`Creating new instance: ${name}`);
 
     return context;
   };
@@ -402,8 +405,9 @@ const handleCreate = (options = {}) => {
 const handleRemove = (options = {}) => {
   return async (context) => {
     if (context.params.provider) {
-      await updateStatus(context.service, context.id, "removing");
       context.result = await context.service.get(context.id);
+      logger.info(`Terminating instance: ${context.result.name}`);
+      await updateStatus(context.service, context.id, "removing");
       processHooks.call(this, [destroy()], context);
     }
     return context;

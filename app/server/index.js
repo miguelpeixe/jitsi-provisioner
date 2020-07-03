@@ -1,9 +1,10 @@
 const app = require("./app");
+const logger = require("./logger");
 
 const server = app.listen("3030");
 
 process.on("unhandledRejection", (reason, p) =>
-  console.error("Unhandled Rejection at: Promise ", p, reason)
+  logger.error("Unhandled Rejection at: Promise ", p, reason)
 );
 
-server.on("listening", () => console.info("Application started on port 3030"));
+server.on("listening", () => logger.info("Application started on port 3030"));
