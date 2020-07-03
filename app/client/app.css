@@ -6,12 +6,26 @@ html {
 }
 
 body {
-  background-color: #ae1253;
+  /* background-color: #ae1253;
   background-image: linear-gradient(
     -90deg,
     #ae1253 0,
     #ff0080 50%,
     #ae1253 100%
+  ); */
+  /* background-color: #1251ae;
+  background-image: linear-gradient(
+    -90deg,
+    #1251ae 0,
+    #0074ff 50%,
+    #1251ae 100%
+  ); */
+  background-color: #3b4354;
+  background-image: linear-gradient(
+    -90deg,
+    #252a34 0,
+    #3b4354 50%,
+    #252a34 100%
   );
   color: #fff;
   font-family: "Helvetica Neue", "Open Sans", Helvetica, Arial, sans-serif;

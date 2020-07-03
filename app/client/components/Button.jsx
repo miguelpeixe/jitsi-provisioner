@@ -13,6 +13,7 @@ const buttonStyles = css`
   outline: none;
   line-height: inherit;
   background-color: #252a34;
+  border: 1px solid #333a48;
   &:hover {
     background-color: #333a48;
   }
@@ -23,6 +24,7 @@ const buttonStyles = css`
     props.remove &&
     css`
       background-color: #b70000;
+      border-color: #9c0000;
       &:hover {
         background: #d60000;
       }
@@ -40,6 +42,7 @@ const buttonStyles = css`
         #0074ff 50%,
         #0c5ecb 100%
       );
+      border-color: #0c5ecb;
       &:hover {
         background-color: #0074ff;
         background-image: none;
@@ -54,6 +57,7 @@ const buttonStyles = css`
     css`
       background-color: rgba(0, 0, 0, 0.1) !important;
       background-image: none !important;
+      border-color: rgba(0, 0, 0, 0.1);
       cursor: not-allowed;
     `}
 `;
@@ -72,7 +76,7 @@ const Badge = styled.span`
   font-size: 0.8em;
   border-radius: 4px;
   line-height: 1;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
   padding: 0.3rem 0.3rem;
   display: inline-block;
   margin-left: 0.5rem;

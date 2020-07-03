@@ -44,7 +44,7 @@ const Header = styled.header`
   align-items: flex-end;
   font-size: 0.9em;
   text-align: right;
-  border-right: 1px solid #ae1253;
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
   overflow: auto;
   h1 {
     margin: 0 0 1rem;
@@ -63,7 +63,7 @@ const Header = styled.header`
   }
   @media (max-width: 700px) {
     width: auto;
-    background: #333;
+    background: rgba(0, 0, 0, 0.2);
     flex-direction: row;
     align-items: center;
     padding: 1rem;
@@ -88,6 +88,7 @@ const Header = styled.header`
 `;
 
 const Info = styled.aside`
+  color: rgba(255, 255, 255, 0.5);
   @media (max-width: 700px) {
     display: none;
   }

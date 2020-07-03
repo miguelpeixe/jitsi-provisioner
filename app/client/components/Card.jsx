@@ -4,10 +4,10 @@ import styled, { css } from "styled-components";
 const cardStyles = css`
   @keyframes loading {
     0% {
-      background-color: #fcdeed;
+      opacity: 0.75;
     }
     100% {
-      background-color: #ffffff;
+      opacity: 1;
     }
   }
   background: #fff;
@@ -29,9 +29,9 @@ const cardStyles = css`
     css`
       background-image: linear-gradient(
         -90deg,
-        #fcdeed 0,
+        #f0f0f0 0,
         #ffffff 50%,
-        #fcdeed 100%
+        #f0f0f0 100%
       );
     `}
   ${(props) =>
