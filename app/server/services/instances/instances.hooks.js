@@ -405,9 +405,9 @@ const handleCreate = (options = {}) => {
 const handleRemove = (options = {}) => {
   return async (context) => {
     if (context.params.provider) {
+      await updateStatus(context.service, context.id, "removing");
       context.result = await context.service.get(context.id);
       logger.info(`Terminating instance: ${context.result.name}`);
-      await updateStatus(context.service, context.id, "removing");
       processHooks.call(this, [destroy()], context);
     }
     return context;
