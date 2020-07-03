@@ -5,6 +5,7 @@ const client = window.API;
 import regions from "regions";
 
 import Card from "components/Card.jsx";
+import StatusBadge from "components/StatusBadge.jsx";
 import ServerInfo from "components/ServerInfo.jsx";
 import Button from "components/Button.jsx";
 import Timer from "components/Timer.jsx";
@@ -64,6 +65,15 @@ export default class InstanceList extends Component {
                 </p>
               ) : null}
               <p>{instance.status}</p>
+              <StatusBadge
+                status={
+                  instance.status == "running"
+                    ? "active"
+                    : instance.status.match(/failed|timeout/)
+                    ? "error"
+                    : "loading"
+                }
+              />
             </Card.Header>
             <Card.Content>
               <table>

@@ -86,6 +86,7 @@ const List = styled.ul`
 
 const Content = styled.section`
   padding: 1rem 2rem;
+  position: relative;
   select {
     background: transparent;
     border: 0;
@@ -142,7 +143,8 @@ const Header = styled.header`
     margin: 0;
     color: #252a34;
   }
-  p {
+  p,
+  div {
     font-size: 0.8em;
     margin: 0 0 0 1rem;
     flex: 0 0 auto;

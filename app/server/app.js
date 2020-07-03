@@ -38,8 +38,4 @@ app.configure(client);
 
 app.use(express.errorHandler());
 
-app.on("ready", (...arguments) => {
-  console.log("receives", arguments);
-});
-
 module.exports = app;
