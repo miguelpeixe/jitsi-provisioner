@@ -31,21 +31,23 @@ body {
   font-family: "Helvetica Neue", "Open Sans", Helvetica, Arial, sans-serif;
 }
 
-/* Webkit scrollbar styles */
-::-webkit-scrollbar {
-  width: 8px;
+@media (min-width: 700px) {
+  /* Webkit scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  /*--*/
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
-}
-/*--*/
 
 h1,
 h2,

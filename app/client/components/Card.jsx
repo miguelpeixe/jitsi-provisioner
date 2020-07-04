@@ -68,6 +68,13 @@ const cardStyles = css`
   @media (max-width: 860px) {
     margin: 0 0 1rem;
   }
+  @media (max-width: 450px) {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: 0 0 0;
+    border: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+  }
 `;
 
 const Card = styled.div`
