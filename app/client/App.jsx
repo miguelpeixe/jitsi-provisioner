@@ -51,7 +51,7 @@ const Header = styled.header`
     font-size: 1.6em;
   }
   a {
-    color: #fff;
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     font-weight: 600;
   }
@@ -63,7 +63,7 @@ const Header = styled.header`
   }
   @media (max-width: 700px) {
     width: auto;
-    background: rgba(0, 0, 0, 0.2);
+    background: #2f3643;
     flex-direction: row;
     align-items: center;
     padding: 1rem;

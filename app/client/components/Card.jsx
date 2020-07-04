@@ -68,7 +68,7 @@ const cardStyles = css`
   @media (max-width: 860px) {
     margin: 0 0 1rem;
   }
-  @media (max-width: 450px) {
+  @media (max-width: 500px) {
     margin: 0;
     border-radius: 0;
     box-shadow: 0 0 0;
