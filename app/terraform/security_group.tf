@@ -1,4 +1,4 @@
-resource "aws_security_group" "jitsi-security-group" {
+resource "aws_security_group" "jitsi" {
   name        = var.security_group_name
 
   ingress {

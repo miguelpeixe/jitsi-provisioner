@@ -235,6 +235,8 @@ const fetchPublicIp = (options = {}) => {
     } else {
       await fail(service, data._id, "Could not fetch public ip");
     }
+
+    return context;
   };
 };
 
@@ -362,6 +364,9 @@ const destroy = (options = {}) => {
         await app.terraformExec(`terraform destroy \
             -input=false \
             -auto-approve \
+            -target=aws_key_pair.jitsi \
+            -target=aws_security_group.jitsi \
+            -target=aws_instance.jitsi \
             ${getParsedVars(data)} \
             -state=${data.path}/terraform.tfstate`);
         await updateStatus(service, context.id, "removing-files");
@@ -418,7 +423,7 @@ const checkStability = (options = {}) => {
   return async (context) => {
     if (context.params.provider) {
       const instance = await context.service.get(context.id);
-      if (!instance.status.match(/running|failed|timeout|draft/)) {
+      if (!instance.status.match(/draft|running|failed|timeout|draft/)) {
         throw new Error("Can't remove unstable instance");
       }
     }

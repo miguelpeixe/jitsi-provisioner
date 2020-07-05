@@ -20,12 +20,14 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_key_pair" "jitsi-key" {
+resource "aws_eip" "jitsi" {}
+
+resource "aws_key_pair" "jitsi" {
   key_name   = var.ssh_key_name
   public_key = file(var.ssh_pubkey_path)
 }
 
-resource "aws_instance" "jitsi-server" {
+resource "aws_instance" "jitsi" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.jitsi-security-group.id]

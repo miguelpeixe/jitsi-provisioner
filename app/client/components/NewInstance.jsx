@@ -46,7 +46,6 @@ export default class NewInstance extends Component {
     this.service
       .create(formData)
       .then((res) => {
-        this.setState({ newInstance: false });
         this.props.onSubmit && this.props.onSubmit(res);
       })
       .finally(() => {
