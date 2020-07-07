@@ -3,6 +3,7 @@ import React, { Component } from "react";
 const client = window.API;
 
 import regions from "regions";
+import download from "download";
 
 import Card from "components/Card.jsx";
 import StatusBadge from "components/StatusBadge.jsx";
@@ -49,6 +50,18 @@ export default class InstanceList extends Component {
   };
   _isLoading = (instance) => {
     return !this._canTerminate(instance);
+  };
+  _handleDownloadClick = (instance) => (ev) => {
+    ev.preventDefault();
+    client.rest
+      .get(`/instances/${instance._id}?download`, { responseType: "blob" })
+      .then((res) => {
+        download(
+          res.data,
+          `${instance._id}.tar.gz`,
+          res.headers["content-type"]
+        );
+      });
   };
   render() {
     const { instances } = this.props;
@@ -115,6 +128,16 @@ export default class InstanceList extends Component {
                 instance={this._getServer(instance.type)}
                 region={instance.region}
               />
+              <nav>
+                <Button
+                  small
+                  light
+                  href="#"
+                  onClick={this._handleDownloadClick(instance)}
+                >
+                  Download config and SSH keys
+                </Button>
+              </nav>
             </Card.Content>
             <Card.Footer>
               <Button

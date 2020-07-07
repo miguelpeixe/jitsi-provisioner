@@ -79,6 +79,12 @@ const List = styled.ul`
 const Content = styled.section`
   margin: 1rem 2rem;
   position: relative;
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+    font-weight: 600;
+  }
   select {
     background: transparent;
     border: 0;
@@ -111,11 +117,12 @@ const Content = styled.section`
       }
     }
   }
-  h2,
-  h3,
-  h4 {
-    margin: 0;
-    font-weight: 600;
+  nav {
+    display: flex;
+    a {
+      flex: 1 1 100%;
+      text-align: center;
+    }
   }
   > *:last-child {
     margin-bottom: 0;

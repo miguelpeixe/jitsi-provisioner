@@ -23,6 +23,17 @@ const buttonStyles = css`
     background-color: #3b4354;
   }
   ${(props) =>
+    props.small &&
+    css`
+      font-size: 0.8em;
+    `}
+  ${(props) =>
+    props.light &&
+    css`
+      background-color: transparent;
+      color: #333;
+    `}
+  ${(props) =>
     props.remove &&
     css`
       background-color: #b70000;
