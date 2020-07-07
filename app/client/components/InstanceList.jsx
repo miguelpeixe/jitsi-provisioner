@@ -6,6 +6,7 @@ import regions from "regions";
 import download from "download";
 
 import Card from "components/Card.jsx";
+import FlexTable from "components/FlexTable.jsx";
 import StatusBadge from "components/StatusBadge.jsx";
 import ServerInfo from "components/ServerInfo.jsx";
 import Button from "components/Button.jsx";
@@ -89,26 +90,32 @@ export default class InstanceList extends Component {
               />
             </Card.Header>
             <Card.Content>
-              <table>
-                <tr>
-                  <th>Region</th>
-                  <td>{regions[instance.region]}</td>
-                </tr>
-                <tr>
-                  <th>Type</th>
-                  <td>{instance.type}</td>
-                </tr>
-                <tr>
-                  <th>URL</th>
-                  <td>{this._getLink(instance)}</td>
-                </tr>
-                <tr>
-                  <th>Public IP</th>
-                  <td>{this._getPublicIp(instance)}</td>
-                </tr>
-                <tr>
-                  <th>Estimated cost</th>
-                  <td>
+              <FlexTable>
+                <FlexTable.Row>
+                  <FlexTable.Head>Region</FlexTable.Head>
+                  <FlexTable.Data>
+                    {regions[instance.region]}
+                  </FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>Type</FlexTable.Head>
+                  <FlexTable.Data>{instance.type}</FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>URL</FlexTable.Head>
+                  <FlexTable.Data>
+                    {this._getLink(instance)}
+                  </FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>Public IP</FlexTable.Head>
+                  <FlexTable.Data>
+                    {this._getPublicIp(instance)}
+                  </FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>Estimated cost</FlexTable.Head>
+                  <FlexTable.Data>
                     {instance.provisionedAt ? (
                       <LiveCost
                         date={instance.provisionedAt}
@@ -121,9 +128,9 @@ export default class InstanceList extends Component {
                     ) : (
                       "--"
                     )}
-                  </td>
-                </tr>
-              </table>
+                  </FlexTable.Data>
+                </FlexTable.Row>
+              </FlexTable>
               <ServerInfo
                 instance={this._getServer(instance.type)}
                 region={instance.region}

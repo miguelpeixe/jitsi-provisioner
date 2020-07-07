@@ -85,10 +85,6 @@ const Content = styled.section`
     margin: 0;
     font-weight: 600;
   }
-  select {
-    background: transparent;
-    border: 0;
-  }
   table {
     font-size: 0.9em;
     width: 100%;
