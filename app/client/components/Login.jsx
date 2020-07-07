@@ -18,7 +18,8 @@ const Container = styled.form`
     border-radius: 4px;
     margin: 0 0 1rem;
   }
-  input:last-child {
+  input:last-child[type="text"],
+  input:last-child[type="password"] {
     margin: 0;
   }
 `;
