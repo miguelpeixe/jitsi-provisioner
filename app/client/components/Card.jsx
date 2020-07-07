@@ -131,6 +131,9 @@ const Content = styled.section`
   }
   @media (max-width: 370px) {
     font-size: 0.8em;
+    table th {
+      padding-right: 1.5rem;
+    }
   }
 `;
 

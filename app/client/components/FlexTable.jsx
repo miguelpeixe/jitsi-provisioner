@@ -24,6 +24,9 @@ const Head = styled.div`
   margin-right: 3rem;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.4);
+  @media (max-width: 370px) {
+    margin-right: 1.5rem;
+  }
 `;
 
 const Data = styled.div`
