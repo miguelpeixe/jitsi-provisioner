@@ -7,23 +7,6 @@ const client = window.API;
 import Card from "components/Card.jsx";
 import Button from "components/Button.jsx";
 
-const Container = styled.form`
-  input[type="text"],
-  input[type="password"] {
-    border: 1px solid #ddd;
-    display: block;
-    width: 100%;
-    padding: 1rem;
-    box-sizing: border-box;
-    border-radius: 4px;
-    margin: 0 0 1rem;
-  }
-  input:last-child[type="text"],
-  input:last-child[type="password"] {
-    margin: 0;
-  }
-`;
-
 export default class Login extends Component {
   constructor(props) {
     super(props);
@@ -64,7 +47,7 @@ export default class Login extends Component {
     const { loading, username, password } = this.state;
     return (
       <Card loading={loading}>
-        <Container onSubmit={this._handleSubmit}>
+        <form onSubmit={this._handleSubmit}>
           <Card.Header>
             <h3>Authenticate</h3>
           </Card.Header>
@@ -93,7 +76,7 @@ export default class Login extends Component {
           <Card.Footer>
             <Button.Submit type="submit" value="Login" disabled={loading} />
           </Card.Footer>
-        </Container>
+        </form>
       </Card>
     );
   }

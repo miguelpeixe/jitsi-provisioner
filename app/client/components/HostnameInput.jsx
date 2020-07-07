@@ -56,6 +56,7 @@ export default class HostnameInput extends Component {
           name={name}
           placeholder="my-jitsi.meet.example.com"
           onChange={this._handleChange}
+          autocapitalize="none"
           value={this._getValue()}
         />
       );
@@ -68,6 +69,7 @@ export default class HostnameInput extends Component {
               name={name}
               placeholder="my-jitsi-server"
               onChange={this._handleChange}
+              autocapitalize="none"
               value={this._getValue()}
             />
             <span>.{DOMAIN}</span>

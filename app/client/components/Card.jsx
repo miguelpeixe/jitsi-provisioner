@@ -104,11 +104,14 @@ const Content = styled.section`
       font-weight: 600;
       color: rgba(0, 0, 0, 0.4);
       text-align: left;
-      padding-right: 1rem;
+      padding-right: 3rem;
     }
     td {
       text-align: right;
       width: 100%;
+      input {
+        margin: 0;
+      }
     }
     tr:last-child {
       th,

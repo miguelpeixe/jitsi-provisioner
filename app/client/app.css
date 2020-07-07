@@ -70,13 +70,15 @@ a:active {
   color: #4aafff;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
   padding: 0.75rem;
   width: 100%;
   box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   outline: none;
+  margin: 0 0 1rem;
 }
 
 .not-found {
