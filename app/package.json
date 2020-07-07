@@ -21,6 +21,7 @@
     "@feathersjs/rest-client": "^4.5.4",
     "@feathersjs/socketio": "^4.5.4",
     "@feathersjs/socketio-client": "^4.5.4",
+    "archiver": "^4.0.1",
     "aws-sdk": "^2.705.0",
     "axios": "^0.19.2",
     "cloudflare": "^2.7.0",
@@ -35,6 +36,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-select": "^3.1.0",
+    "react-toggle": "^4.1.1",
     "socket.io-client": "^2.3.0",
     "styled-components": "^5.1.1",
     "winston": "^3.3.3"

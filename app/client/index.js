@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import App from "App.jsx";
 
+window.DOMAIN = DOMAIN;
 window.DEMO = !!DEMO;
 window.MAX_INSTANCES = parseInt(MAX_INSTANCES);
 

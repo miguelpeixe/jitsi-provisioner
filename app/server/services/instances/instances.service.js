@@ -3,6 +3,7 @@ const NeDB = require("nedb");
 const path = require("path");
 
 const hooks = require("./instances.hooks");
+const { detectDownload, download } = require("./instances.middlewares");
 
 module.exports = (app) => {
   const Model = new NeDB({
@@ -10,7 +11,7 @@ module.exports = (app) => {
     autoload: true,
   });
 
-  app.use("/instances", nedbService({ Model }));
+  app.use("/instances", detectDownload, nedbService({ Model }), download);
 
   const service = app.service("instances");
 

@@ -2,6 +2,7 @@ const path = require("path");
 const axios = require("axios");
 const { processHooks } = require("@feathersjs/commons").hooks;
 const { authenticate } = require("@feathersjs/authentication").hooks;
+const parseDomain = require("parse-domain").parseDomain;
 
 const logger = require("../../logger");
 const { generateId, exec, readFile, sleep, dnsLookup } = require("../../utils");
@@ -47,7 +48,7 @@ const processInstance = (options = {}) => {
     const id = generateId();
     const instancePath = path.join(dataPath, "instances", id);
     const name = `server-${id}`;
-    const hostname = `${name}.${domain}`;
+    const hostname = data.hostname || `${name}.${domain}`;
 
     context.data = {
       _id: id,
@@ -55,7 +56,7 @@ const processInstance = (options = {}) => {
       hostname: hostname,
       status: "draft",
       createdAt: new Date(),
-      region: data.region || "sa-east-1",
+      region: data.region || "us-east-1",
       type: data.type || "t3.large",
       path: instancePath,
       key: {
@@ -84,6 +85,28 @@ const processInstance = (options = {}) => {
 const validateData = (options = {}) => {
   return async (context) => {
     const { data } = context;
+
+    // Ensure unique ID
+    const idInstances = await context.service.find({
+      query: { _id: data._id },
+    });
+    if (idInstances.length) {
+      throw new Error("Duplicate ID");
+    }
+
+    // Ensure unique hostname
+    const hostnameInstances = await context.service.find({
+      query: { hostname: data.hostname },
+    });
+    if (hostnameInstances.length) {
+      throw new Error("Hostname already in use");
+    }
+
+    // Validate hostname
+    const domain = parseDomain(data.hostname);
+    if (domain.type == "INVALID" || (domain.errors && domain.errors.length)) {
+      throw new Error("Invalid hostname");
+    }
 
     // AWS instance availability
     const awsInstance = await context.app.service("aws").get(data.type);
@@ -131,11 +154,7 @@ const createPath = (options = {}) => {
 
     await updateStatus(service, data._id, "creating-directory");
 
-    if (!DEMO) {
-      await exec(`mkdir -p ${data.path}`);
-    } else {
-      await sleep(1 * 1000);
-    }
+    await exec(`mkdir -p ${data.path}`);
 
     return context;
   };
@@ -149,12 +168,8 @@ const createSSHKeys = (options = {}) => {
 
     await updateStatus(service, data._id, "creating-ssh-keys");
 
-    if (!DEMO) {
-      await exec(`ssh-keygen -t rsa -b 2048 -N "" -m PEM -f ${data.key.path} && \
+    await exec(`ssh-keygen -t rsa -b 2048 -N "" -m PEM -f ${data.key.path} && \
       chmod 400 ${data.key.path}`);
-    } else {
-      await sleep(1 * 1000);
-    }
 
     return context;
   };
@@ -172,6 +187,9 @@ const createPlan = (options = {}) => {
       await app.terraformExec(`terraform plan \
         -input=false \
         ${getParsedVars(data)} \
+        -target=aws_key_pair.default \
+        -target=aws_security_group.default \
+        -target=aws_instance.default \
         -state=${data.path}/terraform.tfstate \
         -out=${data.path}/tfcreate`);
     } else {
@@ -364,19 +382,25 @@ const destroy = (options = {}) => {
         await app.terraformExec(`terraform destroy \
             -input=false \
             -auto-approve \
-            -target=aws_key_pair.jitsi \
-            -target=aws_security_group.jitsi \
-            -target=aws_instance.jitsi \
+            -target=aws_key_pair.default \
+            -target=aws_security_group.default \
+            -target=aws_instance.default \
             ${getParsedVars(data)} \
             -state=${data.path}/terraform.tfstate`);
-        await updateStatus(service, context.id, "removing-files");
-        await exec(`rm -r ${data.path}`);
-        await updateStatus(service, context.id, "removing-dns-records");
-        await cloudflare.deleteRecord(data.hostname);
       } catch (e) {
-        console.error(e);
+        throw new Error(e);
       }
-    } else {
+    }
+
+    await updateStatus(service, context.id, "removing-files");
+    await exec(`rm -r ${data.path}`);
+
+    if (!DEMO) {
+      await updateStatus(service, context.id, "removing-dns-records");
+      await cloudflare.deleteRecord(data.hostname);
+    }
+
+    if (DEMO) {
       await sleep(1 * 1000);
     }
 
@@ -423,7 +447,7 @@ const checkStability = (options = {}) => {
   return async (context) => {
     if (context.params.provider) {
       const instance = await context.service.get(context.id);
-      if (!instance.status.match(/draft|running|failed|timeout|draft/)) {
+      if (!instance.status.match(/draft|running|failed|timeout/)) {
         throw new Error("Can't remove unstable instance");
       }
     }

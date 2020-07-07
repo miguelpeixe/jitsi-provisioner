@@ -42,3 +42,15 @@ variable "hostname" {
   description = "Hostname of the Jitsi Server"
   default     = ""
 }
+variable "eip_id" {
+  description = "EIP ID for Server allocation"
+  default     = ""
+}
+variable "ami_instance_id" {
+  description = "Instance ID for AMI creation"
+  default     = ""
+}
+variable "ami_name" {
+  description = "AMI name"
+  default     = ""
+}

@@ -6,7 +6,10 @@ const Container = styled.div`
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   font-size: 0.9em;
-  margin-top: 1rem;
+  margin: 0 0 1rem;
+  table {
+    margin: 0;
+  }
 `;
 
 const Summary = styled.div`

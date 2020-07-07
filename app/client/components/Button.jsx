@@ -15,9 +15,11 @@ const buttonStyles = css`
   background-color: #252a34;
   border: 1px solid #333a48;
   &:hover {
+    color: #fff;
     background-color: #333a48;
   }
   &:active {
+    color: #fff;
     background-color: #3b4354;
   }
   ${(props) =>

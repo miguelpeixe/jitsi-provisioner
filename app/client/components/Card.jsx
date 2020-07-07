@@ -50,21 +50,6 @@ const cardStyles = css`
     text-transform: uppercase;
     font-weight: 600;
   }
-  a {
-    color: #61b9ff;
-    text-decoration: none;
-    &:hover,
-    &:active {
-      color: #4aafff;
-    }
-  }
-  footer {
-    a,
-    a:active,
-    a:hover {
-      color: #fff;
-    }
-  }
   @media (max-width: 860px) {
     margin: 0 0 1rem;
   }
@@ -92,7 +77,7 @@ const List = styled.ul`
 `;
 
 const Content = styled.section`
-  padding: 1rem 2rem;
+  margin: 1rem 2rem;
   position: relative;
   select {
     background: transparent;
@@ -102,18 +87,22 @@ const Content = styled.section`
     font-size: 0.9em;
     width: 100%;
     border-spacing: 0;
+    margin: 0 0 1rem;
     th,
     td {
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       padding: 0.5rem 0;
+      white-space: nowrap;
     }
     th {
       font-weight: 600;
       color: rgba(0, 0, 0, 0.4);
       text-align: left;
+      padding-right: 1rem;
     }
     td {
       text-align: right;
+      width: 100%;
     }
     tr:last-child {
       th,
@@ -128,11 +117,11 @@ const Content = styled.section`
     margin: 0;
     font-weight: 600;
   }
-  *:last-child {
+  > *:last-child {
     margin-bottom: 0;
   }
   @media (max-width: 700px) {
-    padding: 1rem;
+    margin: 1rem;
   }
   @media (max-width: 370px) {
     font-size: 0.8em;

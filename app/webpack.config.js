@@ -10,6 +10,7 @@ module.exports = (env, argv) => {
 
   const plugins = [
     new webpack.DefinePlugin({
+      DOMAIN: JSON.stringify(process.env.DOMAIN),
       DEMO: JSON.stringify(!!parseInt(process.env.DEMO)),
       MAX_INSTANCES: JSON.stringify(parseInt(process.env.MAX_INSTANCES)),
     }),

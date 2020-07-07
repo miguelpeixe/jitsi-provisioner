@@ -9,6 +9,7 @@ import regions from "regions";
 import Card from "components/Card.jsx";
 import ServerInfo from "components/ServerInfo.jsx";
 import Button from "components/Button.jsx";
+import HostnameInput from "components/HostnameInput.jsx";
 
 export default class NewInstance extends Component {
   constructor(props) {
@@ -17,6 +18,7 @@ export default class NewInstance extends Component {
       loading: false,
       valid: true,
       formData: {
+        hostname: "",
         region: "us-east-1",
         type: "t3.large",
       },
@@ -131,6 +133,22 @@ export default class NewInstance extends Component {
           </Card.Header>
           <Card.Content>
             <table>
+              <tr>
+                <th>Hostname</th>
+                <td>
+                  <HostnameInput
+                    value={formData.hostname}
+                    onChange={({ target }) => {
+                      this.setState({
+                        formData: {
+                          ...formData,
+                          hostname: target.value,
+                        },
+                      });
+                    }}
+                  />
+                </td>
+              </tr>
               <tr>
                 <th>Region</th>
                 <td>
