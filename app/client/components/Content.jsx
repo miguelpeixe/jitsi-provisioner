@@ -16,7 +16,7 @@ const Container = styled.div`
 const Content = styled.div`
   margin: 2rem auto;
   max-width: 500px;
-  @media (max-width: 1050px) {
+  @media (max-width: 1120px) {
     max-width: none;
   }
   @media (max-width: 700px) {

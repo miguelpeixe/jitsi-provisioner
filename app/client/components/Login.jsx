@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 
-// import client from "feathers";
-const client = window.API;
+import client from "api";
 
 import Card from "components/Card.jsx";
 import Button from "components/Button.jsx";

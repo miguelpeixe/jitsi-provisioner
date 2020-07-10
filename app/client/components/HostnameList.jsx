@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-const client = window.API;
+import client from "api";
 
 import regions from "regions";
 

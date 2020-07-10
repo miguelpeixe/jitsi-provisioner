@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import styled, { css } from "styled-components";
 
-// import client from "feathers";
-const client = window.API;
+import client from "api";
 
 import Content from "components/Content.jsx";
 import Loading from "components/Loading.jsx";
@@ -68,7 +67,7 @@ const Header = styled.header`
   p {
     font-size: 0.9em;
   }
-  @media (max-width: 1050px) {
+  @media (max-width: 1120px) {
     position: static;
   }
   @media (max-width: 760px) {

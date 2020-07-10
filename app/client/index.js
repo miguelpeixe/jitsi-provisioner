@@ -10,11 +10,7 @@ window.MAX_INSTANCES = parseInt(MAX_INSTANCES);
 
 import "normalize.css";
 import "react-toggle/style.css";
-
-// RSuite styles
-import "rsuite/lib/Icon/styles";
-import "rsuite/lib/Tooltip/styles/themes/dark";
-
+import "rsuite/lib/styles/index.less";
 import "app.css";
 
 ReactDom.render(

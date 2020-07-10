@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import Select from "react-select";
 
-const client = window.API;
+import client from "api";
 
 import regions from "regions";
 

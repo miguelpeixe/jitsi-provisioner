@@ -2,11 +2,9 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import Select from "react-select";
 import Toggle from "react-toggle";
-import Icon from "rsuite/lib/Icon";
-import Tooltip from "rsuite/lib/Tooltip";
-import Whisper from "rsuite/lib/Whisper";
+import { Icon, Tooltip, Whisper } from "rsuite";
 
-const client = window.API;
+import client from "api";
 
 import regions from "regions";
 

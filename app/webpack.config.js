@@ -1,10 +1,12 @@
 const path = require("path");
 const webpack = require("webpack");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 module.exports = (env, argv) => {
   const entry = {
-    api: path.resolve("client/api"),
     main: path.resolve("client/index"),
   };
 
@@ -23,6 +25,10 @@ module.exports = (env, argv) => {
       filename: "index.html",
       inject: "body",
     }),
+    new MiniCssExtractPlugin({
+      filename: "[name].[hash].css",
+      chunkFilename: "[id].[hash].css",
+    }),
   ];
 
   if (!env.production) {
@@ -33,7 +39,6 @@ module.exports = (env, argv) => {
 
   return {
     mode: env.production ? "production" : "development",
-    devtool: "source-map",
     entry,
     resolve: {
       alias: {
@@ -55,18 +60,31 @@ module.exports = (env, argv) => {
           test: /\.js(x)?$/,
           use: {
             loader: "babel-loader",
+            options: {
+              presets: [
+                ["@babel/preset-env", { modules: false }],
+                ["@babel/preset-react"],
+              ],
+              plugins: [
+                "@babel/plugin-proposal-class-properties",
+                "@babel/plugin-proposal-export-default-from",
+                "@babel/plugin-transform-spread",
+                "@babel/plugin-transform-runtime",
+              ],
+            },
           },
           exclude: /node_modules/,
+          sideEffects: false,
         },
         {
-          test: /\.css$/,
-          use: ["style-loader", "css-loader"],
-        },
-        {
-          test: /\.less$/,
+          test: /\.((c|le)ss)$/,
           use: [
             {
-              loader: "style-loader",
+              loader: MiniCssExtractPlugin.loader,
+              options: {
+                hmr: !env.production,
+                esModule: true,
+              },
             },
             {
               loader: "css-loader",
@@ -81,6 +99,7 @@ module.exports = (env, argv) => {
               },
             },
           ],
+          sideEffects: true,
         },
       ],
     },

@@ -1,8 +1,8 @@
-const io = require("socket.io-client");
-const feathers = require("@feathersjs/feathers");
-const socketio = require("@feathersjs/socketio-client");
-const auth = require("@feathersjs/authentication-client");
-const axios = require("axios");
+import io from "socket.io-client";
+import feathers from "@feathersjs/feathers";
+import socketio from "@feathersjs/socketio-client";
+import auth from "@feathersjs/authentication-client";
+import axios from "axios";
 
 const socket = io();
 const client = feathers();
@@ -21,10 +21,7 @@ client.on("login", (auth) => {
 });
 
 client.on("logout", () => {
-  console.log("logged out");
   client.rest.defaults.headers.common["Authorization"] = null;
 });
-
-window.API = client;
 
 export default client;

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import Icon from "rsuite/lib/Icon";
+import { Icon } from "rsuite";
 
-const client = window.API;
+import client from "api";
 
 import regions from "regions";
 import download from "download";
