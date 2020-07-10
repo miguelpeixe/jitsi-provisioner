@@ -90,7 +90,7 @@ const Badge = styled.span`
   border-radius: 4px;
   line-height: 1;
   background: rgba(255, 255, 255, 0.05);
-  padding: 0.3rem 0.3rem;
+  padding: 0.3rem;
   display: inline-block;
   margin-left: 0.5rem;
   letter-spacing: 0.08rem;

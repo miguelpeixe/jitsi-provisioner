@@ -20,7 +20,7 @@ const fail = async (service, id, reason) => {
 };
 
 const getParsedVars = (instance) => {
-  const vars = instance.terraformVars;
+  const vars = instance.terraform.vars;
   return Object.keys(vars)
     .map((key) => `-var "${key}=${vars[key]}"`)
     .join(" ");
@@ -35,6 +35,18 @@ const checkLimit = (options = {}) => {
       throw new Error("Maximum number of instances reached");
     return context;
   };
+};
+
+const getPublicIp = (data) => {
+  if (data.publicIp) {
+    return data.publicIp;
+  }
+  if (data.terraform.state.terraform_version) {
+    return data.terraform.state.resources.find(
+      (resource) => resource.type == "aws_instance"
+    ).instances[0].attributes.public_ip;
+  }
+  return false;
 };
 
 const processInstance = (options = {}) => {
@@ -63,14 +75,17 @@ const processInstance = (options = {}) => {
         path: path.join(instancePath, "key.pem"),
         name: `jitsi-${name}`,
       },
+      terraform: {
+        state: {},
+        vars: {},
+      },
     };
 
-    context.data.terraformVars = {
+    context.data.terraform.vars = {
       name: `jitsi-${name}`,
       aws_region: context.data.region,
       instance_type: context.data.type,
       ssh_key_name: context.data.key.name,
-      ssh_key_path: context.data.key.path,
       ssh_pubkey_path: `${context.data.key.path}.pub`,
       hostname: context.data.hostname,
       security_group_name: `jitsi-${context.data.name}`,
@@ -175,6 +190,47 @@ const createSSHKeys = (options = {}) => {
   };
 };
 
+const findAMI = (options = {}) => {
+  return async (context) => {
+    const app = context.app;
+    const service = context.service;
+    const data = context.result;
+
+    await updateStatus(service, data._id, "finding-ami");
+
+    const amis = await app
+      .service("amis")
+      .find({ query: { region: data.region, status: "active" } });
+
+    if (amis.length) {
+      const ami = amis[0];
+      let amiId = false;
+      if (!DEMO) {
+        try {
+          amiId = ami.terraform.state.resources[0].instances[0].attributes.id;
+        } catch (e) {
+          logger.warn(`Could not find AMI state`, {
+            instance: data._id,
+            ami: ami._id,
+          });
+        }
+      } else {
+        amiId = "ami-123456789";
+      }
+      if (amiId) {
+        const patch = {
+          ami: ami._id,
+          "terraform.vars.ami_id": amiId,
+        };
+        await service.patch(data._id, patch);
+        context.result.ami = ami._id;
+        context.result.terraform.vars.ami_id = amiId;
+      }
+    }
+    return context;
+  };
+};
+
 const createPlan = (options = {}) => {
   return async (context) => {
     const app = context.app;
@@ -184,14 +240,22 @@ const createPlan = (options = {}) => {
     await updateStatus(service, data._id, "creating-plan");
 
     if (!DEMO) {
-      await app.terraformExec(`terraform plan \
-        -input=false \
-        ${getParsedVars(data)} \
-        -target=aws_key_pair.default \
-        -target=aws_security_group.default \
-        -target=aws_instance.default \
-        -state=${data.path}/terraform.tfstate \
-        -out=${data.path}/tfcreate`);
+      let instanceTarget = "default";
+      if (data.ami) {
+        instanceTarget = "from_ami";
+      }
+      try {
+        await app.terraformExec(`terraform plan \
+          -input=false \
+          ${getParsedVars(data)} \
+          -target=aws_key_pair.default \
+          -target=aws_security_group.default \
+          -target=aws_instance.${instanceTarget} \
+          -state=${data.path}/terraform.tfstate \
+          -out=${data.path}/tfcreate`);
+      } catch (e) {
+        await fail(service, data._id, e);
+      }
     } else {
       await sleep(1 * 1000);
     }
@@ -209,11 +273,15 @@ const createInstance = (options = {}) => {
     await updateStatus(service, data._id, "provisioning");
 
     if (!DEMO) {
-      await app.terraformExec(`terraform apply \
+      try {
+        await app.terraformExec(`terraform apply \
               -input=false \
               -auto-approve \
               -state=${data.path}/terraform.tfstate \
               "${data.path}/tfcreate"`);
+      } catch (e) {
+        await fail(service, data._id, e);
+      }
     } else {
       await sleep(1 * 1000);
     }
@@ -226,22 +294,23 @@ const createInstance = (options = {}) => {
   };
 };
 
-const fetchPublicIp = (options = {}) => {
+const fetchState = (options = {}) => {
   return async (context) => {
     const app = context.app;
     const service = context.service;
     const data = context.result;
 
-    await updateStatus(service, data._id, "fetching-ip");
+    await updateStatus(service, data._id, "fetching-state");
 
     let publicIp;
 
     if (!DEMO) {
       const tfstate = await readFile(path.join(data.path, "terraform.tfstate"));
 
-      publicIp = JSON.parse(tfstate).resources.find(
-        (resource) => resource.type == "aws_instance"
-      ).instances[0].attributes.public_ip;
+      await service.patch(data._id, {
+        "terraform.state": JSON.parse(tfstate),
+      });
+      context.result.terraform.state = JSON.parse(tfstate);
     } else {
       await sleep(1 * 1000);
       publicIp = `100.0.0.${Math.floor(Math.random() * (255 - 1 + 1) + 1)}`;
@@ -250,8 +319,6 @@ const fetchPublicIp = (options = {}) => {
     if (publicIp) {
       service.patch(data._id, { publicIp });
       context.result.publicIp = publicIp;
-    } else {
-      await fail(service, data._id, "Could not fetch public ip");
     }
 
     return context;
@@ -266,12 +333,14 @@ const setDNSRecord = (options = {}) => {
 
     await updateStatus(service, data._id, "setting-dns");
 
+    const publicIp = getPublicIp(data);
+
     if (!DEMO) {
-      if (!data.publicIp) {
+      if (!publicIp) {
         await fail(service, data._id, "Public IP not found");
       }
 
-      await cloudflare.upsertRecord(data.hostname, data.publicIp);
+      await cloudflare.upsertRecord(data.hostname, publicIp);
     } else {
       await sleep(2 * 1000);
     }
@@ -288,20 +357,22 @@ const waitDNS = (options = {}) => {
 
     await updateStatus(service, data._id, "waiting-dns");
 
+    const publicIp = getPublicIp(data);
+
     if (!DEMO) {
-      if (!data.publicIp) {
+      if (!publicIp) {
         await fail(service, data._id, "Public IP not found");
       }
 
       const startTime = Date.now();
       const timeout = 5 * 60 * 1000; // 5 minutes before giving up
 
-      await sleep(40 * 1000); // Sleep for 40 seconds before flooding dns lookups
+      await sleep(30 * 1000); // Sleep for 30 seconds before flooding dns lookups
 
       let error;
       let address;
       let attemptTime = Date.now();
-      while (address != data.publicIp && startTime + timeout >= attemptTime) {
+      while (address != publicIp && startTime + timeout >= attemptTime) {
         try {
           const res = await dnsLookup(data.hostname);
           address = res.address;
@@ -314,7 +385,7 @@ const waitDNS = (options = {}) => {
         }
       }
 
-      if (address != data.publicIp) {
+      if (address != publicIp) {
         await updateStatus(service, data._id, "timeout");
         throw new Error("Could not resolve hostname");
       }
@@ -334,7 +405,7 @@ const waitApp = (options = {}) => {
     let online;
     if (!DEMO) {
       const startTime = Date.now();
-      const timeout = 5 * 60 * 1000; // 5 minutes before giving up
+      const timeout = 3 * 60 * 1000; // 3 minutes before giving up
 
       let error;
       let attemptTime = Date.now();
@@ -347,7 +418,7 @@ const waitApp = (options = {}) => {
           error = e.code;
         } finally {
           if (!online) {
-            await sleep(5 * 1000); // Wait 5 seconds before another fetch
+            await sleep(2 * 1000); // Wait 2 seconds before another fetch
             attemptTime = Date.now();
           }
         }
@@ -388,7 +459,7 @@ const destroy = (options = {}) => {
             ${getParsedVars(data)} \
             -state=${data.path}/terraform.tfstate`);
       } catch (e) {
-        throw new Error(e);
+        logger.error(e);
       }
     }
 
@@ -397,7 +468,11 @@ const destroy = (options = {}) => {
 
     if (!DEMO) {
       await updateStatus(service, context.id, "removing-dns-records");
-      await cloudflare.deleteRecord(data.hostname);
+      try {
+        await cloudflare.deleteRecord(data.hostname);
+      } catch (e) {
+        logger.error(e);
+      }
     }
 
     if (DEMO) {
@@ -418,9 +493,10 @@ const handleCreate = (options = {}) => {
         verifyCloudFlare(),
         createPath(),
         createSSHKeys(),
+        findAMI(),
         createPlan(),
         createInstance(),
-        fetchPublicIp(),
+        fetchState(),
         setDNSRecord(),
         waitDNS(),
         waitApp(),
@@ -446,6 +522,7 @@ const handleRemove = (options = {}) => {
 const checkStability = (options = {}) => {
   return async (context) => {
     if (context.params.provider) {
+      if (DEMO) return context;
       const instance = await context.service.get(context.id);
       if (!instance.status.match(/draft|running|failed|timeout/)) {
         throw new Error("Can't remove unstable instance");

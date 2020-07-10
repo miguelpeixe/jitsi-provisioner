@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Icon from "rsuite/lib/Icon";
 
 const client = window.API;
 
@@ -39,6 +40,11 @@ export default class InstanceList extends Component {
     if (instance.publicIp) {
       return instance.publicIp;
     }
+    if (instance.terraform.state.terraform_version) {
+      return instance.terraform.state.resources.find(
+        (resource) => resource.type == "aws_instance"
+      ).instances[0].attributes.public_ip;
+    }
     return "--";
   };
   _getServer = (instance) => {
@@ -72,6 +78,7 @@ export default class InstanceList extends Component {
         {instances.map((instance) => (
           <Card.ListItem key={instance._id} loading={this._isLoading(instance)}>
             <Card.Header>
+              <Icon icon="server" />
               <h3>{instance.name}</h3>
               {instance.provisionedAt ? (
                 <p>
@@ -79,7 +86,7 @@ export default class InstanceList extends Component {
                 </p>
               ) : null}
               <p>{instance.status}</p>
-              <StatusBadge
+              {/* <StatusBadge
                 status={
                   instance.status == "running"
                     ? "active"
@@ -87,15 +94,13 @@ export default class InstanceList extends Component {
                     ? "error"
                     : "loading"
                 }
-              />
+              /> */}
             </Card.Header>
             <Card.Content>
               <FlexTable>
                 <FlexTable.Row>
                   <FlexTable.Head>Region</FlexTable.Head>
-                  <FlexTable.Data>
-                    {regions[instance.region]}
-                  </FlexTable.Data>
+                  <FlexTable.Data>{regions[instance.region]}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Type</FlexTable.Head>
@@ -103,15 +108,11 @@ export default class InstanceList extends Component {
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>URL</FlexTable.Head>
-                  <FlexTable.Data>
-                    {this._getLink(instance)}
-                  </FlexTable.Data>
+                  <FlexTable.Data>{this._getLink(instance)}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Public IP</FlexTable.Head>
-                  <FlexTable.Data>
-                    {this._getPublicIp(instance)}
-                  </FlexTable.Data>
+                  <FlexTable.Data>{this._getPublicIp(instance)}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Estimated cost</FlexTable.Head>
@@ -142,7 +143,7 @@ export default class InstanceList extends Component {
                   href="#"
                   onClick={this._handleDownloadClick(instance)}
                 >
-                  Download config and SSH keys
+                  Download configuration
                 </Button>
               </nav>
             </Card.Content>

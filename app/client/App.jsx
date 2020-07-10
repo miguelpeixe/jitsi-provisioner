@@ -9,7 +9,10 @@ import Loading from "components/Loading.jsx";
 import Button from "components/Button.jsx";
 import Card from "components/Card.jsx";
 import Login from "components/Login.jsx";
+import NewHostname from "components/NewHostname.jsx";
 import NewInstance from "components/NewInstance.jsx";
+import RegionList from "components/RegionList.jsx";
+import HostnameList from "components/HostnameList.jsx";
 import InstanceList from "components/InstanceList.jsx";
 
 import regions from "regions";
@@ -21,19 +24,24 @@ const Container = styled.div`
   left: 0;
   bottom: 0;
   right: 0;
-  @media (max-width: 700px) {
+  @media (max-width: 760px) {
     flex-direction: column;
   }
 `;
 
 const Spacer = styled.div`
   flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  @media (max-width: 760px) {
+    display: none;
+  }
 `;
 
 const Header = styled.header`
   flex: 0 0 auto;
   width: 17%;
-  min-width: 170px;
+  min-width: 300px;
   position: absolute;
   top: 0;
   left: 0;
@@ -49,11 +57,13 @@ const Header = styled.header`
   h1 {
     margin: 0 0 1rem;
     font-size: 1.6em;
+    flex: 0 0 auto;
   }
   a {
     color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     font-weight: 600;
+    flex: 0 0 auto;
   }
   p {
     font-size: 0.9em;
@@ -61,7 +71,7 @@ const Header = styled.header`
   @media (max-width: 1050px) {
     position: static;
   }
-  @media (max-width: 700px) {
+  @media (max-width: 760px) {
     width: auto;
     background: #2f3643;
     flex-direction: row;
@@ -88,8 +98,9 @@ const Header = styled.header`
 `;
 
 const Info = styled.aside`
+  flex: 0 0 auto;
   color: rgba(255, 255, 255, 0.5);
-  @media (max-width: 700px) {
+  @media (max-width: 760px) {
     display: none;
   }
 `;
@@ -102,8 +113,11 @@ export default class App extends Component {
       ready: false,
       loading: false,
       newInstance: false,
+      newHostname: false,
       // data
       auth: null,
+      amis: [],
+      hostnames: [],
       instances: [],
       awsInstances: [],
     };
@@ -125,10 +139,17 @@ export default class App extends Component {
       this.setState({ auth });
       this._fetchAWS();
       this._fetchInstances();
+      this._fetchAMIs();
+      this._fetchHostnames();
     });
     client.on("logout", () => {
-      this.setState({ auth: false, instances: [] });
+      this.setState({ auth: false, instances: [], hostnames: [], amis: [] });
     });
+    this.bindInstanceEvents();
+    this.bindAMIEvents();
+    this.bindHostnameEvents();
+  }
+  bindInstanceEvents = () => {
     this.service.on("created", (instance) => {
       this.setState({
         instances: [instance, ...this.state.instances],
@@ -151,7 +172,55 @@ export default class App extends Component {
         this.setState({ instances });
       }
     });
-  }
+  };
+  bindAMIEvents = () => {
+    client.service("amis").on("created", (ami) => {
+      this.setState({
+        amis: [ami, ...this.state.amis],
+      });
+    });
+    client.service("amis").on("patched", (ami) => {
+      const amis = [...this.state.amis];
+      const idx = amis.findIndex((i) => i._id == ami._id);
+      if (Number.isInteger(idx)) {
+        amis[idx] = ami;
+        this.setState({ amis });
+      }
+    });
+    client.service("amis").on("removed", (ami) => {
+      if (ami.status == "removing") return;
+      const amis = [...this.state.amis];
+      const idx = amis.findIndex((i) => i._id == ami._id);
+      if (Number.isInteger(idx)) {
+        amis.splice(idx, 1);
+        this.setState({ amis });
+      }
+    });
+  };
+  bindHostnameEvents = () => {
+    client.service("hostnames").on("created", (hostname) => {
+      this.setState({
+        hostnames: [hostname, ...this.state.hostnames],
+      });
+    });
+    client.service("hostnames").on("patched", (hostname) => {
+      const hostnames = [...this.state.hostnames];
+      const idx = hostnames.findIndex((i) => i._id == hostname._id);
+      if (Number.isInteger(idx)) {
+        hostnames[idx] = hostname;
+        this.setState({ hostnames });
+      }
+    });
+    client.service("hostnames").on("removed", (hostname) => {
+      if (hostname.status == "removing") return;
+      const hostnames = [...this.state.hostnames];
+      const idx = hostnames.findIndex((i) => i._id == hostname._id);
+      if (Number.isInteger(idx)) {
+        hostnames.splice(idx, 1);
+        this.setState({ hostnames });
+      }
+    });
+  };
   _fetchAWS = () => {
     client
       .service("aws")
@@ -182,6 +251,50 @@ export default class App extends Component {
         });
       });
   };
+  _fetchAMIs = () => {
+    this.setState({
+      loading: true,
+    });
+    client
+      .service("amis")
+      .find({
+        query: {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      })
+      .then((amis) => {
+        this.setState({ amis });
+      })
+      .finally(() => {
+        this.setState({
+          loading: false,
+        });
+      });
+  };
+  _fetchHostnames = () => {
+    this.setState({
+      loading: true,
+    });
+    client
+      .service("hostnames")
+      .find({
+        query: {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      })
+      .then((hostnames) => {
+        this.setState({ hostnames });
+      })
+      .finally(() => {
+        this.setState({
+          loading: false,
+        });
+      });
+  };
   _handleLogoutClick = (ev) => {
     ev.preventDefault();
     client.logout();
@@ -196,6 +309,11 @@ export default class App extends Component {
     this.setState({ newInstance: true });
     this.contentRef.current.base.scrollTop = 0;
   };
+  _handleNewHostnameClick = () => (ev) => {
+    ev.preventDefault();
+    this.setState({ newHostname: true });
+    this.contentRef.current.base.scrollTop = 0;
+  };
   _handleSubmit = (ev) => {
     if (ev && ev.preventDefault) ev.preventDefault();
     this.setState({ newInstance: false });
@@ -204,13 +322,24 @@ export default class App extends Component {
     if (ev && ev.preventDefault) ev.preventDefault();
     this.setState({ newInstance: false });
   };
+  _handleHostnameSubmit = (ev) => {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    this.setState({ newHostname: false });
+  };
+  _handleHostnameCancel = (ev) => {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    this.setState({ newHostname: false });
+  };
   render() {
     const {
       ready,
       loading,
+      newHostname,
       newInstance,
       awsInstances,
       auth,
+      amis,
+      hostnames,
       instances,
     } = this.state;
     if (!ready) {
@@ -234,9 +363,16 @@ export default class App extends Component {
                   </Button.Badge>
                 ) : null}
               </Button>
+              {/* <Button href="#" onClick={this._handleNewHostnameClick()}>
+                New Hostname
+              </Button> */}
             </p>
           ) : null}
-          <Spacer />
+          {/* <Spacer /> */}
+          <Spacer>
+            <RegionList amis={amis} instances={instances} />
+          </Spacer>
+          {/* <Spacer /> */}
           {auth ? (
             <p>
               <Button href="#" onClick={this._handleLogoutClick}>
@@ -298,12 +434,19 @@ export default class App extends Component {
                 </Card>
               ) : null}
               {!auth ? <Login /> : null}
+              {auth && newHostname ? (
+                <NewHostname
+                  onSubmit={this._handleHostnameSubmit}
+                  onCancel={this._handleHostnameCancel}
+                />
+              ) : null}
               {auth && (newInstance || !instances.length) ? (
                 <NewInstance
                   allowCancel={instances.length}
                   onSubmit={this._handleSubmit}
                   onCancel={this._handleCancel}
                   instances={awsInstances}
+                  amis={amis}
                 />
               ) : null}
               <InstanceList instances={instances} awsInstances={awsInstances} />

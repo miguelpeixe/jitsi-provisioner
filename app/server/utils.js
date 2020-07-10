@@ -7,9 +7,10 @@ module.exports.exec = function exec(cmd, opts) {
   return new Promise((resolve, reject) => {
     exec(cmd, opts || {}, (error, stdout, stderr) => {
       if (error) {
-        console.warn(error);
+        reject(error);
+      } else {
+        resolve(stdout ? stdout : stderr);
       }
-      resolve(stdout ? stdout : stderr);
     });
   });
 };
@@ -21,6 +22,18 @@ module.exports.readFile = function readFile(path) {
         reject(err);
       } else {
         resolve(data);
+      }
+    });
+  });
+};
+module.exports.pathExists = function pathExists(path) {
+  const access = require("fs").access;
+  return new Promise((resolve, reject) => {
+    access(path, (error) => {
+      if (!error) {
+        resolve(true);
+      } else {
+        resolve(false);
       }
     });
   });

@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import Select from "react-select";
+import Toggle from "react-toggle";
+import Icon from "rsuite/lib/Icon";
+import Tooltip from "rsuite/lib/Tooltip";
+import Whisper from "rsuite/lib/Whisper";
 
 const client = window.API;
 
@@ -11,12 +15,22 @@ import ServerInfo from "components/ServerInfo.jsx";
 import Button from "components/Button.jsx";
 import HostnameInput from "components/HostnameInput.jsx";
 
+function Explain({ children }) {
+  const tooltip = <Tooltip>{children}</Tooltip>;
+  return (
+    <Whisper placement="top" trigger="hover" speaker={tooltip}>
+      <Icon icon="question-circle" />
+    </Whisper>
+  );
+}
+
 export default class NewInstance extends Component {
   constructor(props) {
     super(props);
     this.state = {
       loading: false,
       valid: true,
+      createAMI: false,
       formData: {
         hostname: "",
         region: "us-east-1",
@@ -41,10 +55,13 @@ export default class NewInstance extends Component {
   };
   _handleSubmit = (ev) => {
     ev.preventDefault();
-    const { formData } = this.state;
+    const { createAMI, formData } = this.state;
     this.setState({
       loading: true,
     });
+    if (createAMI) {
+      client.service("amis").create({ region: formData.region });
+    }
     this.service
       .create(formData)
       .then((res) => {
@@ -115,6 +132,13 @@ export default class NewInstance extends Component {
     if (!instances.length || !instance) return;
     return instances.find((item) => item._id == instance);
   };
+  _hasAmi = () => {
+    const { amis } = this.props;
+    const { formData } = this.state;
+    return amis.find(
+      (ami) => ami.region == formData.region && ami.status == "active"
+    );
+  };
   render() {
     const { allowCancel } = this.props;
     const { loading, valid, formData } = this.state;
@@ -122,6 +146,7 @@ export default class NewInstance extends Component {
       <Card new loading={loading}>
         <form onSubmit={this._handleSubmit}>
           <Card.Header>
+            <Icon icon="server" />
             <h3>New instance</h3>
             {allowCancel ? (
               <p>
@@ -133,22 +158,6 @@ export default class NewInstance extends Component {
           </Card.Header>
           <Card.Content>
             <table>
-              <tr>
-                <th>Hostname</th>
-                <td>
-                  <HostnameInput
-                    value={formData.hostname}
-                    onChange={({ target }) => {
-                      this.setState({
-                        formData: {
-                          ...formData,
-                          hostname: target.value,
-                        },
-                      });
-                    }}
-                  />
-                </td>
-              </tr>
               <tr>
                 <th>Region</th>
                 <td>
@@ -163,6 +172,22 @@ export default class NewInstance extends Component {
                       });
                     }}
                     value={this._getRegionValue()}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>Hostname</th>
+                <td>
+                  <HostnameInput
+                    value={formData.hostname}
+                    onChange={({ target }) => {
+                      this.setState({
+                        formData: {
+                          ...formData,
+                          hostname: target.value,
+                        },
+                      });
+                    }}
                   />
                 </td>
               </tr>
@@ -189,6 +214,40 @@ export default class NewInstance extends Component {
               instance={this._getServer()}
               region={formData.region}
             />
+            <table>
+              {!this._hasAmi() ? (
+                <tr>
+                  <th>
+                    <Icon icon="cube" /> Create AMI{" "}
+                    <Explain>
+                      Create a base image in this region, allowing faster deploy
+                      for future instances.
+                    </Explain>
+                  </th>
+                  <td>
+                    <Toggle
+                      onChange={({ target }) => {
+                        this.setState({
+                          createAMI: target.checked,
+                        });
+                      }}
+                    />
+                  </td>
+                </tr>
+              ) : null}
+              {/* <tr>
+                <th>
+                  <Icon icon="refresh" /> Fast provisioning{" "}
+                  <Explain>
+                    This will reserve the ellastic IP. When requested it will
+                    perform a faster deploy using the AMI.
+                  </Explain>
+                </th>
+                <td>
+                  <Toggle disabled={!this.state.createAMI} />
+                </td>
+              </tr> */}
+            </table>
           </Card.Content>
           <Card.Footer>
             <Button.Submit
