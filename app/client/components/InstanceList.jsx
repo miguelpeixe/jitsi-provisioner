@@ -72,11 +72,14 @@ export default class InstanceList extends Component {
   };
   render() {
     const { instances } = this.props;
-    if (!instances || !instances.length) return;
+    if (!instances || !instances.length) return null;
     return (
       <Card.List>
         {instances.map((instance) => (
-          <Card.ListItem key={instance._id} loading={this._isLoading(instance)}>
+          <Card.ListItem
+            key={instance._id}
+            loading={this._isLoading(instance) ? 1 : 0}
+          >
             <Card.Header>
               <Icon icon="server" />
               <h3>{instance.name}</h3>
@@ -136,35 +139,34 @@ export default class InstanceList extends Component {
                 instance={this._getServer(instance.type)}
                 region={instance.region}
               />
-              <nav>
-                <Button
-                  small
-                  light
-                  href="#"
-                  onClick={this._handleDownloadClick(instance)}
-                >
-                  Download configuration
-                </Button>
-              </nav>
+              <Button
+                block
+                light
+                small
+                onClick={this._handleDownloadClick(instance)}
+              >
+                Download configuration
+              </Button>
             </Card.Content>
             <Card.Footer>
-              <Button
-                remove
-                disabled={!this._canTerminate(instance)}
-                href="#"
-                onClick={this._handleRemoveClick(instance)}
-              >
-                Terminate
-              </Button>
-              <Button
-                jitsi
-                disabled={instance.status !== "running"}
-                href={`https://${instance.hostname}`}
-                target="_blank"
-                rel="external"
-              >
-                Launch Jitsi
-              </Button>
+              <Button.Group>
+                <Button
+                  remove={1}
+                  disabled={!this._canTerminate(instance)}
+                  onClick={this._handleRemoveClick(instance)}
+                >
+                  Terminate
+                </Button>
+                <Button
+                  jitsi={1}
+                  disabled={instance.status !== "running"}
+                  href={`https://${instance.hostname}`}
+                  target="_blank"
+                  rel="external"
+                >
+                  Launch Jitsi
+                </Button>
+              </Button.Group>
             </Card.Footer>
           </Card.ListItem>
         ))}

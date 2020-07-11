@@ -4,30 +4,42 @@ import styled from "styled-components";
 import client from "api";
 
 import Card from "components/Card.jsx";
+import {
+  Schema,
+  Alert,
+  Form,
+  FormGroup,
+  FormControl,
+  ControlLabel,
+} from "rsuite";
 import Button from "components/Button.jsx";
+
+const { StringType } = Schema.Types;
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
       loading: false,
-      username: window.DEMO ? "admin" : "",
-      password: window.DEMO ? "admin" : "",
+      formData: DEMO ? { username: "admin", password: "admin" } : {},
     };
+    this.model = Schema.Model({
+      username: StringType().isRequired("Username is required"),
+      password: StringType().isRequired("Password is required"),
+    });
   }
   auth = () => {
-    const { username, password } = this.state;
+    const { formData } = this.state;
     this.setState({
       loading: true,
     });
     client
       .authenticate({
         strategy: "local",
-        username,
-        password,
+        ...formData,
       })
       .catch((err) => {
-        console.error(err.message);
+        Alert.error(err.message);
       })
       .finally(() => {
         this.setState({
@@ -35,47 +47,44 @@ export default class Login extends Component {
         });
       });
   };
-  _handleSubmit = (ev) => {
-    ev.preventDefault();
-    this.auth();
+  _handleSubmit = (check) => {
+    if (check && !this.state.loading) {
+      this.auth();
+    }
   };
-  _handleChange = ({ target }) => {
-    this.setState({ [target.name]: target.value });
+  _handleFormChange = (formData) => {
+    this.setState({ formData });
   };
   render() {
-    const { loading, username, password } = this.state;
+    const { loading, formData } = this.state;
     return (
-      <Card loading={loading}>
-        <form onSubmit={this._handleSubmit}>
+      <Card loading={loading ? 1 : 0}>
+        <Form
+          fluid
+          model={this.model}
+          onSubmit={this._handleSubmit}
+          formValue={formData}
+          onChange={this._handleFormChange}
+        >
           <Card.Header>
             <h3>Authenticate</h3>
           </Card.Header>
           <Card.Content>
-            {window.DEMO ? (
-              <p>
-                Authenticate with <strong>admin/admin</strong> credentials.
-              </p>
-            ) : null}
-            <input
-              type="text"
-              name="username"
-              onChange={this._handleChange}
-              placeholder="Username"
-              autocapitalize="none"
-              value={username}
-            />
-            <input
-              type="password"
-              name="password"
-              onChange={this._handleChange}
-              placeholder="Password"
-              value={password}
-            />
+            <FormGroup controlId="username">
+              <ControlLabel>Username</ControlLabel>
+              <FormControl name="username" />
+            </FormGroup>
+            <FormGroup controlId="password">
+              <ControlLabel>Password</ControlLabel>
+              <FormControl name="password" type="password" />
+            </FormGroup>
           </Card.Content>
           <Card.Footer>
-            <Button.Submit type="submit" value="Login" disabled={loading} />
+            <Button type="submit" block disabled={loading}>
+              Login
+            </Button>
           </Card.Footer>
-        </form>
+        </Form>
       </Card>
     );
   }

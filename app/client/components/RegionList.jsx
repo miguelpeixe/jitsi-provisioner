@@ -21,6 +21,7 @@ const Container = styled.section`
     font-size: 1.2em;
     font-weight: 600;
     margin: 0 0 1rem;
+    line-height: inherit;
   }
   > div {
     margin: 0 0 0.5rem;
@@ -29,6 +30,7 @@ const Container = styled.section`
     justify-content: flex-end;
     h3 {
       font-size: 1em;
+      line-height: inherit;
       margin: 0 0.8rem 0 0;
       color: rgba(255, 255, 255, 0.8);
     }

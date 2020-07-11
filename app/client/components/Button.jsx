@@ -5,8 +5,7 @@ const buttonStyles = css`
   border-radius: 4px;
   color: #fff;
   text-decoration: none;
-  padding: 0.5rem 0.8rem;
-  font-size: 0.9em;
+  padding: 0.5rem 1rem;
   font-weight: 600;
   border: 0;
   cursor: pointer;
@@ -14,18 +13,33 @@ const buttonStyles = css`
   line-height: inherit;
   background-color: #252a34;
   border: 1px solid #333a48;
+  position: relative;
   &:hover {
     color: #fff;
     background-color: #333a48;
+    text-decoration: none;
   }
   &:active {
     color: #fff;
     background-color: #3b4354;
+    text-decoration: none;
   }
+  &:focus {
+    color: #fff;
+    background-color: #3b4354;
+    text-decoration: none;
+  }
+  ${(props) =>
+    props.block &&
+    css`
+      width: 100%;
+      display: block;
+      text-align: center;
+    `}
   ${(props) =>
     props.small &&
     css`
-      font-size: 0.8em;
+      font-size: 0.9em;
     `}
   ${(props) =>
     props.light &&
@@ -75,29 +89,48 @@ const buttonStyles = css`
     `}
 `;
 
-const Button = styled.a`
+const WrapperA = styled.a`
   ${buttonStyles}
 `;
 
-const Submit = styled.input`
+const WrapperButton = styled.button`
   ${buttonStyles}
+`;
+
+const Group = styled.nav`
+  display: flex;
+  margin: 0 -0.5rem;
+  > * {
+    margin: 0 0.5rem;
+    flex: 1 1 100%;
+    text-align: center;
+  }
 `;
 
 const Badge = styled.span`
-  position: relative;
-  top: -0.05rem;
-  font-size: 0.8em;
+  position: absolute;
+  top: -0.2rem;
+  left: 100%;
+  margin-left: -0.8rem;
+  font-size: 0.7em;
   border-radius: 4px;
   line-height: 1;
-  background: rgba(255, 255, 255, 0.05);
+  background: #333a48;
   padding: 0.3rem;
   display: inline-block;
-  margin-left: 0.5rem;
   letter-spacing: 0.08rem;
   font-weight: normal;
 `;
 
-Button.Submit = Submit;
-Button.Badge = Badge;
-
-export default Button;
+export default class Button extends Component {
+  static Group = Group;
+  static Badge = Badge;
+  render() {
+    const { href, ...props } = this.props;
+    if (href) {
+      return <WrapperA href={href} {...props} />;
+    } else {
+      return <WrapperButton {...props} />;
+    }
+  }
+}

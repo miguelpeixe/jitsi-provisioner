@@ -1,14 +1,12 @@
 const path = require("path");
 const webpack = require("webpack");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+  .BundleAnalyzerPlugin;
 
 module.exports = (env, argv) => {
-  const entry = {
-    main: path.resolve("client/index"),
-  };
+  const entry = [path.resolve("client")];
 
   const plugins = [
     new webpack.DefinePlugin({
@@ -31,29 +29,51 @@ module.exports = (env, argv) => {
     }),
   ];
 
+  let analyzerOptions = {
+    analyzerMode: "static",
+    reportFilename: path.resolve("bundle-report.html"),
+    openAnalyzer: false,
+  };
+
   if (!env.production) {
-    entry.hmr =
-      "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=2000&overlay=false&reload=true";
+    entry.push(
+      "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=2000&overlay=false&reload=true"
+    );
     plugins.push(new webpack.HotModuleReplacementPlugin());
+    analyzerOptions = {
+      analyzerMode: "server",
+      analyzerHost: "0.0.0.0",
+      analyzerPort: "8888",
+      openAnalyzer: false,
+    };
   }
 
+  plugins.push(new BundleAnalyzerPlugin(analyzerOptions));
   return {
     mode: env.production ? "production" : "development",
     entry,
+    devtool: env.production ? undefined : "#source-map",
     resolve: {
-      alias: {
-        react: "preact/compat",
-        "react-dom/test-utils": "preact/test-utils",
-        "react-dom": "preact/compat",
-      },
+      // alias: {
+      //   react: "preact/compat",
+      //   "react-dom/test-utils": "preact/test-utils",
+      //   "react-dom": "preact/compat",
+      // },
       modules: ["client", "node_modules"],
     },
     output: {
       path: path.resolve(__dirname, "public"),
       publicPath: "/",
-      filename: "[name].[hash].js",
+      filename: env.production ? "[name].[hash].js" : "[name].js",
     },
     plugins,
+    optimization: {
+      splitChunks: {
+        maxSize: 200000,
+        chunks: "all",
+        name: !env.production,
+      },
+    },
     module: {
       rules: [
         {
@@ -86,6 +106,9 @@ module.exports = (env, argv) => {
                 esModule: true,
               },
             },
+            // {
+            //   loader: "style-loader",
+            // },
             {
               loader: "css-loader",
             },
@@ -94,7 +117,6 @@ module.exports = (env, argv) => {
               options: {
                 lessOptions: {
                   javascriptEnabled: true,
-                  modifyVars: { "@reset-import": false },
                 },
               },
             },

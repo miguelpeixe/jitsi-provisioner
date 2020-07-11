@@ -13,9 +13,9 @@ const Container = styled.div`
   }
 `;
 
-const Content = styled.div`
+const Wrapper = styled.div`
   margin: 2rem auto;
-  max-width: 500px;
+  max-width: 450px;
   @media (max-width: 1120px) {
     max-width: none;
   }
@@ -24,11 +24,13 @@ const Content = styled.div`
   }
 `;
 
-export default function (p) {
-  const { children, ...props } = p;
-  return (
-    <Container {...props}>
-      <Content>{children}</Content>
-    </Container>
-  );
+export default class Content extends Component {
+  render() {
+    const { children, ...props } = this.props;
+    return (
+      <Container {...props}>
+        <Wrapper>{children}</Wrapper>
+      </Container>
+    );
+  }
 }

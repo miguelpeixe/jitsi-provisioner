@@ -14,11 +14,11 @@ const cardStyles = css`
   color: #333;
   border-radius: 4px;
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
-  margin: 0 2rem 2rem;
+  margin: 0 0 2rem;
   ${(props) =>
     props.info &&
     css`
-      font-size: 0.8em;
+      font-size: 0.9em;
       background: transparent;
       color: #fff;
       border: 2px solid rgba(0, 0, 0, 0.2);
@@ -44,12 +44,6 @@ const cardStyles = css`
       animation-direction: alternate;
       animation-iteration-count: infinite;
     `}
-  h3 {
-    margin: 0 0 1rem;
-    font-family: monospace;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
   @media (max-width: 860px) {
     margin: 0 0 1rem;
   }
@@ -84,12 +78,12 @@ const Content = styled.section`
   h4 {
     margin: 0;
     font-weight: 600;
+    line-height: inherit;
   }
   h4 {
     font-size: 1em;
   }
   table {
-    font-size: 0.9em;
     width: 100%;
     border-spacing: 0;
     margin: 0 0 1rem;
@@ -98,35 +92,24 @@ const Content = styled.section`
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       padding: 0.5rem 0;
       white-space: nowrap;
+      text-align: left;
     }
     th {
       font-weight: 600;
       color: rgba(0, 0, 0, 0.4);
-      text-align: left;
       padding-right: 3rem;
       i {
         margin-right: 0.5rem;
       }
     }
     td {
-      text-align: right;
       width: 100%;
-      input {
-        margin: 0;
-      }
     }
     tr:last-child {
       th,
       td {
         border-bottom: 0;
       }
-    }
-  }
-  nav {
-    display: flex;
-    a {
-      flex: 1 1 100%;
-      text-align: center;
     }
   }
   > *:last-child {
@@ -136,7 +119,7 @@ const Content = styled.section`
     margin: 1rem;
   }
   @media (max-width: 370px) {
-    font-size: 0.8em;
+    font-size: 0.9em;
     table th {
       padding-right: 1.5rem;
     }
@@ -154,17 +137,23 @@ const Header = styled.header`
     margin-right: 1.5rem;
     color: rgba(0, 0, 0, 0.5);
   }
+  h4,
   h3 {
     font-size: 1em;
-    line-height: 1;
     flex: 1 1 100%;
     margin: 0;
     color: #252a34;
+    line-height: inherit;
+  }
+  h3 {
+    font-family: monospace;
+    text-transform: uppercase;
+    font-weight: 600;
   }
   p,
   div {
     font-size: 0.8em;
-    margin: 0 0 0 1rem;
+    margin: 0 0 0 0.75rem;
     flex: 0 0 auto;
     color: rgba(0, 0, 0, 0.5);
   }
@@ -177,19 +166,12 @@ const Header = styled.header`
 `;
 
 const Footer = styled.footer`
-  display: flex;
   margin: 0;
-  padding: 1rem 1.5rem;
+  padding: 1rem 2rem;
   background: rgba(0, 0, 0, 0.04);
   border-radius: 0 0 4px 4px;
-  a,
-  input {
-    text-align: center;
-    flex: 1 1 100%;
-    margin: 0 0.5rem;
-  }
   @media (max-width: 760px) {
-    padding: 1rem 0.5rem;
+    padding: 1rem;
   }
 `;
 

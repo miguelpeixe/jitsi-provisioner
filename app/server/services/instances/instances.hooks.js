@@ -59,8 +59,10 @@ const processInstance = (options = {}) => {
 
     const id = generateId();
     const instancePath = path.join(dataPath, "instances", id);
-    const name = `server-${id}`;
-    const hostname = data.hostname || `${name}.${domain}`;
+    const hostname = data.hostname || `${id}.${domain}`;
+
+    const parsedHostname = parseDomain(hostname);
+    const name = parsedHostname.subDomains.join(".");
 
     context.data = {
       _id: id,
@@ -101,6 +103,12 @@ const validateData = (options = {}) => {
   return async (context) => {
     const { data } = context;
 
+    // Validate hostname
+    const domain = parseDomain(data.hostname);
+    if (domain.type == "INVALID" || (domain.errors && domain.errors.length)) {
+      throw new Error("Invalid hostname");
+    }
+
     // Ensure unique ID
     const idInstances = await context.service.find({
       query: { _id: data._id },
@@ -115,12 +123,6 @@ const validateData = (options = {}) => {
     });
     if (hostnameInstances.length) {
       throw new Error("Hostname already in use");
-    }
-
-    // Validate hostname
-    const domain = parseDomain(data.hostname);
-    if (domain.type == "INVALID" || (domain.errors && domain.errors.length)) {
-      throw new Error("Invalid hostname");
     }
 
     // AWS instance availability

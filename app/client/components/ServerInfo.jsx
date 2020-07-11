@@ -1,20 +1,21 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 
+import FlexTable from "components/FlexTable.jsx";
+
 const Container = styled.div`
   padding: 0.5rem 1rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  font-size: 0.9em;
   margin: 0 0 1rem;
-  table {
+  font-size: 0.8em;
+  div {
     margin: 0;
   }
 `;
 
 const Summary = styled.div`
   display: flex;
-  font-size: 0.8em;
   cursor: pointer;
   align-items: center;
   h4 {
@@ -55,7 +56,7 @@ export default class ServerInfo extends Component {
   render() {
     const { collapsed } = this.state;
     const { instance, region, full } = this.props;
-    if (!instance) return;
+    if (!instance) return null;
     return (
       <Container>
         {!full ? (
@@ -77,36 +78,36 @@ export default class ServerInfo extends Component {
         {!collapsed || full ? (
           <div>
             {instance.pricing[region] ? (
-              <table>
-                <tr>
-                  <th>Processor</th>
-                  <td>{instance.processor}</td>
-                </tr>
-                <tr>
-                  <th>vCPU count</th>
-                  <td>{instance.vcpu}</td>
-                </tr>
-                <tr>
-                  <th>Clock speed</th>
-                  <td>{instance.clockSpeed}</td>
-                </tr>
-                <tr>
-                  <th>Memory</th>
-                  <td>{instance.memory} GiB</td>
-                </tr>
-                <tr>
-                  <th>Network speed</th>
-                  <td>{instance.network}</td>
-                </tr>
-                <tr>
-                  <th>Estimated cost</th>
-                  <td>
+              <FlexTable>
+                <FlexTable.Row>
+                  <FlexTable.Head>Processor</FlexTable.Head>
+                  <FlexTable.Data>{instance.processor}</FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>vCPU count</FlexTable.Head>
+                  <FlexTable.Data>{instance.vcpu}</FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>Clock speed</FlexTable.Head>
+                  <FlexTable.Data>{instance.clockSpeed}</FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>Memory</FlexTable.Head>
+                  <FlexTable.Data>{instance.memory} GiB</FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>Network speed</FlexTable.Head>
+                  <FlexTable.Data>{instance.network}</FlexTable.Data>
+                </FlexTable.Row>
+                <FlexTable.Row>
+                  <FlexTable.Head>Estimated cost</FlexTable.Head>
+                  <FlexTable.Data>
                     <strong>${instance.pricing[region]}/hour</strong>
-                  </td>
-                </tr>
-              </table>
+                  </FlexTable.Data>
+                </FlexTable.Row>
+              </FlexTable>
             ) : (
-              <p style={{ textAlign: "center" }}>
+              <p style={{ textAlign: "center", margin: "1rem 0" }}>
                 Instance type not available in this region
               </p>
             )}

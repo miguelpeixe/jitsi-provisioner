@@ -1,5 +1,7 @@
 import React, { Component } from "react";
+import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
+import { Badge } from "rsuite";
 
 import client from "api";
 
@@ -8,7 +10,7 @@ import Loading from "components/Loading.jsx";
 import Button from "components/Button.jsx";
 import Card from "components/Card.jsx";
 import Login from "components/Login.jsx";
-import NewHostname from "components/NewHostname.jsx";
+// import NewHostname from "components/NewHostname.jsx";
 import NewInstance from "components/NewInstance.jsx";
 import RegionList from "components/RegionList.jsx";
 import HostnameList from "components/HostnameList.jsx";
@@ -53,10 +55,12 @@ const Header = styled.header`
   text-align: right;
   border-right: 1px solid rgba(0, 0, 0, 0.2);
   overflow: auto;
+  color: #fff;
   h1 {
     margin: 0 0 1rem;
     font-size: 1.6em;
     flex: 0 0 auto;
+    line-height: inherit;
   }
   a {
     color: rgba(255, 255, 255, 0.9);
@@ -66,6 +70,7 @@ const Header = styled.header`
   }
   p {
     font-size: 0.9em;
+    margin: 0 0 1rem;
   }
   @media (max-width: 1120px) {
     position: static;
@@ -306,7 +311,7 @@ export default class App extends Component {
     ev.preventDefault();
     if (!this._canCreate()) return;
     this.setState({ newInstance: true });
-    this.contentRef.current.base.scrollTop = 0;
+    ReactDOM.findDOMNode(this.contentRef.current).scrollTop = 0;
   };
   _handleNewHostnameClick = () => (ev) => {
     ev.preventDefault();
@@ -349,34 +354,24 @@ export default class App extends Component {
         <Header>
           <h1>Jitsi Provisioner</h1>
           {auth && instances.length ? (
-            <p>
-              <Button
-                href="#"
-                disabled={!this._canCreate()}
-                onClick={this._handleNewClick()}
-              >
-                New instance
-                {window.MAX_INSTANCES ? (
-                  <Button.Badge>
-                    {instances.length}/{window.MAX_INSTANCES}
-                  </Button.Badge>
-                ) : null}
-              </Button>
-              {/* <Button href="#" onClick={this._handleNewHostnameClick()}>
-                New Hostname
-              </Button> */}
-            </p>
+            <Button
+              disabled={!this._canCreate()}
+              onClick={this._handleNewClick()}
+            >
+              New instance
+              {MAX_INSTANCES ? (
+                <Button.Badge>
+                  {instances.length}/{MAX_INSTANCES}
+                </Button.Badge>
+              ) : null}
+            </Button>
           ) : null}
-          {/* <Spacer /> */}
           <Spacer>
             <RegionList amis={amis} instances={instances} />
           </Spacer>
-          {/* <Spacer /> */}
           {auth ? (
             <p>
-              <Button href="#" onClick={this._handleLogoutClick}>
-                Logout
-              </Button>
+              <Button onClick={this._handleLogoutClick}>Logout</Button>
             </p>
           ) : null}
           <Info>

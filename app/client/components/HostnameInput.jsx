@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
+import { Input, InputGroup } from "rsuite";
 
 const Container = styled.div`
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -30,52 +31,39 @@ export default class HostnameInput extends Component {
   static defaultProps = {
     value: "",
   };
-  _handleChange = ({ target }) => {
-    const value = DOMAIN ? `${target.value}.${DOMAIN}` : target.value;
-    this.props.onChange &&
-      this.props.onChange({
-        target: {
-          name: this.props.name,
-          value,
-        },
-      });
+  _handleChange = (value) => {
+    if (DOMAIN) {
+      const subdomain = value.replace(`.${DOMAIN}`, "");
+      if (subdomain) {
+        value = `${value}.${DOMAIN}`;
+      }
+    }
+    this.props.onChange && this.props.onChange(value);
   };
   _getValue = () => {
     const { value } = this.props;
     if (DOMAIN) {
-      return value.replace(`.${DOMAIN}`, "");
+      const subdomain = value.replace(`.${DOMAIN}`, "");
+      if (subdomain) {
+        return subdomain;
+      }
+      return "";
     }
     return value;
   };
   render() {
     const { name, value, placeholder } = this.props;
-    if (!DOMAIN) {
-      return (
-        <input
-          type="text"
+    return (
+      <InputGroup>
+        <Input
           name={name}
-          placeholder="my-jitsi.meet.example.com"
+          placeholder={DOMAIN ? "my-jitsi-server" : "jitsi.example.com"}
           onChange={this._handleChange}
-          autocapitalize="none"
+          autoCapitalize="none"
           value={this._getValue()}
         />
-      );
-    } else {
-      return (
-        <Container>
-          <div>
-            <input
-              type="text"
-              name={name}
-              placeholder="my-jitsi-server"
-              onChange={this._handleChange}
-              autocapitalize="none"
-              value={this._getValue()}
-            />
-            <span>.{DOMAIN}</span>
-          </div>
-        </Container>
-      );
-    }
+        {DOMAIN ? <InputGroup.Addon>.{DOMAIN}</InputGroup.Addon> : null}
+      </InputGroup>
+    );
   }
 }

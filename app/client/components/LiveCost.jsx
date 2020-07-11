@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-
-const moment = require("moment");
+import moment from "moment";
 
 export default class LiveCost extends Component {
   constructor(props) {

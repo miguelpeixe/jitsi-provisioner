@@ -1,0 +1,111 @@
+//@import "~normalize.css";
+@import "~rsuite/lib/styles/themes/default/index.less";
+
+// @button-ripple: false;
+@ie-polyfill: false;
+
+@base-color: #252a34;
+
+@body-bg: #3b4354;
+
+@btn-font-weight: 600;
+// @btn-primary-bg: @base-color;
+// @btn-link-color: @base-color;
+
+@red: #b70000;
+// @text-color: #ffffff;
+
+// @primary-color: #3b4354;
+// @primary-bg-color: #3b4354;
+// @primary-border-color: #3b4354;
+
+@font-family-base: "Helvetica Neue", "Open Sans", Helvetica, Arial, sans-serif;
+
+// @font-size-base: 1em;
+//
+// @font-size-large: 1.2em;
+// @font-size-base: 1em;
+// @font-size-small: 0.8px;
+// @font-size-extra-small: 0.7em;
+//
+// @font-size-h1: 2em;
+// @font-size-h2: 1.6em;
+// @font-size-h3: 1.4em;
+// @font-size-h4: 1.2em;
+// @font-size-h5: 1em;
+// @font-size-h6: 0.8em; // The same to font-size-base
+//
+// @line-height-base: 1.5;
+//
+// @line-height-h1: @line-height-base;
+// @line-height-h2: @line-height-base;
+// @line-height-h3: @line-height-base;
+// @line-height-h4: @line-height-base;
+// @line-height-h5: @line-height-base;
+// @line-height-h6: @line-height-base;
+//
+// @padding-base-vertical: 1rem;
+// @padding-base-horizontal: 1.5rem;
+//
+// @padding-large-vertical: 1rem;
+// @padding-large-horizontal: 1.5rem;
+//
+// @padding-small-vertical: 1rem;
+// @padding-small-horizontal: 1.5rem;
+//
+// @padding-extra-small-vertical: 1rem;
+// @padding-extra-small-horizontal: 1.5rem;
+
+@border-radius-base: 4px;
+
+// @border-base-color: rgba(0, 0, 0, 0.2);
+// @input-border: rgba(0, 0, 0, 0.2);
+// @input-border-focus: rgba(0, 0, 0, 0.2);
+// @picker-default-toggle-hover-border-color: rgba(0, 0, 0, 0.2);
+@input-picker-toggle-content-height: 30px;
+
+body,
+html {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background-image: linear-gradient(
+    -90deg,
+    #252a34 0,
+    #3b4354 50%,
+    #252a34 100%
+  );
+}
+
+@media (max-width: 760px) {
+  body {
+    background-image: none;
+  }
+}
+
+@media (min-width: 760px) {
+  /* Webkit scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  /*--*/
+}
+
+.not-found {
+  text-align: center;
+  margin: 0;
+  padding: 2rem;
+  color: #fff;
+}
