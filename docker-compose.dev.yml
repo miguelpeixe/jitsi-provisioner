@@ -5,6 +5,7 @@ services:
     command: ["nodemon", "server/index.js"]
     ports:
       - 3030:3030
+      - 8888:8888
     volumes:
       - ${DATA_PATH}:/data
       - ./app:/app

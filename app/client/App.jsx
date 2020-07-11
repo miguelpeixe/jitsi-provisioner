@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
-import { Badge } from "rsuite";
+import { Loader } from "rsuite";
 
 import client from "api";
 
 import Content from "components/Content.jsx";
-import Loading from "components/Loading.jsx";
 import Button from "components/Button.jsx";
 import Card from "components/Card.jsx";
 import Login from "components/Login.jsx";
@@ -347,7 +346,7 @@ export default class App extends Component {
       instances,
     } = this.state;
     if (!ready) {
-      return <Loading full />;
+      return <Loader center size="md" inverse />;
     }
     return (
       <Container>
@@ -416,7 +415,7 @@ export default class App extends Component {
         </Header>
         <Content id="content" ref={this.contentRef}>
           {loading ? (
-            <Loading full />
+            <Loader center size="md" inverse />
           ) : (
             <>
               {window.DEMO ? (
