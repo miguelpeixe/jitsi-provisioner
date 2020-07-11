@@ -5,7 +5,7 @@ import client from "api";
 
 import regions from "regions";
 
-import { Icon, Tooltip, Whisper } from "rsuite";
+import { Alert, Icon, Tooltip, Whisper } from "rsuite";
 
 import Button from "components/Button.jsx";
 import StatusBadge from "components/StatusBadge.jsx";
@@ -85,9 +85,19 @@ Resources.AMI = function ({ ami, region }) {
       onClick={(ev) => {
         ev.preventDefault();
         if (!ami) {
-          client.service("amis").create({ region });
+          client
+            .service("amis")
+            .create({ region })
+            .catch((err) => {
+              Alert.error(err.message);
+            });
         } else if (ami.status.match(/failed|active/)) {
-          client.service("amis").remove(ami._id);
+          client
+            .service("amis")
+            .remove(ami._id)
+            .catch((err) => {
+              Alert.error(err.message);
+            });
         }
       }}
     >
@@ -143,14 +153,6 @@ function Region(props) {
 }
 
 export default class RegionList extends Component {
-  constructor(props) {
-    super(props);
-    this.service = client.service("amis");
-  }
-  _handleRemoveClick = (amiId) => (ev) => {
-    ev.preventDefault();
-    this.service.remove(amiId);
-  };
   render() {
     const { amis, instances } = this.props;
     if (!amis.length && !instances.length) return null;

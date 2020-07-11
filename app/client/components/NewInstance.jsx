@@ -79,6 +79,9 @@ export default class NewInstance extends Component {
       .then((res) => {
         this.props.onSubmit && this.props.onSubmit(res);
       })
+      .catch((err) => {
+        Alert.error(err.message);
+      })
       .finally(() => {
         this.setState({
           loading: false,

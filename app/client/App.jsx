@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
-import { Loader } from "rsuite";
+import { Alert, Loader } from "rsuite";
 
 import client from "api";
 
@@ -16,6 +16,10 @@ import HostnameList from "components/HostnameList.jsx";
 import InstanceList from "components/InstanceList.jsx";
 
 import regions from "regions";
+
+Alert.config({
+  top: "1rem",
+});
 
 const Container = styled.div`
   display: flex;

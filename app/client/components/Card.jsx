@@ -132,6 +132,7 @@ const Header = styled.header`
   padding: 1.5rem 2rem;
   margin: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(0, 0, 0, 0.05);
   i {
     flex: 0 0 auto;
     margin-right: 1.5rem;
@@ -167,11 +168,10 @@ const Header = styled.header`
 
 const Footer = styled.footer`
   margin: 0;
-  padding: 1rem 2rem;
-  background: rgba(0, 0, 0, 0.04);
+  padding: 0 2rem 1.5rem;
   border-radius: 0 0 4px 4px;
   @media (max-width: 760px) {
-    padding: 1rem;
+    padding: 0 1rem 1rem;
   }
 `;
 
