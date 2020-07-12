@@ -68,7 +68,7 @@ module.exports = async (app) => {
           }
           await service.create(awsInstance);
         }
-        lgoger.info("AWS database updated");
+        logger.info("AWS database updated");
       } else {
         logger.warn("Unable to update AWS instance types database");
       }
