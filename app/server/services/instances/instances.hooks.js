@@ -14,9 +14,10 @@ const updateStatus = async (service, id, status) => {
   return await service.patch(id, { status });
 };
 
-const fail = async (service, id, reason) => {
+const fail = async (service, id, err) => {
   await service.patch(id, { status: "failed" });
-  throw new Error(reason);
+  logger.error(err);
+  throw new Error(err.message);
 };
 
 const getParsedVars = (instance) => {
