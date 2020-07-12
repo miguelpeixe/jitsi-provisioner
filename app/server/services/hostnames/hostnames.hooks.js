@@ -267,14 +267,17 @@ const destroy = (options = {}) => {
             -target=aws_eip.default \
             -var "aws_region=${data.region}" \
             -state=${data.path}/terraform.tfstate`);
-        await updateStatus(service, context.id, "removing-files");
-        await exec(`rm -r ${data.path}`);
         await updateStatus(service, context.id, "removing-dns-records");
         await cloudflare.deleteRecord(data.hostname);
       } catch (e) {
-        console.error(e);
+        logger.error(e);
       }
-    } else {
+    }
+
+    await updateStatus(service, context.id, "removing-files");
+    await exec(`rm -r ${data.path}`);
+
+    if (DEMO) {
       await sleep(1 * 1000);
     }
 
@@ -286,18 +289,19 @@ const destroy = (options = {}) => {
 
 const handleCreate = (options = {}) => {
   return async (context) => {
-    processHooks.call(
-      this,
-      [
-        createPath(),
-        createPlan(),
-        createHostname(),
-        fetchState(),
-        setDNSRecord(),
-        finish(),
-      ],
-      context
-    );
+    const hooks = [
+      createPath(),
+      createPlan(),
+      createHostname(),
+      fetchState(),
+      setDNSRecord(),
+      finish(),
+    ];
+    if (context.params.provider) {
+      processHooks.call(this, hooks, context);
+    } else {
+      await processHooks.call(this, hooks, context);
+    }
     return context;
   };
 };

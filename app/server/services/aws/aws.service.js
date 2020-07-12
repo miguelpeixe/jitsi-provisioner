@@ -2,6 +2,7 @@ const nedbService = require("feathers-nedb");
 const NeDB = require("nedb");
 const path = require("path");
 const axios = require("axios");
+const logger = require("../../logger");
 
 module.exports = async (app) => {
   const Model = new NeDB({
@@ -35,7 +36,7 @@ module.exports = async (app) => {
         "https://raw.githubusercontent.com/powdahound/ec2instances.info/master/www/instances.json"
       );
     } catch (e) {
-      console.log("AWS instances db:", "ec2instances.info connection error");
+      logger.warn("ec2instances.info connection error");
     } finally {
       if (aws && aws.data && aws.data.length) {
         // Clear database
@@ -67,9 +68,9 @@ module.exports = async (app) => {
           }
           await service.create(awsInstance);
         }
-        console.log("AWS database updated");
+        lgoger.info("AWS database updated");
       } else {
-        console.log("AWS instances db:", "Unable to update database");
+        logger.warn("Unable to update AWS instance types database");
       }
     }
   };

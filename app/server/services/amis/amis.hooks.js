@@ -343,12 +343,15 @@ const destroy = (options = {}) => {
           -target=aws_ami_from_instance.default \
           ${getParsedVars(data.terraform.vars)} \
           -state=${data.path}/terraform.tfstate`);
-        await updateStatus(service, context.id, "removing-files");
-        await exec(`rm -r ${data.path}`);
       } catch (e) {
         logger.error(e);
       }
-    } else {
+    }
+
+    await updateStatus(service, context.id, "removing-files");
+    await exec(`rm -r ${data.path}`);
+
+    if (DEMO) {
       await sleep(1 * 1000);
     }
 
