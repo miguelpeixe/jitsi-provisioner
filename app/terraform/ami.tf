@@ -1,28 +1,23 @@
-data "template_cloudinit_config" "ami" {
-  gzip          = true
-  base64_encode = true
-
-  part {
-    filename      = "init"
-    content_type  = "text/x-shellscript"
-    content       = file("init.sh")
-  }
-
-  part {
-    content_type  = "text/x-shellscript"
-    content       = file("poweroff.sh")
-  }
+variable "ami_id" {
+  description = "AMI ID for Instance creation"
+  default     = ""
 }
-
-resource "aws_instance" "for_ami" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t3.large"
-  user_data              = data.template_cloudinit_config.ami.rendered
-  tags = {
-    Name = var.name
-  }
+variable "ami_instance_id" {
+  description = "Instance ID for AMI creation"
+  default     = ""
 }
-
+variable "ami_name" {
+  description = "AMI name"
+  default     = ""
+}
+variable "source_ami_region" {
+  description = "Source AMI region to copy from"
+  default     = ""
+}
+variable "source_ami_id" {
+  description = "Source AMI ID to copy from"
+  default     = ""
+}
 resource "aws_ami_from_instance" "default" {
   name               = var.ami_name
   source_instance_id = var.ami_instance_id

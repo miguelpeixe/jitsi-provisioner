@@ -38,27 +38,3 @@ variable "hostname" {
   description = "Hostname of the Jitsi Server"
   default     = ""
 }
-variable "eip_id" {
-  description = "EIP ID for Instance allocation"
-  default     = ""
-}
-variable "ami_id" {
-  description = "AMI ID for Instance creation"
-  default     = ""
-}
-variable "ami_instance_id" {
-  description = "Instance ID for AMI creation"
-  default     = ""
-}
-variable "ami_name" {
-  description = "AMI name"
-  default     = ""
-}
-variable "source_ami_region" {
-  description = "Source AMI region to copy from"
-  default     = ""
-}
-variable "source_ami_id" {
-  description = "Source AMI ID to copy from"
-  default     = ""
-}

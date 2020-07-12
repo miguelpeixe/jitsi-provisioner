@@ -3,10 +3,6 @@ set -e
 
 echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" >> /etc/resolv.conf
 
-# Disable ipv6
-sysctl -w net.ipv6.conf.all.disable_ipv6=1
-sysctl -w net.ipv6.conf.default.disable_ipv6=1
-
 echo -e "DefaultLimitNOFILE=65000\nDefaultLimitNPROC=65000\nDefaultTasksMax=65000" >> /etc/systemd/system.conf
 
 # Install Docker
@@ -17,9 +13,10 @@ apt-get install -y --no-install-recommends \
   ca-certificates \
   curl \
   gnupg-agent \
-  software-properties-common
+  software-properties-common \
+  nginx
 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | apt-key add -
 
 add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
@@ -47,3 +44,8 @@ mkdir -p /jitsi/.jitsi-meet-cfg/{web/letsencrypt,transcripts,prosody/config,pros
 # Pull docker images
 cp env.example .env
 docker-compose -f docker-compose.yml -f jigasi.yml -f jibri.yml pull
+
+# Install certbot
+curl -fsSL "https://dl.eff.org/certbot-auto" -o /usr/local/bin/certbot-auto
+chmod +x /usr/local/bin/certbot-auto
+certbot-auto --os-packages-only --noninteractive

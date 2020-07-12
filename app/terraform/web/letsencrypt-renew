@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+mkdir -p /var/www/letsencrypt
+
+certbot-auto renew \
+  --no-self-upgrade \
+  -n \
+  --webroot \
+  --webroot-path /var/www/letsencrypt
+
+systemctl reload nginx
