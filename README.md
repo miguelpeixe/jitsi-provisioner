@@ -13,7 +13,7 @@ You can see a demo at https://meet.peixe.co.
 - [Amazon Web Services](https://aws.amazon.com/) account
 - [CloudFlare](https://www.cloudflare.com/) located domain
 
-# Features
+## Features
 
  - Provision a Jitsi Meet server of any size and in any region of the world
  - Terminate and provision again at any time, preserving allocated elastic IP, hostname and the automatically generated LetsEncrypt certificates
