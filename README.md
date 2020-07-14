@@ -13,6 +13,12 @@ You can see a demo at https://meet.peixe.co.
 - [Amazon Web Services](https://aws.amazon.com/) account
 - [CloudFlare](https://www.cloudflare.com/) located domain
 
+# Features
+
+ - Provision a Jitsi Meet server of any size and in any region of the world
+ - Terminate and provision again at any time, preserving allocated elastic IP, hostname and the automatically generated LetsEncrypt certificates
+ - Create your Jitsi AMI with one click for even faster provisioning
+
 ## Installation
 
 Jitsi Provisioner uses [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for easier setup. [Learn how to install and use Docker](https://docs.docker.com/get-docker/).
