@@ -3,6 +3,8 @@ const NeDB = require("nedb");
 const path = require("path");
 const axios = require("axios");
 const logger = require("../../logger");
+const { authenticate } = require("@feathersjs/authentication").hooks;
+const { disallow } = require("feathers-hooks-common");
 
 module.exports = async (app) => {
   const Model = new NeDB({
@@ -14,17 +16,13 @@ module.exports = async (app) => {
 
   const service = app.service("aws");
 
-  const disallow = (context) => {
-    if (context.params.provider) throw new Error("Not allowed");
-    return context;
-  };
-
   service.hooks({
     before: {
-      create: [disallow],
-      patch: [disallow],
-      update: [disallow],
-      remove: [disallow],
+      all: [authenticate("jwt")],
+      create: [disallow("external")],
+      patch: [disallow("external")],
+      update: [disallow("external")],
+      remove: [disallow("external")],
     },
   });
 

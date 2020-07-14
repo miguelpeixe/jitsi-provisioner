@@ -12,7 +12,7 @@ import StatusBadge from "components/StatusBadge.jsx";
 import ServerInfo from "components/ServerInfo.jsx";
 import Button from "components/Button.jsx";
 import Timer from "components/Timer.jsx";
-import LiveCost from "components/LiveCost.jsx";
+import EstimatedCost from "components/EstimatedCost.jsx";
 
 export default class InstanceList extends Component {
   constructor(props) {
@@ -48,17 +48,6 @@ export default class InstanceList extends Component {
     }
     return "--";
   };
-  _getPublicIp = (instance) => {
-    if (instance.publicIp) {
-      return instance.publicIp;
-    }
-    if (instance.terraform.state.terraform_version) {
-      return instance.terraform.state.resources.find(
-        (resource) => resource.type == "aws_instance"
-      ).instances[0].attributes.public_ip;
-    }
-    return "--";
-  };
   _getServer = (instance) => {
     const { awsInstances } = this.props;
     if (!awsInstances.length || !instance) return;
@@ -88,7 +77,7 @@ export default class InstanceList extends Component {
       });
   };
   render() {
-    const { instances } = this.props;
+    const { awsInstances, instances } = this.props;
     if (!instances || !instances.length) return null;
     return (
       <Card.List>
@@ -123,23 +112,12 @@ export default class InstanceList extends Component {
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Public IP</FlexTable.Head>
-                  <FlexTable.Data>{this._getPublicIp(instance)}</FlexTable.Data>
+                  <FlexTable.Data>{instance.publicIp || "--"}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Estimated cost</FlexTable.Head>
                   <FlexTable.Data>
-                    {instance.provisionedAt ? (
-                      <LiveCost
-                        date={instance.provisionedAt}
-                        hourlyPrice={
-                          this._getServer(instance.type).pricing[
-                            instance.region
-                          ]
-                        }
-                      />
-                    ) : (
-                      "--"
-                    )}
+                    <EstimatedCost instance={instance} aws={awsInstances} />
                   </FlexTable.Data>
                 </FlexTable.Row>
               </FlexTable>

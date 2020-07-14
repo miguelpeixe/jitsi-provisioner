@@ -11,7 +11,6 @@ import Card from "components/Card.jsx";
 import Login from "components/Login.jsx";
 import NewInstance from "components/NewInstance.jsx";
 import RegionList from "components/RegionList.jsx";
-import HostnameList from "components/HostnameList.jsx";
 import InstanceList from "components/InstanceList.jsx";
 
 import regions from "regions";

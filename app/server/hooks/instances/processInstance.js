@@ -32,7 +32,6 @@ module.exports = (options = {}) => {
         name: `jitsi-${name}`,
       },
       terraform: {
-        state: {},
         vars: {},
       },
     };

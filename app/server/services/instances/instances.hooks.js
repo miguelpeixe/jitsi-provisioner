@@ -6,8 +6,9 @@ const { disallow } = require("feathers-hooks-common");
 
 const logger = require("../../logger");
 
+const { updateStatus, pushHistory } = require("../../hooks");
+
 const {
-  updateStatus,
   checkLimit,
   processInstance,
   validateData,
@@ -40,12 +41,11 @@ const provisionHooks = [
   verifyCloudflare(),
   updateStatus("finding-ami"),
   findAMI(),
-  updateStatus("provisioning-eip"),
-  provisionEIP(),
   updateStatus("setting-dns"),
   setDNSRecord(),
   updateStatus("provisioning-instance"),
   provisionInstance(),
+  pushHistory("provisioned"),
   updateStatus("waiting-dns"),
   waitDNS(),
   updateStatus("waiting-app"),
@@ -71,21 +71,17 @@ const validatePatch = (options = {}) => {
 
 const handleAction = (options = {}) => {
   return async (context) => {
-    if (context.params.provider) {
-      const { action } = context.data;
-      if (action) {
-        switch (action) {
-          case "terminate":
-          case "provision":
-          case "remove":
-            context.params.instanceAction = action;
-            context.data = { status: `pending-${action}` };
-            break;
-          default:
-            throw new Error("Action not available");
-        }
-      } else {
-        context.data = {};
+    const { action } = context.data;
+    if (action) {
+      switch (action) {
+        case "terminate":
+        case "provision":
+        case "remove":
+          context.params.instanceAction = action;
+          context.data = { status: `pending-${action}` };
+          break;
+        default:
+          throw new Error("Action not available");
       }
     }
     return context;
@@ -101,6 +97,9 @@ const handleCreate = (options = {}) => {
       createPath(),
       updateStatus("creating-keys"),
       createSSHKeys(),
+      updateStatus("provisioning-eip"),
+      provisionEIP(),
+      pushHistory("standby"),
     ];
     hooks = hooks.concat(provisionHooks);
 
@@ -151,6 +150,7 @@ const handleRemove = (options = {}) => {
       removeDNSRecord(),
       updateStatus("removing-files"),
       removeFiles(),
+      pushHistory("destroyed"),
       async (context) => {
         await context.service.remove(context.id);
       },
@@ -175,6 +175,7 @@ const handleTermination = (options = {}) => {
     const hooks = [
       updateStatus("terminating-instance"),
       terminateInstance(),
+      pushHistory("standby"),
       updateStatus("terminated"),
     ];
     // Async call when request not internal
