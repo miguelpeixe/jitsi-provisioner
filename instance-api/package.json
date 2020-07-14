@@ -1,0 +1,24 @@
+{
+  "name": "jitsi-provisioner-instance-api",
+  "version": "0.0.1",
+  "description": "An instance api for the Jitsi Provisioner",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miguelpeixe/jitsi-provisioner.git"
+  },
+  "author": "Miguel Peixe <miguel@peixe.co>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/miguelpeixe/jitsi-provisioner/issues"
+  },
+  "homepage": "https://github.com/miguelpeixe/jitsi-provisioner#readme",
+  "dependencies": {
+    "archiver": "^4.0.2",
+    "express": "^4.17.1"
+  }
+}

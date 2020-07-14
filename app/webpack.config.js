@@ -67,13 +67,15 @@ module.exports = (env, argv) => {
       filename: env.production ? "[name].[hash].js" : "[name].js",
     },
     plugins,
-    optimization: {
-      splitChunks: {
-        maxSize: 200000,
-        chunks: "all",
-        name: !env.production,
-      },
-    },
+    optimization: env.production
+      ? {
+          splitChunks: {
+            maxSize: 200000,
+            chunks: "all",
+            name: !env.production,
+          },
+        }
+      : {},
     module: {
       rules: [
         {

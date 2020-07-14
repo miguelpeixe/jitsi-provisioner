@@ -53,3 +53,34 @@ module.exports.dnsLookup = function dnsLookup(hostname) {
     });
   });
 };
+module.exports.randomBytes = function randomBytes(size = 48) {
+  const randomBytes = require("crypto").randomBytes;
+  return new Promise((resolve, reject) => {
+    randomBytes(size, (err, buf) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(buf.toString("hex"));
+      }
+    });
+  });
+};
+module.exports.downloadFile = function downloadFile(url, destination) {
+  const fs = require("fs");
+  const file = fs.createWriteStream(destination);
+  const get = require("https").get;
+  return new Promise((resolve, reject) => {
+    get(url, (res) => {
+      res.pipe(file);
+      file.on("finish", () => {
+        file.close(() => {
+          resolve();
+        });
+      });
+    }).on("error", () => {
+      fs.unlink(destination, () => {
+        reject();
+      });
+    });
+  });
+};

@@ -1,5 +1,5 @@
 variable "name" {
-  description = "Server name"
+  description = "Instance name"
   default = ""
 }
 variable "aws_access_key" {
@@ -37,4 +37,8 @@ variable "email_address" {
 variable "hostname" {
   description = "Hostname of the Jitsi Server"
   default     = ""
+}
+variable "certificate_path" {
+  description = "Tarball path containing Letsencrypt certificates to restore"
+  default = ""
 }

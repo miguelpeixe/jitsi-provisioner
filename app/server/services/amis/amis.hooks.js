@@ -405,18 +405,6 @@ const checkStability = (options = {}) => {
   };
 };
 
-const handleCreateError = (options = {}) => {
-  return async (context) => {
-    console.error(context.error);
-  };
-};
-
-const handleRemoveError = (options = {}) => {
-  return async (context) => {
-    console.error(context.error);
-  };
-};
-
 module.exports = {
   before: {
     all: [authenticate("jwt")],
@@ -442,9 +430,9 @@ module.exports = {
     all: [],
     find: [],
     get: [],
-    create: [handleCreateError()],
+    create: [],
     update: [],
     patch: [],
-    remove: [handleRemoveError()],
+    remove: [],
   },
 };

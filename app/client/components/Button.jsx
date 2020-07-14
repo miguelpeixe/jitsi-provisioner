@@ -55,7 +55,8 @@ const buttonStyles = css`
       &:hover {
         background: #d60000;
       }
-      &:active {
+      &:active,
+      &:focus {
         background: #da0000;
       }
     `}

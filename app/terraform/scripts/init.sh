@@ -45,6 +45,9 @@ mkdir -p /jitsi/.jitsi-meet-cfg/{web/letsencrypt,transcripts,prosody/config,pros
 cp env.example .env
 docker-compose -f docker-compose.yml -f jigasi.yml -f jibri.yml pull
 
+# Pull instance api image
+docker pull miguelpeixe/jitsi-provisioner-instance-api:latest
+
 # Install certbot
 curl -fsSL "https://dl.eff.org/certbot-auto" -o /usr/local/bin/certbot-auto
 chmod +x /usr/local/bin/certbot-auto

@@ -6,3 +6,4 @@ app/node_modules
 app/terraform/.terraform
 app/public
 app/bundle-report.html
+instance-api

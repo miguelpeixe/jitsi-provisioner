@@ -8,11 +8,17 @@ const app = feathers();
 const restClient = rest("http://localhost:3030");
 
 const getToken = () => {
-  return jwt.sign({}, process.env.JWT_SECRET, {
-    audience: `https://${process.env.DOMAIN}`,
-    issuer: "jitsi-provisioner",
-    expiresIn: "1m",
-  });
+  return jwt.sign(
+    {
+      cli: true,
+    },
+    process.env.JWT_SECRET,
+    {
+      audience: `https://${process.env.DOMAIN}`,
+      issuer: "jitsi-provisioner",
+      expiresIn: "1m",
+    }
+  );
 };
 
 const init = () => {

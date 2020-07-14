@@ -1,10 +1,17 @@
+variable "instance_api_key" {
+  description = "Instance API Key"
+  default = ""
+}
 variable "nginx" {
   description = "Nginx config"
   default = ""
 }
-
-variable "letsencrypt" {
+variable "letsencrypt_renew" {
   description = "Letsencrypt renew script"
+  default = ""
+}
+variable "certificate" {
+  description = "Letsencrypt certificates to restore"
   default = ""
 }
 
@@ -22,10 +29,12 @@ data "template_cloudinit_config" "default" {
     content_type  = "text/x-shellscript"
     content       = templatefile("scripts/config.sh",
       {
-        email_address = var.email_address,
-        hostname      = var.hostname,
-        nginx         = base64encode(file("web/jitsi.conf")),
-        letsencrypt   = base64encode(file("web/letsencrypt-renew"))
+        email_address     = var.email_address,
+        hostname          = var.hostname,
+        instance_api_key  = var.instance_api_key,
+        nginx             = filebase64("web/jitsi.conf"),
+        letsencrypt_renew = filebase64("web/letsencrypt-renew"),
+        certificate       = var.certificate_path != "" ? filebase64(var.certificate_path) : ""
       }
     )
   }
@@ -40,10 +49,12 @@ data "template_cloudinit_config" "from_ami" {
     content_type  = "text/x-shellscript"
     content       = templatefile("scripts/config.sh",
       {
-        email_address = var.email_address,
-        hostname      = var.hostname,
-        nginx         = base64encode(file("web/jitsi.conf")),
-        letsencrypt   = base64encode(file("web/letsencrypt-renew"))
+        email_address     = var.email_address,
+        hostname          = var.hostname,
+        instance_api_key  = var.instance_api_key,
+        nginx             = filebase64("web/jitsi.conf"),
+        letsencrypt_renew = filebase64("web/letsencrypt-renew"),
+        certificate       = var.certificate_path != "" ? filebase64(var.certificate_path) : ""
       }
     )
   }

@@ -18,6 +18,7 @@ variable "source_ami_id" {
   description = "Source AMI ID to copy from"
   default     = ""
 }
+
 resource "aws_ami_from_instance" "default" {
   name               = var.ami_name
   source_instance_id = var.ami_instance_id

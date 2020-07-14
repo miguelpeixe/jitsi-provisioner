@@ -9,7 +9,6 @@ import Content from "components/Content.jsx";
 import Button from "components/Button.jsx";
 import Card from "components/Card.jsx";
 import Login from "components/Login.jsx";
-// import NewHostname from "components/NewHostname.jsx";
 import NewInstance from "components/NewInstance.jsx";
 import RegionList from "components/RegionList.jsx";
 import HostnameList from "components/HostnameList.jsx";
@@ -124,7 +123,6 @@ export default class App extends Component {
       // data
       auth: null,
       amis: [],
-      hostnames: [],
       instances: [],
       awsInstances: [],
     };
@@ -147,14 +145,12 @@ export default class App extends Component {
       this._fetchAWS();
       this._fetchInstances();
       this._fetchAMIs();
-      this._fetchHostnames();
     });
     client.on("logout", () => {
       this.setState({ auth: false, instances: [], hostnames: [], amis: [] });
     });
     this.bindInstanceEvents();
     this.bindAMIEvents();
-    this.bindHostnameEvents();
   }
   bindInstanceEvents = () => {
     this.service.on("created", (instance) => {
@@ -201,30 +197,6 @@ export default class App extends Component {
       if (Number.isInteger(idx)) {
         amis.splice(idx, 1);
         this.setState({ amis });
-      }
-    });
-  };
-  bindHostnameEvents = () => {
-    client.service("hostnames").on("created", (hostname) => {
-      this.setState({
-        hostnames: [hostname, ...this.state.hostnames],
-      });
-    });
-    client.service("hostnames").on("patched", (hostname) => {
-      const hostnames = [...this.state.hostnames];
-      const idx = hostnames.findIndex((i) => i._id == hostname._id);
-      if (Number.isInteger(idx)) {
-        hostnames[idx] = hostname;
-        this.setState({ hostnames });
-      }
-    });
-    client.service("hostnames").on("removed", (hostname) => {
-      if (hostname.status == "removing") return;
-      const hostnames = [...this.state.hostnames];
-      const idx = hostnames.findIndex((i) => i._id == hostname._id);
-      if (Number.isInteger(idx)) {
-        hostnames.splice(idx, 1);
-        this.setState({ hostnames });
       }
     });
   };
@@ -280,28 +252,6 @@ export default class App extends Component {
         });
       });
   };
-  _fetchHostnames = () => {
-    this.setState({
-      loading: true,
-    });
-    client
-      .service("hostnames")
-      .find({
-        query: {
-          $sort: {
-            createdAt: -1,
-          },
-        },
-      })
-      .then((hostnames) => {
-        this.setState({ hostnames });
-      })
-      .finally(() => {
-        this.setState({
-          loading: false,
-        });
-      });
-  };
   _handleLogoutClick = (ev) => {
     ev.preventDefault();
     client.logout();
@@ -316,11 +266,6 @@ export default class App extends Component {
     this.setState({ newInstance: true });
     ReactDOM.findDOMNode(this.contentRef.current).scrollTop = 0;
   };
-  _handleNewHostnameClick = () => (ev) => {
-    ev.preventDefault();
-    this.setState({ newHostname: true });
-    this.contentRef.current.base.scrollTop = 0;
-  };
   _handleSubmit = (ev) => {
     if (ev && ev.preventDefault) ev.preventDefault();
     this.setState({ newInstance: false });
@@ -329,24 +274,14 @@ export default class App extends Component {
     if (ev && ev.preventDefault) ev.preventDefault();
     this.setState({ newInstance: false });
   };
-  _handleHostnameSubmit = (ev) => {
-    if (ev && ev.preventDefault) ev.preventDefault();
-    this.setState({ newHostname: false });
-  };
-  _handleHostnameCancel = (ev) => {
-    if (ev && ev.preventDefault) ev.preventDefault();
-    this.setState({ newHostname: false });
-  };
   render() {
     const {
-      ready,
       loading,
-      newHostname,
+      ready,
+      auth,
       newInstance,
       awsInstances,
-      auth,
       amis,
-      hostnames,
       instances,
     } = this.state;
     if (!ready) {
@@ -431,12 +366,6 @@ export default class App extends Component {
                 </Card>
               ) : null}
               {!auth ? <Login /> : null}
-              {auth && newHostname ? (
-                <NewHostname
-                  onSubmit={this._handleHostnameSubmit}
-                  onCancel={this._handleHostnameCancel}
-                />
-              ) : null}
               {auth && (newInstance || !instances.length) ? (
                 <NewInstance
                   allowCancel={instances.length}

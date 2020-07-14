@@ -19,10 +19,22 @@ export default class InstanceList extends Component {
     super(props);
     this.service = client.service("instances");
   }
+  _handleTerminateClick = (instance) => (ev) => {
+    ev.preventDefault();
+    if (this._canTerminate(instance) && confirm("Are you sure?")) {
+      this.service.patch(instance._id, { action: "terminate" });
+    }
+  };
+  _handleProvisionClick = (instance) => (ev) => {
+    ev.preventDefault();
+    if (this._canRemove(instance)) {
+      this.service.patch(instance._id, { action: "provision" });
+    }
+  };
   _handleRemoveClick = (instance) => (ev) => {
     ev.preventDefault();
-    if (this._canTerminate(instance)) {
-      this.service.remove(instance._id);
+    if (this._canRemove(instance) && confirm("Are you sure?")) {
+      this.service.patch(instance._id, { action: "remove" });
     }
   };
   _getLink = (instance) => {
@@ -55,8 +67,13 @@ export default class InstanceList extends Component {
   _canTerminate = (instance) => {
     return instance.status.match(/draft|failed|running|timeout/);
   };
+  _canRemove = (instance) => {
+    return instance.status == "terminated";
+  };
   _isLoading = (instance) => {
-    return !this._canTerminate(instance);
+    return (
+      !this._canTerminate(instance) && !instance.status.match(/terminated/)
+    );
   };
   _handleDownloadClick = (instance) => (ev) => {
     ev.preventDefault();
@@ -89,15 +106,6 @@ export default class InstanceList extends Component {
                 </p>
               ) : null}
               <p>{instance.status}</p>
-              {/* <StatusBadge
-                status={
-                  instance.status == "running"
-                    ? "active"
-                    : instance.status.match(/failed|timeout/)
-                    ? "error"
-                    : "loading"
-                }
-              /> */}
             </Card.Header>
             <Card.Content>
               <FlexTable>
@@ -149,24 +157,42 @@ export default class InstanceList extends Component {
               </Button>
             </Card.Content>
             <Card.Footer>
-              <Button.Group>
-                <Button
-                  remove={1}
-                  disabled={!this._canTerminate(instance)}
-                  onClick={this._handleRemoveClick(instance)}
-                >
-                  Terminate
-                </Button>
-                <Button
-                  jitsi={1}
-                  disabled={instance.status !== "running"}
-                  href={`https://${instance.hostname}`}
-                  target="_blank"
-                  rel="external"
-                >
-                  Launch Jitsi
-                </Button>
-              </Button.Group>
+              {instance.status !== "terminated" ? (
+                <Button.Group>
+                  <Button
+                    remove
+                    disabled={!this._canTerminate(instance)}
+                    onClick={this._handleTerminateClick(instance)}
+                  >
+                    Terminate
+                  </Button>
+                  <Button
+                    jitsi
+                    disabled={instance.status !== "running"}
+                    href={`https://${instance.hostname}`}
+                    target="_blank"
+                    rel="external"
+                  >
+                    Launch Jitsi
+                  </Button>
+                </Button.Group>
+              ) : (
+                <Button.Group>
+                  <Button
+                    remove
+                    disabled={!this._canRemove(instance)}
+                    onClick={this._handleRemoveClick(instance)}
+                  >
+                    Remove
+                  </Button>
+                  <Button
+                    disabled={!this._canRemove(instance)}
+                    onClick={this._handleProvisionClick(instance)}
+                  >
+                    Provision instance
+                  </Button>
+                </Button.Group>
+              )}
             </Card.Footer>
           </Card.ListItem>
         ))}

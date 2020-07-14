@@ -4,10 +4,16 @@ variable "eip_id" {
 }
 variable "eip_instance_config" {
   description = "Instance config source name for EIP association"
-  default     = ""
+  default     = "default"
 }
+
 resource "aws_eip" "default" {}
+
 resource "aws_eip_association" "default" {
-  instance_id   = aws_instance[var.eip_instance_config].id
+  instance_id   = aws_instance.default.id
+  allocation_id = var.eip_id
+}
+resource "aws_eip_association" "from_ami" {
+  instance_id   = aws_instance.from_ami.id
   allocation_id = var.eip_id
 }
