@@ -12,7 +12,7 @@ module.exports = (options = {}) => {
 
     const DEMO = data.demo;
 
-    const eipPath = path.join(data.path, "eipPath");
+    const eipPath = path.join(data.path, "eip");
 
     if (!DEMO) {
       try {
