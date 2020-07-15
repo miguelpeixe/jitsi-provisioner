@@ -48,7 +48,6 @@ docker pull miguelpeixe/jitsi-provisioner-instance-api:latest && \
     -v /etc/letsencrypt:/data/letsencrypt:ro \
     -v /jitsi/data:/data/jitsi:ro \
     -p 8001:8001 \
-    -e "API_KEY=${instance_api_key}" \
     --restart unless-stopped \
     miguelpeixe/jitsi-provisioner-instance-api:latest &
 
