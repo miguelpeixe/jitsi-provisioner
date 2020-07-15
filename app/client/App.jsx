@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
-import { Alert, Loader } from "rsuite";
+import { Alert, Loader, Icon } from "rsuite";
 
 import client from "api";
 
@@ -348,6 +348,15 @@ export default class App extends Component {
                 Jitsi.org
               </a>
               .
+            </p>
+            <p>
+              <a
+                href="https://github.com/miguelpeixe/jitsi-provisioner"
+                target="_blank"
+                rel="external"
+              >
+                <Icon size="2x" icon="github" />
+              </a>
             </p>
           </Info>
         </Header>
