@@ -48,7 +48,7 @@ const provisionHooks = [
   pushHistory("provisioned"),
   updateStatus("waiting-dns"),
   waitDNS(),
-  updateStatus("waiting-app"),
+  updateStatus("installing"),
   waitApp(),
   updateStatus("storing-certificate"),
   storeCertificate(),
@@ -126,7 +126,7 @@ const handleProvision = (options = {}) => {
     logger.info(`Provisioning instance: ${data.name}`);
 
     // Async call when request not internal
-    if (context.provider) {
+    if (context.params.provider) {
       processHooks.call(this, hooks, context);
     } else {
       await processHooks.call(this, hooks, context);
@@ -156,7 +156,7 @@ const handleRemove = (options = {}) => {
       },
     ];
     // Async call when request not internal
-    if (context.provider) {
+    if (context.params.provider) {
       processHooks.call(this, hooks, context);
     } else {
       await processHooks.call(this, hooks, context);
@@ -179,7 +179,7 @@ const handleTermination = (options = {}) => {
       updateStatus("terminated"),
     ];
     // Async call when request not internal
-    if (context.provider) {
+    if (context.params.provider) {
       processHooks.call(this, hooks, context);
     } else {
       await processHooks.call(this, hooks, context);

@@ -2,31 +2,55 @@
 set -e
 
 IP=$(curl http://checkip.amazonaws.com)
+GET_CERTIFICATE=true
 CERTIFICATE=${certificate}
+JITSI_RECORDING=${jitsi_recording}
+REBOOT=false
 
 cd /jitsi/docker
 
 # Jitsi env
+chown -R jitsi:jitsi /jitsi
+
+COMPOSE_VARS="-f docker-compose.yml"
+UP_VARS="-d"
+
 cp env.example .env
 ./gen-passwords.sh
-sed -i.bak \
+sed -i \
+  -e "s/CONFIG=~\/.jitsi-meet-cfg/CONFIG=\/jitsi\/data/g" \
   -e "s/#PUBLIC_URL=https:\/\/meet.example.com/PUBLIC_URL=https:\/\/${hostname}/g" \
   -e "s/#DOCKER_HOST_ADDRESS=192.168.1.1/DOCKER_HOST_ADDRESS=$IP/g" \
   -e "s/JVB_STUN_SERVERS/#JVB_STUN_SERVERS/g" \
   .env
 
-# Fix permissions and start server
-chown -R jitsi:jitsi /jitsi
-sudo -H -u jitsi bash -c "docker-compose up -d"
+echo "Jitsi recording: $JITSI_RECORDING"
+
+if [ $JITSI_RECORDING = true ]; then
+  COMPOSE_VARS="$COMPOSE_VARS -f jibri.yml"
+  sed -i.bak \
+  -e "s/#ENABLE_RECORDING/ENABLE_RECORDING/g" \
+  .env
+
+  # Needs reboot if alsa-loopback is not setup
+  if [[ ! $(lsmod | grep snd_aloop) ]]; then
+    UP_VARS="--no-start"
+    REBOOT=true
+  fi
+fi
+
+sudo -H -u jitsi bash -c "docker-compose $COMPOSE_VARS up $UP_VARS"
 
 # Setup instance api
-docker pull miguelpeixe/jitsi-provisioner-instance-api:latest
-docker run -d \
-  --name instance-api \
-  -v /etc/letsencrypt:/data/letsencrypt:ro \
-  -v /jitsi/.jitsi-meet-cfg:/data/jitsi:ro \
-  -p 8001:8001 \
-  miguelpeixe/jitsi-provisioner-instance-api:latest
+docker pull miguelpeixe/jitsi-provisioner-instance-api:latest && \
+  docker run -d \
+    --name instance-api \
+    -v /etc/letsencrypt:/data/letsencrypt:ro \
+    -v /jitsi/data:/data/jitsi:ro \
+    -p 8001:8001 \
+    -e "API_KEY=${instance_api_key}" \
+    --restart unless-stopped \
+    miguelpeixe/jitsi-provisioner-instance-api:latest &
 
 # Nginx conf
 echo "${nginx}" | base64 --decode > /etc/nginx/conf.d/jitsi.conf
@@ -42,26 +66,28 @@ sed -i \
   -e "s/#ssl_certificate/ssl_certificate/g" \
   /etc/nginx/conf.d/jitsi.conf
 
-# Stop nginx
-systemctl stop nginx
-
 # Verify existing LetsEncrypt certificate
 if [[ ! -z $CERTIFICATE ]]; then
-  mkdir -p /etc/letsencrypt
-  cd /tmp
-  echo "$CERTIFICATE" | base64 --decode > ./certificate.tar.gz
-  tar zxvf certificate.tar.gz
-  mv certificates/* /etc/letsencrypt
-  rm -r /tmp/certificate.tar.gz certificates
-
-  # Start nginx before renew script
-  systemctl start nginx
-
-  # Attempt renew
-  /etc/cron.hourly/letsencrypt-renew
+  echo "Attempting existing certificate"
+  if mkdir -p /etc/letsencrypt && \
+      cd /tmp && \
+      echo "$CERTIFICATE" | base64 --decode > ./certificate.tar.gz && \
+      tar zxvf certificate.tar.gz && \
+      mv certificates/* /etc/letsencrypt && \
+      rm -r /tmp/certificate.tar.gz certificates && \
+      systemctl reload nginx && \
+      /etc/cron.hourly/letsencrypt-renew ; then
+    GET_CERTIFICATE=false
+  fi
+fi
 
 # Get new certificate from LetsEncrypt
-else
+if [ $GET_CERTIFICATE = true ]; then
+  echo "Requesting new certificate"
+
+  # Stop nginx for standalone mode
+  systemctl stop nginx
+
   if ! certbot-auto \
         certonly \
         --no-bootstrap \
@@ -75,6 +101,17 @@ else
       echo "Failed to obtain a certificate from the Let's Encrypt CA."
       exit 1
   fi
-  # Start nginx
-  systemctl start nginx
+  # Start nginx if no reboot is scheduled
+  if [ $REBOOT = false ]; then
+    systemctl start nginx
+  fi
+fi
+
+wait
+
+if [ $REBOOT = true ]; then
+  echo "${start_jitsi}" | base64 --decode > /usr/local/bin/start-jitsi
+  chmod +x /usr/local/bin/start-jitsi
+  echo "@reboot root /usr/local/bin/start-jitsi \"$COMPOSE_VARS\" >> /tmp/start-jitsi-cron.log 2>&1" > /etc/cron.d/jitsi
+  reboot now
 fi

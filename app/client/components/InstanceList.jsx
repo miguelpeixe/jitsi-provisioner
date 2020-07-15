@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Icon } from "rsuite";
+import { get } from "lodash";
 
 import client from "api";
 
@@ -37,9 +38,12 @@ export default class InstanceList extends Component {
       this.service.patch(instance._id, { action: "remove" });
     }
   };
+  _getUrl = (instance) => {
+    return `https://${instance.hostname}`;
+  };
   _getLink = (instance) => {
     if (instance.status == "running") {
-      const url = `https://${instance.hostname}`;
+      const url = this._getUrl(instance);
       return (
         <a href={url} rel="external" target="_blank">
           {url}
@@ -54,7 +58,7 @@ export default class InstanceList extends Component {
     return awsInstances.find((item) => item._id == instance);
   };
   _canTerminate = (instance) => {
-    return instance.status.match(/draft|failed|running|timeout/);
+    return instance.status.match(/draft|installing|failed|running/);
   };
   _canRemove = (instance) => {
     return instance.status == "terminated";
@@ -75,6 +79,9 @@ export default class InstanceList extends Component {
           res.headers["content-type"]
         );
       });
+  };
+  _hasRecording = (instance) => {
+    return !!get(instance, "terraform.vars.jitsi_recording");
   };
   render() {
     const { awsInstances, instances } = this.props;
@@ -125,14 +132,31 @@ export default class InstanceList extends Component {
                 instance={this._getServer(instance.type)}
                 region={instance.region}
               />
-              <Button
-                block
-                light
-                small
-                onClick={this._handleDownloadClick(instance)}
-              >
-                Download configuration
-              </Button>
+              <Button.Group vertical>
+                <Button
+                  block
+                  light
+                  small
+                  onClick={this._handleDownloadClick(instance)}
+                >
+                  Download configuration
+                </Button>
+                {instance.status == "running" &&
+                this._hasRecording(instance) ? (
+                  <Button
+                    block
+                    light
+                    small
+                    href={`${this._getUrl(instance)}/${
+                      instance.apiKey
+                    }/recordings`}
+                    target="_blank"
+                    rel="external"
+                  >
+                    Download recordings
+                  </Button>
+                ) : null}
+              </Button.Group>
             </Card.Content>
             <Card.Footer>
               {instance.status !== "terminated" ? (

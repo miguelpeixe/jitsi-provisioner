@@ -231,6 +231,12 @@ export default class NewInstance extends Component {
                   </FlexTable.Data>
                 </FlexTable.Row>
               ) : null}
+              <FlexTable.Row>
+                <FlexTable.Head>Enable recording</FlexTable.Head>
+                <FlexTable.Data>
+                  <FormControl accepter={Toggle} name="recording" />
+                </FlexTable.Data>
+              </FlexTable.Row>
               {/* <FlexTable.Row>
                 <FlexTable.Head>
                   <Icon icon="refresh" /> Fast provisioning{" "}

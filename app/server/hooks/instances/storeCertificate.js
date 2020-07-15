@@ -15,15 +15,11 @@ module.exports = (options = {}) => {
       const certificatePath = path.join(data.path, "certificate.tar.gz");
       const hasCertificate = await pathExists(certificatePath);
 
-      if (!hasCertificate) {
-        const url = `https://${data.hostname}/${data.apiKey}/certificates`;
-        await downloadFile(url, certificatePath);
-        patchData = {
-          "terraform.vars.certificate_path": certificatePath,
-        };
-      }
-    } else {
-      await sleep(1 * 1000);
+      const url = `https://${data.hostname}/${data.apiKey}/certificates`;
+      await downloadFile(url, certificatePath);
+      patchData = {
+        "terraform.vars.certificate_path": certificatePath,
+      };
     }
 
     if (Object.keys(patchData).length) {

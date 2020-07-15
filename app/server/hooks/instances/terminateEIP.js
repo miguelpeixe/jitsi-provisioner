@@ -17,11 +17,11 @@ module.exports = (options = {}) => {
     if (!DEMO) {
       try {
         await app.terraformExec(`terraform destroy \
-            -input=false \
-            -auto-approve \
-            -target=aws_eip.default \
-            -var "aws_region=${data.region}" \
-            -state=${eipPath}/tfstate`);
+          -input=false \
+          -auto-approve \
+          -target=aws_eip.default \
+          -var "aws_region=${data.region}" \
+          -state=${eipPath}/tfstate`);
       } catch (e) {
         logger.error(e);
       }

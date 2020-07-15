@@ -17,6 +17,8 @@ module.exports = (options = {}) => {
     const parsedHostname = parseDomain(hostname);
     const name = parsedHostname.subDomains.join(".");
 
+    const enableRecording = !!data.recording;
+
     context.data = {
       _id: id,
       name: name,
@@ -47,6 +49,7 @@ module.exports = (options = {}) => {
       hostname: context.data.hostname,
       security_group_name: `jitsi-${context.data.name}`,
       instance_api_key: context.data.apiKey,
+      jitsi_recording: enableRecording,
     };
 
     return context;

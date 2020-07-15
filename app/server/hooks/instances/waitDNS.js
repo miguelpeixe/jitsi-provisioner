@@ -37,7 +37,7 @@ module.exports = (options = {}) => {
         await fail(service, data._id, "Could not resolve hostname");
       }
     } else {
-      await sleep(2 * 1000);
+      await sleep(1 * 1000);
     }
   };
 };

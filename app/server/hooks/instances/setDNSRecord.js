@@ -16,7 +16,7 @@ module.exports = (options = {}) => {
     if (!DEMO) {
       await upsertRecord(data.hostname, data.publicIp);
     } else {
-      await sleep(2 * 1000);
+      await sleep(1 * 1000);
     }
 
     return context;

@@ -13,7 +13,7 @@ module.exports = (options = {}) => {
     let online;
     if (!DEMO) {
       const startTime = Date.now();
-      const timeout = 4 * 60 * 1000; // 4 minutes before giving up
+      const timeout = 5 * 60 * 1000; // 5 minutes before giving up
 
       let error;
       let attemptTime = Date.now();
@@ -32,7 +32,7 @@ module.exports = (options = {}) => {
         }
       }
     } else {
-      await sleep(1 * 1000);
+      await sleep(2 * 1000);
       online = 200;
     }
 

@@ -42,10 +42,10 @@ module.exports = (options = {}) => {
 
         logger.info("Provisioning EIP");
         await app.terraformExec(`terraform apply \
-              -input=false \
-              -auto-approve \
-              -state=${eipPath}/tfstate \
-              "${eipPath}/tfcreate"`);
+          -input=false \
+          -auto-approve \
+          -state=${eipPath}/tfstate \
+          "${eipPath}/tfcreate"`);
 
         const stateFile = await readFile(path.join(eipPath, "tfstate"));
         const tfstate = JSON.parse(stateFile);

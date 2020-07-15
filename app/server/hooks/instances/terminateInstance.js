@@ -1,6 +1,6 @@
 const path = require("path");
 const logger = require("../../logger");
-const { sleep } = require("../../utils");
+const { exec, sleep } = require("../../utils");
 const { getParsedVars } = require("./utils");
 
 module.exports = (options = {}) => {
@@ -21,14 +21,15 @@ module.exports = (options = {}) => {
       }
       try {
         await app.terraformExec(`terraform destroy \
-            -input=false \
-            -auto-approve \
-            -target=aws_key_pair.default \
-            -target=aws_security_group.default \
-            -target=aws_eip_association.${instanceTarget} \
-            -target=aws_instance.${instanceTarget} \
-            ${getParsedVars(data.terraform.vars)} \
-            -state=${instancePath}/tfstate`);
+          -input=false \
+          -auto-approve \
+          -target=aws_key_pair.default \
+          -target=aws_security_group.default \
+          -target=aws_eip_association.${instanceTarget} \
+          -target=aws_instance.${instanceTarget} \
+          ${getParsedVars(data.terraform.vars)} \
+          -state=${instancePath}/tfstate`);
+        await exec(`rm -r ${instancePath}`);
       } catch (e) {
         logger.error(e);
       }

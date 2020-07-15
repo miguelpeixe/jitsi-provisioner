@@ -1,11 +1,11 @@
-const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const express = require("express");
 const archiver = require("archiver");
 
-const app = express();
+const PORT = 8001;
 
-const port = 8001;
+const app = express();
 
 app.get("/", (req, res) => {
   res.status(400).send("Bad request");
@@ -14,7 +14,6 @@ app.get("/", (req, res) => {
 app.get("/certificates", (req, res) => {
   const filePath = "/tmp/certificates.tar.gz";
   const certificatesPath = `/data/letsencrypt`;
-  // const certificatesPath = path.join(__dirname, "etc/letsencrypt/live");
   const output = fs.createWriteStream(filePath);
   const archive = archiver("tar", {
     gzip: true,
@@ -46,6 +45,6 @@ app.get("/certificates", (req, res) => {
   archive.finalize();
 });
 
-app.listen(port, () => {
+app.listen(PORT, () => {
   console.log("Instance API started");
 });

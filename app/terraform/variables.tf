@@ -42,3 +42,8 @@ variable "certificate_path" {
   description = "Tarball path containing Letsencrypt certificates to restore"
   default = ""
 }
+variable "jitsi_recording" {
+  type = bool
+  description = "Enable Jitsi recording"
+  default = false
+}

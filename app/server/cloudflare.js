@@ -66,7 +66,9 @@ const upsertRecord = async (domain, ip) => {
 
   let res;
   if (record) {
-    res = await cf.dnsRecords.edit(zone.id, record.id, entry);
+    if (record.content != entry.content) {
+      res = await cf.dnsRecords.edit(zone.id, record.id, entry);
+    }
   } else {
     res = await cf.dnsRecords.add(zone.id, entry);
   }

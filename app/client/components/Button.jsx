@@ -106,6 +106,18 @@ const Group = styled.nav`
     flex: 1 1 100%;
     text-align: center;
   }
+  ${(props) =>
+    props.vertical &&
+    css`
+      display: block;
+      margin: 0;
+      > * {
+        margin: 0 0 0.5rem;
+        &:last-child {
+          margin: 0;
+        }
+      }
+    `}
 `;
 
 const Badge = styled.span`

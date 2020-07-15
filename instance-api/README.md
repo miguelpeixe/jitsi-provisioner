@@ -16,6 +16,7 @@ docker run -d \
   -v /etc/letsencrypt:/data/letsencrypt:ro \
   -v /jitsi/.jitsi-meet-cfg:/data/jitsi:ro \
   -p 8001:8001 \
+  --restart unless-stopped \
   miguelpeixe/jitsi-provisioner-instance-api:latest
 ```
 
