@@ -35,6 +35,11 @@ module.exports = (options = {}) => {
       }
     }
 
+    await service.patch(data._id, {
+      provisionedAt: null,
+      readyAt: null,
+    });
+
     if (DEMO) {
       await sleep(1 * 1000);
     }
