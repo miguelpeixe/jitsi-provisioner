@@ -108,7 +108,7 @@ export default class NewInstance extends Component {
       options.push({
         value: instance._id,
         label: instance._id,
-        group: instance._id.match(/t3.large|r5d.2xlarge/)
+        group: instance._id.match(/t3.large|r5d.2xlarge|c5d.2xlarge/)
           ? "Recommended"
           : "All",
       });
