@@ -6,7 +6,7 @@ const { disallow } = require("feathers-hooks-common");
 
 const logger = require("../../logger");
 
-const { updateStatus, pushHistory } = require("../../hooks");
+const { updateStatus, updateInfo, pushHistory } = require("../../hooks");
 
 const {
   checkLimit,
@@ -26,6 +26,7 @@ const {
   setDNSRecord,
   waitDNS,
   waitApp,
+  downloadInstance,
   storeCertificate,
   finishInstall,
   terminateEIP,
@@ -37,27 +38,30 @@ const {
 const utils = require("../../hooks/instances/utils");
 
 const provisionHooks = [
-  updateStatus("verifying-dns"),
+  updateStatus("provisioning"),
+  updateInfo("verifying-dns"),
   verifyCloudflare(),
-  updateStatus("finding-ami"),
+  updateInfo("finding-ami"),
   findAMI(),
-  updateStatus("setting-dns"),
+  updateInfo("setting-dns"),
   setDNSRecord(),
-  updateStatus("provisioning-instance"),
+  updateInfo("provisioning-instance"),
   provisionInstance(),
   pushHistory("provisioned"),
-  updateStatus("waiting-dns"),
+  updateStatus("running"),
+  updateInfo("waiting-dns"),
   waitDNS(),
-  updateStatus("installing"),
+  updateInfo("installing"),
   waitApp(),
-  updateStatus("storing-certificate"),
+  updateStatus("available"),
+  updateInfo("storing-certicate"),
   storeCertificate(),
+  updateInfo(),
   async (context) => {
     await context.service.patch(context.id || context.result._id, {
       readyAt: new Date(),
     });
   },
-  updateStatus("running"),
 ];
 
 const validatePatch = (options = {}) => {
@@ -93,12 +97,13 @@ const handleCreate = (options = {}) => {
     const data = context.result;
 
     let hooks = [
-      updateStatus("creating-directory"),
+      updateInfo("creating-directory"),
       createPath(),
-      updateStatus("creating-keys"),
+      updateInfo("creating-keys"),
       createSSHKeys(),
-      updateStatus("provisioning-eip"),
+      updateInfo("provisioning-eip"),
       provisionEIP(),
+      updateStatus("standby"),
       pushHistory("standby"),
     ];
     hooks = hooks.concat(provisionHooks);
@@ -136,6 +141,36 @@ const handleProvision = (options = {}) => {
   };
 };
 
+const handleTermination = (options = {}) => {
+  return async (context) => {
+    if (context.params.instanceAction != "terminate") return context;
+
+    const data = context.result;
+    logger.info(`Terminating instance: ${data.name}`);
+
+    const hooks = [
+      updateStatus("terminating"),
+      updateInfo("storing-certicate"),
+      storeCertificate(),
+      updateInfo("downloading"),
+      downloadInstance(),
+      updateInfo("terminating"),
+      terminateInstance(),
+      updateInfo(),
+      pushHistory("standby"),
+      updateStatus("terminated"),
+    ];
+    // Async call when request not internal
+    if (context.params.provider) {
+      processHooks.call(this, hooks, context);
+    } else {
+      await processHooks.call(this, hooks, context);
+    }
+    context.result = await context.service.get(context.id);
+    return context;
+  };
+};
+
 const handleRemove = (options = {}) => {
   return async (context) => {
     if (context.params.instanceAction != "remove") return context;
@@ -144,11 +179,11 @@ const handleRemove = (options = {}) => {
     logger.info(`Removing instance: ${context.result.name}`);
 
     const hooks = [
-      updateStatus("releasing-eip"),
+      updateInfo("releasing-eip"),
       terminateEIP(),
-      updateStatus("removing-dns"),
+      updateInfo("removing-dns"),
       removeDNSRecord(),
-      updateStatus("removing-files"),
+      updateInfo("removing-files"),
       removeFiles(),
       pushHistory("destroyed"),
       async (context) => {
@@ -161,30 +196,6 @@ const handleRemove = (options = {}) => {
     } else {
       await processHooks.call(this, hooks, context);
     }
-    return context;
-  };
-};
-
-const handleTermination = (options = {}) => {
-  return async (context) => {
-    if (context.params.instanceAction != "terminate") return context;
-
-    const data = context.result;
-    logger.info(`Terminating instance: ${data.name}`);
-
-    const hooks = [
-      updateStatus("terminating-instance"),
-      terminateInstance(),
-      pushHistory("standby"),
-      updateStatus("terminated"),
-    ];
-    // Async call when request not internal
-    if (context.params.provider) {
-      processHooks.call(this, hooks, context);
-    } else {
-      await processHooks.call(this, hooks, context);
-    }
-    context.result = await context.service.get(context.id);
     return context;
   };
 };

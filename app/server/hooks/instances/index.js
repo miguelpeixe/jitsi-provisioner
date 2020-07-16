@@ -1,5 +1,4 @@
 module.exports = {
-  updateStatus: require("./updateStatus"),
   processInstance: require("./processInstance"),
   validateData: require("./validateData"),
   verifyCloudflare: require("./verifyCloudflare"),
@@ -12,6 +11,7 @@ module.exports = {
   waitDNS: require("./waitDNS"),
   waitApp: require("./waitApp"),
   storeCertificate: require("./storeCertificate"),
+  downloadInstance: require("./downloadInstance"),
   checkLimit: require("./checkLimit"),
   terminateEIP: require("./terminateEIP"),
   terminateInstance: require("./terminateInstance"),

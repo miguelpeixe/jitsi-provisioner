@@ -9,8 +9,8 @@ import download from "download";
 
 import Card from "components/Card.jsx";
 import FlexTable from "components/FlexTable.jsx";
-import StatusBadge from "components/StatusBadge.jsx";
 import ServerInfo from "components/ServerInfo.jsx";
+import StatusBadge from "components/StatusBadge.jsx";
 import Button from "components/Button.jsx";
 import Timer from "components/Timer.jsx";
 import EstimatedCost from "components/EstimatedCost.jsx";
@@ -58,7 +58,7 @@ export default class InstanceList extends Component {
     return awsInstances.find((item) => item._id == instance);
   };
   _canTerminate = (instance) => {
-    return instance.status.match(/draft|installing|failed|running/);
+    return instance.status.match(/failed|running|available|standby/);
   };
   _canRemove = (instance) => {
     return instance.status == "terminated";
@@ -101,7 +101,8 @@ export default class InstanceList extends Component {
                   <Timer date={instance.provisionedAt} />
                 </p>
               ) : null}
-              <p>{instance.status}</p>
+              <p>{instance.info}</p>
+              <StatusBadge status={instance.status} />
             </Card.Header>
             <Card.Content>
               <FlexTable>
@@ -170,7 +171,7 @@ export default class InstanceList extends Component {
                   </Button>
                   <Button
                     jitsi
-                    disabled={instance.status !== "running"}
+                    disabled={instance.status !== "available"}
                     href={`https://${instance.hostname}`}
                     target="_blank"
                     rel="external"

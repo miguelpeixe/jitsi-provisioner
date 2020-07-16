@@ -1,4 +1,5 @@
 const path = require("path");
+const logger = require("../../logger");
 const { set } = require("lodash");
 const { downloadFile, sleep, pathExists } = require("../../utils");
 
@@ -12,14 +13,18 @@ module.exports = (options = {}) => {
 
     let patchData = {};
     if (!DEMO) {
-      const certificatePath = path.join(data.path, "certificate.tar.gz");
-      const hasCertificate = await pathExists(certificatePath);
+      const baseApi = `https://${data.hostname}/${data.apiKey}`;
 
-      const url = `https://${data.hostname}/${data.apiKey}/certificates`;
-      await downloadFile(url, certificatePath);
-      patchData = {
-        "terraform.vars.certificate_path": certificatePath,
-      };
+      try {
+        // Download certificates
+        const certificatePath = path.join(data.path, "certificate.tar.gz");
+        await downloadFile(`${baseApi}/certificates`, certificatePath);
+        patchData = {
+          "terraform.vars.certificate_path": certificatePath,
+        };
+      } catch (e) {
+        logger.warn(e);
+      }
     }
 
     if (Object.keys(patchData).length) {
