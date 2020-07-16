@@ -1,8 +1,5 @@
-module.exports.generateId = require("nanoid").customAlphabet(
-  "1234567890abcdef",
-  6
-);
-module.exports.exec = function exec(cmd, opts) {
+const generateId = require("nanoid").customAlphabet("1234567890abcdef", 6);
+const exec = function exec(cmd, opts) {
   const exec = require("child_process").exec;
   return new Promise((resolve, reject) => {
     exec(cmd, opts || {}, (error, stdout, stderr) => {
@@ -14,7 +11,7 @@ module.exports.exec = function exec(cmd, opts) {
     });
   });
 };
-module.exports.readFile = function readFile(path) {
+const readFile = function readFile(path) {
   const readFile = require("fs").readFile;
   return new Promise((resolve, reject) => {
     readFile(path, (err, data) => {
@@ -26,7 +23,7 @@ module.exports.readFile = function readFile(path) {
     });
   });
 };
-module.exports.pathExists = function pathExists(path) {
+const pathExists = function pathExists(path) {
   const access = require("fs").access;
   return new Promise((resolve, reject) => {
     access(path, (error) => {
@@ -38,10 +35,10 @@ module.exports.pathExists = function pathExists(path) {
     });
   });
 };
-module.exports.sleep = function sleep(ms) {
+const sleep = function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
-module.exports.dnsLookup = function dnsLookup(hostname) {
+const dnsLookup = function dnsLookup(hostname) {
   const lookup = require("dns").lookup;
   return new Promise((resolve, reject) => {
     lookup(hostname, (err, address, family) => {
@@ -53,7 +50,7 @@ module.exports.dnsLookup = function dnsLookup(hostname) {
     });
   });
 };
-module.exports.randomBytes = function randomBytes(size = 48) {
+const randomBytes = function randomBytes(size = 48) {
   const randomBytes = require("crypto").randomBytes;
   return new Promise((resolve, reject) => {
     randomBytes(size, (err, buf) => {
@@ -65,22 +62,55 @@ module.exports.randomBytes = function randomBytes(size = 48) {
     });
   });
 };
-module.exports.downloadFile = function downloadFile(url, destination) {
+const downloadFile = function downloadFile(url, destination) {
   const fs = require("fs");
-  const file = fs.createWriteStream(destination);
+  const tmpPath = `${destination}.downloading`;
+  const file = fs.createWriteStream(tmpPath);
   const get = require("https").get;
+  const handleError = (cb) => {
+    fs.unlink(tmpPath, () => {
+      cb && cb();
+    });
+  };
   return new Promise((resolve, reject) => {
-    get(url, (res) => {
-      res.pipe(file);
-      file.on("finish", () => {
-        file.close(() => {
-          resolve();
+    const req = get(url, { timeout: 3000 }, (res) => {
+      if (res.statusCode < 200 || res.statusCode > 299) {
+        handleError(() => {
+          reject(`Server returned ${res.statusCode}`);
         });
-      });
-    }).on("error", () => {
-      fs.unlink(destination, () => {
-        reject();
+      } else {
+        res.pipe(file);
+        file.on("finish", () => {
+          file.close(() => {
+            fs.rename(tmpPath, destination, (err) => {
+              if (err) {
+                handleError(() => {
+                  reject(err);
+                });
+              } else {
+                resolve();
+              }
+            });
+          });
+        });
+      }
+    });
+    req.on("timeout", () => {
+      req.abort();
+    });
+    req.on("error", (err) => {
+      handleError(() => {
+        reject(err);
       });
     });
   });
 };
+
+module.exports.generateId = generateId;
+module.exports.exec = exec;
+module.exports.readFile = readFile;
+module.exports.pathExists = pathExists;
+module.exports.sleep = sleep;
+module.exports.dnsLookup = dnsLookup;
+module.exports.randomBytes = randomBytes;
+module.exports.downloadFile = downloadFile;
