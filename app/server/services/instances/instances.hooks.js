@@ -97,6 +97,7 @@ const handleCreate = (options = {}) => {
     const data = context.result;
 
     let hooks = [
+      updateStatus("provisioning"),
       updateInfo("creating-directory"),
       createPath(),
       updateInfo("creating-keys"),

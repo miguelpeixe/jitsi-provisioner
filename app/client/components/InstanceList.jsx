@@ -42,7 +42,7 @@ export default class InstanceList extends Component {
     return `https://${instance.hostname}`;
   };
   _getLink = (instance) => {
-    if (instance.status == "running") {
+    if (instance.status == "available") {
       const url = this._getUrl(instance);
       return (
         <a href={url} rel="external" target="_blank">
@@ -101,7 +101,7 @@ export default class InstanceList extends Component {
                   <Timer date={instance.provisionedAt} />
                 </p>
               ) : null}
-              <p>{instance.info}</p>
+              {instance.info ? <p>{instance.info}</p> : null}
               <StatusBadge status={instance.status} />
             </Card.Header>
             <Card.Content>
