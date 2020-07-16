@@ -73,7 +73,7 @@ if [[ ! -z $CERTIFICATE ]]; then
       echo "$CERTIFICATE" | base64 --decode > ./certificate.tar.gz && \
       tar zxvf certificate.tar.gz && \
       mv certificates/* /etc/letsencrypt && \
-      rm -r /tmp/certificate.tar.gz certificates && \
+      rm -r /tmp/certificate.tar.gz /tmp/certificates && \
       systemctl reload nginx && \
       /etc/cron.hourly/letsencrypt-renew ; then
     GET_CERTIFICATE=false
