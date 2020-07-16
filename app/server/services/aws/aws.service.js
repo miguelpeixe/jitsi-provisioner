@@ -39,6 +39,7 @@ module.exports = async (app) => {
       if (aws && aws.data && aws.data.length) {
         // Clear database
         await service.remove(null, {});
+        const promises = [];
         for (const item of aws.data) {
           const awsInstance = {
             _id: item.instance_type,
@@ -64,8 +65,9 @@ module.exports = async (app) => {
               awsInstance.pricing[region] = item.pricing[region].linux.ondemand;
             }
           }
-          await service.create(awsInstance);
+          promises.push(service.create(awsInstance));
         }
+        await Promise.all(promises);
         logger.info("AWS database updated");
       } else {
         logger.warn("Unable to update AWS instance types database");
