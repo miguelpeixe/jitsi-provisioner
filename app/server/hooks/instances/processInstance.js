@@ -38,7 +38,10 @@ module.exports = (options = {}) => {
       },
     };
 
-    context.data.apiKey = await randomBytes(48);
+    context.data.api = {
+      key: await randomBytes(16),
+      secret: await randomBytes(32),
+    };
 
     context.data.terraform.vars = {
       name: `jitsi-${name}`,
@@ -48,7 +51,8 @@ module.exports = (options = {}) => {
       ssh_pubkey_path: `${context.data.key.path}.pub`,
       hostname: context.data.hostname,
       security_group_name: `jitsi-${context.data.name}`,
-      instance_api_key: context.data.apiKey,
+      instance_api_key: context.data.api.key,
+      instance_api_secret: context.data.api.secret,
       jitsi_recording: enableRecording,
     };
 

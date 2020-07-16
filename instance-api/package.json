@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node app/index.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   "homepage": "https://github.com/miguelpeixe/jitsi-provisioner#readme",
   "dependencies": {
     "archiver": "^4.0.2",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-jwt": "^6.0.0"
   }
 }

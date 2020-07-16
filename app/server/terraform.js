@@ -1,4 +1,5 @@
 const path = require("path");
+const logger = require("./logger");
 const { exec } = require("./utils");
 
 module.exports = async (app) => {
@@ -10,7 +11,7 @@ module.exports = async (app) => {
     return exec(cmd, { cwd: terraformPath });
   };
 
-  console.log("Initializing Terraform");
+  logger.info("Initializing Terraform");
 
   process.env.TF_VAR_aws_access_key = process.env.AWS_ACCESS_KEY_ID;
   process.env.TF_VAR_aws_secret_key = process.env.AWS_SECRET_ACCESS_KEY;

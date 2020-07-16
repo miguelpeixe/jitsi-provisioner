@@ -6,7 +6,7 @@ const { disallow } = require("feathers-hooks-common");
 
 const logger = require("../../logger");
 
-const { updateStatus, updateInfo, pushHistory } = require("../../hooks");
+const { wait, updateStatus, updateInfo, pushHistory } = require("../../hooks");
 
 const {
   checkLimit,
@@ -55,6 +55,7 @@ const provisionHooks = [
   waitApp(),
   updateStatus("available"),
   updateInfo("storing-certicate"),
+  wait(5000),
   storeCertificate(),
   updateInfo(),
   async (context) => {

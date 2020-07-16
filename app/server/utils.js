@@ -62,7 +62,7 @@ const randomBytes = function randomBytes(size = 48) {
     });
   });
 };
-const downloadFile = function downloadFile(url, destination) {
+const downloadFile = function downloadFile(url, destination, reqOptions = {}) {
   const fs = require("fs");
   const tmpPath = `${destination}.downloading`;
   const file = fs.createWriteStream(tmpPath);
@@ -73,28 +73,32 @@ const downloadFile = function downloadFile(url, destination) {
     });
   };
   return new Promise((resolve, reject) => {
-    const req = get(url, { timeout: 3000 }, (res) => {
-      if (res.statusCode < 200 || res.statusCode > 299) {
-        handleError(() => {
-          reject(`Server returned ${res.statusCode}`);
-        });
-      } else {
-        res.pipe(file);
-        file.on("finish", () => {
-          file.close(() => {
-            fs.rename(tmpPath, destination, (err) => {
-              if (err) {
-                handleError(() => {
-                  reject(err);
-                });
-              } else {
-                resolve();
-              }
+    const req = get(
+      url,
+      Object.assign({ timeout: 5000 }, reqOptions),
+      (res) => {
+        if (res.statusCode < 200 || res.statusCode > 299) {
+          handleError(() => {
+            reject(`Server returned ${res.statusCode}`);
+          });
+        } else {
+          res.pipe(file);
+          file.on("finish", () => {
+            file.close(() => {
+              fs.rename(tmpPath, destination, (err) => {
+                if (err) {
+                  handleError(() => {
+                    reject(err);
+                  });
+                } else {
+                  resolve();
+                }
+              });
             });
           });
-        });
+        }
       }
-    });
+    );
     req.on("timeout", () => {
       req.abort();
     });

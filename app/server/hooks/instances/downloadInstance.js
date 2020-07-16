@@ -1,4 +1,5 @@
 const path = require("path");
+const jwt = require("jsonwebtoken");
 const logger = require("../../logger");
 const { set } = require("lodash");
 const { downloadFile, sleep, pathExists } = require("../../utils");
@@ -12,28 +13,44 @@ module.exports = (options = {}) => {
     const DEMO = data.demo;
 
     if (!DEMO) {
-      const baseApi = `https://${data.hostname}/${data.apiKey}`;
+      const baseApi = `https://${data.hostname}/${data.api.key}`;
+
+      const token = jwt.sign({}, data.api.secret, {
+        expiresIn: "1m",
+      });
+      const reqOptions = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
 
       try {
         // Download Jitsi data
-        const jitsiPath = path.join(data.path, "jitsi.tar.gz");
-        await downloadFile(`${baseApi}/jitsi`, jitsiPath);
+        await downloadFile(
+          `${baseApi}/jitsi`,
+          path.join(data.path, "jitsi.tar.gz"),
+          reqOptions
+        );
       } catch (e) {
         logger.warn(e);
       }
 
       try {
         // Download recordings
-        const recordingsPath = path.join(data.path, "recordings.tar.gz");
-        await downloadFile(`${baseApi}/recordings`, recordingsPath);
+        await downloadFile(
+          `${baseApi}/recordings`,
+          path.join(data.path, "recordings.tar.gz"),
+          reqOptions
+        );
       } catch (e) {
         logger.warn(e);
       }
 
       try {
         // Download transcripts
-        const transcriptsPath = path.join(data.path, "transcripts.tar.gz");
-        await downloadFile(`${baseApi}/transcripts`, transcriptsPath);
+        await downloadFile(
+          `${baseApi}/transcripts`,
+          path.join(data.path, "transcripts.tar.gz"),
+          reqOptions
+        );
       } catch (e) {
         logger.warn(e);
       }

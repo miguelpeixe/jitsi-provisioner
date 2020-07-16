@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function generateSecret() {
-    openssl rand -hex 16
+    openssl rand -hex 32
 }
 
 JWT_SECRET=$(generateSecret)

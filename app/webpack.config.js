@@ -1,7 +1,9 @@
 const path = require("path");
 const webpack = require("webpack");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
+const TerserJSPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 
@@ -54,11 +56,11 @@ module.exports = (env, argv) => {
     entry,
     devtool: env.production ? undefined : "#source-map",
     resolve: {
-      // alias: {
-      //   react: "preact/compat",
-      //   "react-dom/test-utils": "preact/test-utils",
-      //   "react-dom": "preact/compat",
-      // },
+      alias: {
+        react: "preact/compat",
+        "react-dom/test-utils": "preact/test-utils",
+        "react-dom": "preact/compat",
+      },
       modules: ["client", "node_modules"],
     },
     output: {
@@ -70,10 +72,11 @@ module.exports = (env, argv) => {
     optimization: env.production
       ? {
           splitChunks: {
-            maxSize: 200000,
+            maxSize: 250000,
             chunks: "all",
             name: !env.production,
           },
+          minimizer: [new TerserJSPlugin(), new OptimizeCSSAssetsPlugin()],
         }
       : {},
     module: {
@@ -105,6 +108,7 @@ module.exports = (env, argv) => {
               loader: MiniCssExtractPlugin.loader,
               options: {
                 hmr: !env.production,
+                reloadAll: true,
                 esModule: true,
               },
             },

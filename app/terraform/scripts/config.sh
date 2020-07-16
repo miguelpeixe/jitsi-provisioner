@@ -7,6 +7,18 @@ CERTIFICATE=${certificate}
 JITSI_RECORDING=${jitsi_recording}
 REBOOT=false
 
+# Setup instance api
+docker pull miguelpeixe/jitsi-provisioner-instance-api:latest && \
+  docker run -d \
+    --name instance-api \
+    -v /etc/letsencrypt:/data/letsencrypt:ro \
+    -v /jitsi/data:/data/jitsi:ro \
+    -p 8001:8001 \
+    -e "JWT_SECRET=${instance_api_secret}" \
+    --restart unless-stopped \
+    miguelpeixe/jitsi-provisioner-instance-api:latest &
+
+# Setup Jitsi
 cd /jitsi/docker
 
 # Jitsi env
@@ -40,16 +52,6 @@ if [ $JITSI_RECORDING = true ]; then
 fi
 
 sudo -H -u jitsi bash -c "docker-compose $COMPOSE_VARS up $UP_VARS"
-
-# Setup instance api
-docker pull miguelpeixe/jitsi-provisioner-instance-api:latest && \
-  docker run -d \
-    --name instance-api \
-    -v /etc/letsencrypt:/data/letsencrypt:ro \
-    -v /jitsi/data:/data/jitsi:ro \
-    -p 8001:8001 \
-    --restart unless-stopped \
-    miguelpeixe/jitsi-provisioner-instance-api:latest &
 
 # Nginx conf
 echo "${nginx}" | base64 --decode > /etc/nginx/conf.d/jitsi.conf

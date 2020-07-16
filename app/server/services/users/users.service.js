@@ -2,6 +2,7 @@ const nedbService = require("feathers-nedb");
 const NeDB = require("nedb");
 const path = require("path");
 
+const logger = require("../../logger");
 const hooks = require("./users.hooks");
 
 module.exports = async (app) => {
@@ -25,7 +26,7 @@ module.exports = async (app) => {
   }
 
   if (app.get("demo")) {
-    console.log("Creating demo user");
+    logger.info("Creating demo user");
     await service.create({
       _id: "tkNzG1CgFfoWBOtM",
       username: "admin",

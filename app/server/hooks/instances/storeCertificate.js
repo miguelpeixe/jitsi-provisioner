@@ -1,4 +1,5 @@
 const path = require("path");
+const jwt = require("jsonwebtoken");
 const logger = require("../../logger");
 const { set } = require("lodash");
 const { downloadFile, sleep, pathExists } = require("../../utils");
@@ -13,12 +14,23 @@ module.exports = (options = {}) => {
 
     let patchData = {};
     if (!DEMO) {
-      const baseApi = `https://${data.hostname}/${data.apiKey}`;
+      const baseApi = `https://${data.hostname}/${data.api.key}`;
+
+      const token = jwt.sign({}, data.api.secret, {
+        expiresIn: "1m",
+      });
+      const reqOptions = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
 
       try {
         // Download certificates
         const certificatePath = path.join(data.path, "certificate.tar.gz");
-        await downloadFile(`${baseApi}/certificates`, certificatePath);
+        await downloadFile(
+          `${baseApi}/certificates`,
+          certificatePath,
+          reqOptions
+        );
         patchData = {
           "terraform.vars.certificate_path": certificatePath,
         };
