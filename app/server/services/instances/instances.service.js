@@ -20,7 +20,10 @@ module.exports = async (app) => {
 
   if (app.get("demo")) {
     const staledInstances = await service.find({
-      query: { status: { $nin: ["running", "terminated"] } },
+      query: {
+        demo: true,
+        status: { $nin: ["available", "running", "standby", "terminated"] },
+      },
     });
     if (staledInstances.length) {
       logger.info("Handling staled instances");
