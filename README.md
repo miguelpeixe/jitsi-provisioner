@@ -18,6 +18,7 @@ You can see a demo at https://meet.peixe.co.
 - Provision a Jitsi Meet server of any size and in any region of the world
 - Terminate and provision again at any time, preserving allocated elastic IP, hostname and the automatically generated LetsEncrypt certificates
 - Create your Jitsi AMI with one click for even faster provisioning
+- [A CLI](cli) to create and provision an instance with one command
 
 ## Installation
 
