@@ -7,3 +7,4 @@ app/terraform/.terraform
 app/public
 app/bundle-report.html
 instance-api
+cli
