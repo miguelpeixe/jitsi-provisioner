@@ -44,7 +44,7 @@ module.exports = function instances() {
     .description("Create new instance")
     .option(
       "--hostname <hostname>",
-      `Custom hostname (default: "<id>.${process.env.DOMAIN}")`
+      `Custom hostname (default: "<id>.example.com")`
     )
     .option("--region <region>", "Amazon region", "us-east-1")
     .option("--type <type>", "Amazon instance type", "t3.large")
