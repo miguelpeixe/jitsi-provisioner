@@ -2,6 +2,20 @@
 
 CLI interface to manage your Jitsi Provisioner
 
+```
+Usage: jitsi-provisioner [options] [command]
+
+Options:
+  -V, --version           output the version number
+  -h, --help              display help for command
+
+Commands:
+  auth [options]
+  users                   Jitsi Provisioner Users
+  instances [instanceId]  Jitsi Provisioner Instances
+  help [command]          display help for command
+```
+
 ---
 
 ## Authenticate
@@ -52,6 +66,51 @@ $ jitsi-provisioner instances
 └─────────┴──────────┴────────────────────────┴──────┴─────────────┴───────────────┴─────────────┴────────────┘
 ```
 
+### Creating, provisioning, terminating and removing instances
+
+Creating a new instance in São Paulo of type c5.xlarge:
+
+```
+$ jitsi-provisioner instances create --region sa-east-1 --type c5.xlarge --hostname my-jitsi.meet.peixe.co
+Provisioning instance ✔ Available
+┌──────────┬──────────────────────────┐
+│ (index)  │          Values          │
+├──────────┼──────────────────────────┤
+│   _id    │         'b586fe'         │
+│ hostname │ 'my-jitsi.meet.peixe.co' │
+│   info   │            ''            │
+│  status  │       'available'        │
+│ publicIp │       '100.0.0.73'       │
+│  region  │       'sa-east-1'        │
+│   type   │       'c5.xlarge'        │
+└──────────┴──────────────────────────┘
+```
+
+Terminating the created instance:
+
+```
+$ jitsi-provisioner instances terminate b586fe
+Terminating instance ✔ Terminated
+```
+
+Provisioning the terminated instance:
+
+```
+$ jitsi-provisioner instances provision b586fe
+```
+
+Removing a terminated instance:
+
+```
+$ jitsi-provisioner instances remove b586fe
+```
+
+Information on a single instance:
+
+```
+$ jitsi-provisioner instances b586fe
+```
+
 ## Manage users
 
 ```
@@ -66,5 +125,5 @@ Options:
 Commands:
   create <username> <password>             Create new user
   changePassword <username> <newPassword>  Change user password
-  remove <userId>                          Remove user
+  remove <username>                        Remove user
 ```

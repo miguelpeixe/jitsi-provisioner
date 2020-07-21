@@ -7,22 +7,15 @@ const connection = require("../utils/connection");
 module.exports = function users() {
   const program = new Command();
 
-  const users = program.command("users [userId]");
+  const users = program.command("users");
 
-  users.description("Jitsi Provisioner Users").action(async (userId) => {
+  users.description("Jitsi Provisioner Users").action(async () => {
     const socket = await connection();
     try {
-      if (userId) {
-        socket.send("get", "users", userId, (err, data) => {
-          console.table(data);
-          process.exit();
-        });
-      } else {
-        socket.send("find", "users", {}, (err, data) => {
-          console.table(data);
-          process.exit();
-        });
-      }
+      socket.send("find", "users", {}, (err, data) => {
+        console.table(data);
+        process.exit();
+      });
     } catch (e) {
       console.error(e.message);
       process.exit();
@@ -74,17 +67,24 @@ module.exports = function users() {
       });
     });
   users
-    .command("remove <userId>")
+    .command("remove <username>")
     .description("Remove user")
     .action(async (userId) => {
       const socket = await connection();
-      socket.send("remove", "users", userId, (err, data) => {
-        if (err) {
-          console.error(err.message);
+      socket.send("find", "users", { username }, (err, data) => {
+        if (!data.length) {
+          console.error("User not found");
           process.exit(1);
         } else {
-          console.table(data);
-          process.exit();
+          socket.send("remove", "users", data[0]._id, (err, data) => {
+            if (err) {
+              console.error(err.message);
+              process.exit(1);
+            } else {
+              console.table(data);
+              process.exit();
+            }
+          });
         }
       });
     });
