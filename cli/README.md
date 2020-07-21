@@ -2,7 +2,11 @@
 
 CLI interface to manage your Jitsi Provisioner
 
+## Install
+
 ```
+$ npm install -g jitsi-provisioner-cli
+$ jitsi-provisioner
 Usage: jitsi-provisioner [options] [command]
 
 Options:
