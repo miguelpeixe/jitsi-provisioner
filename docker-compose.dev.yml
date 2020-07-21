@@ -11,6 +11,7 @@ services:
       - ./app:/app
     environment:
       - DEMO
+      - NO_CLIENT
       - MAX_INSTANCES
       - JWT_SECRET
       - EMAIL

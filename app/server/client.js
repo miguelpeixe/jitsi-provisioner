@@ -1,5 +1,6 @@
 const express = require("@feathersjs/express");
 const path = require("path");
+const logger = require("./logger");
 
 module.exports = (app) => {
   const env = app.get("env");
@@ -8,6 +9,7 @@ module.exports = (app) => {
   });
 
   if (env != "production") {
+    logger.info("Building client");
     const webpack = require("webpack");
     const webpackDev = require("webpack-dev-middleware");
     const webpackHot = require("webpack-hot-middleware");

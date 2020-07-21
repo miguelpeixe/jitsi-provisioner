@@ -1,3 +1,0 @@
-#!/bin/bash
-
-docker-compose exec app node /app/cli.js $@

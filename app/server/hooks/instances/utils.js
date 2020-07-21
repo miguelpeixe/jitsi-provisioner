@@ -1,7 +1,13 @@
 const logger = require("../../logger");
 
 module.exports.fail = async (service, id, err) => {
-  await service.patch(id, { status: "failed" });
+  let info = "";
+  if (typeof err == "string") {
+    info = err;
+  } else if (err.message) {
+    info = err.message;
+  }
+  await service.patch(id, { status: "failed", info });
   logger.error(err);
   throw new Error(err);
 };

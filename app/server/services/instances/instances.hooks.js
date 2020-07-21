@@ -181,6 +181,7 @@ const handleRemove = (options = {}) => {
     logger.info(`Removing instance: ${context.result.name}`);
 
     const hooks = [
+      updateStatus("removing"),
       updateInfo("releasing-eip"),
       terminateEIP(),
       updateInfo("removing-dns"),

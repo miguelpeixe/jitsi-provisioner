@@ -24,7 +24,7 @@ export default styled.div`
       box-shadow: 0 0 1rem #f2ff00;
     `}
     ${(props) =>
-      props.status.match(/error|failed|standby|terminated/) &&
+      props.status.match(/error|failed|standby|terminated|removing/) &&
       css`
         background: #ff2e2e;
         border-color: #d62222;

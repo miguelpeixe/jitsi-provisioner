@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+const { Command } = require("commander");
+const packageJSON = require("../package.json");
+
+async function jitsiProvisioner() {
+  const program = new Command();
+  program.version(packageJSON.version);
+
+  program.addCommand(require("../programs/auth")());
+  program.addCommand(require("../programs/users")());
+  program.addCommand(require("../programs/instances")());
+
+  await program.parseAsync(process.argv);
+}
+
+jitsiProvisioner();

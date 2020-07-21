@@ -15,9 +15,9 @@ You can see a demo at https://meet.peixe.co.
 
 ## Features
 
- - Provision a Jitsi Meet server of any size and in any region of the world
- - Terminate and provision again at any time, preserving allocated elastic IP, hostname and the automatically generated LetsEncrypt certificates
- - Create your Jitsi AMI with one click for even faster provisioning
+- Provision a Jitsi Meet server of any size and in any region of the world
+- Terminate and provision again at any time, preserving allocated elastic IP, hostname and the automatically generated LetsEncrypt certificates
+- Create your Jitsi AMI with one click for even faster provisioning
 
 ## Installation
 
@@ -64,11 +64,19 @@ In demo mode:
 
 ## Users
 
-With demo mode off you can create and delete users using the custom cli:
+With demo mode off you can create and delete users using the [custom cli](cli):
 
 ```
-$ ./cli addUser myuser mypassword
-$ ./cli removeUser myuser
+$ cd cli/
+$ npm install
+$ ./bin/jitsi-provisioner user create myuser mypassword
+$ ./bin/jitsi-provisioner user remove myuser
+```
+
+### Changing user password
+
+```
+$ ./bin/jitsi-provisioner user changePassword myuser mypassword
 ```
 
 ## Volume and data

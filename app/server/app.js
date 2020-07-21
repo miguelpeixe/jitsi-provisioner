@@ -1,6 +1,6 @@
 const feathers = require("@feathersjs/feathers");
 const express = require("@feathersjs/express");
-const socketio = require("@feathersjs/socketio");
+const primus = require("@feathersjs/primus");
 const path = require("path");
 
 const logger = require("./logger");
@@ -22,13 +22,14 @@ app.set(
 );
 app.set("dbPath", path.join(app.get("dataPath"), "db"));
 app.set("domain", process.env.DOMAIN);
-app.set("demo", parseInt(process.env.DEMO));
+app.set("demo", !!parseInt(process.env.DEMO));
+app.set("noClient", !!parseInt(process.env.NO_CLIENT));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.configure(express.rest());
-app.configure(socketio());
+app.configure(primus({ transformer: "websockets" }));
 
 app.configure(cloudflare);
 app.configure(terraform);
@@ -36,7 +37,9 @@ app.configure(authentication);
 app.configure(services);
 app.configure(channels);
 
-app.configure(client);
+if (!app.get("noClient")) {
+  app.configure(client);
+}
 
 app.use(express.errorHandler({ logger }));
 
