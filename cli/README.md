@@ -2,6 +2,8 @@
 
 CLI interface to manage your Jitsi Provisioner
 
+![](https://media.giphy.com/media/gGwjWshjjBcaCqeQfA/giphy.gif)
+
 ## Install
 
 ```
