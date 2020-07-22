@@ -129,16 +129,18 @@ export default class App extends Component {
     this.contentRef = React.createRef();
   }
   componentDidMount() {
-    client
-      .reAuthenticate()
-      .catch((err) => {
-        client.logout();
-      })
-      .finally(() => {
-        this.setState({
-          ready: true,
+    if (localStorage.auth) {
+      client
+        .reAuthenticate()
+        .catch((err) => {
+          client.logout();
+        })
+        .finally(() => {
+          this.setState({
+            ready: true,
+          });
         });
-      });
+    }
     client.on("login", (auth) => {
       this.setState({ auth });
       this._fetchAWS();
@@ -146,30 +148,36 @@ export default class App extends Component {
       this._fetchAMIs();
     });
     client.on("logout", () => {
-      this.setState({ auth: false, instances: [], hostnames: [], amis: [] });
+      this.setState({ auth: false, instances: [], amis: [], awsInstances: [] });
     });
     this.bindInstanceEvents();
     this.bindAMIEvents();
   }
   bindInstanceEvents = () => {
     this.service.on("created", (instance) => {
-      this.setState({
-        instances: [instance, ...this.state.instances],
-      });
+      const instances = [...this.state.instances];
+      const idx = instances.findIndex((i) => i._id == instance._id);
+      if (Number.isInteger(idx) && idx > -1) {
+        instances[idx] = instance;
+        this.setState({ instances });
+      } else {
+        this.setState({
+          instances: [instance, ...this.state.instances],
+        });
+      }
     });
     this.service.on("patched", (instance) => {
       const instances = [...this.state.instances];
       const idx = instances.findIndex((i) => i._id == instance._id);
-      if (Number.isInteger(idx)) {
+      if (Number.isInteger(idx) && idx > -1) {
         instances[idx] = instance;
         this.setState({ instances });
       }
     });
     this.service.on("removed", (instance) => {
-      if (instance.status == "removing") return;
       const instances = [...this.state.instances];
       const idx = instances.findIndex((i) => i._id == instance._id);
-      if (Number.isInteger(idx)) {
+      if (Number.isInteger(idx) && idx > -1) {
         instances.splice(idx, 1);
         this.setState({ instances });
       }
@@ -177,14 +185,21 @@ export default class App extends Component {
   };
   bindAMIEvents = () => {
     client.service("amis").on("created", (ami) => {
-      this.setState({
-        amis: [ami, ...this.state.amis],
-      });
+      const amis = [...this.state.amis];
+      const idx = amis.findIndex((i) => i._id == ami._id);
+      if (Number.isInteger(idx) && idx > -1) {
+        amis[idx] = ami;
+        this.setState({ amis });
+      } else {
+        this.setState({
+          amis: [ami, ...this.state.amis],
+        });
+      }
     });
     client.service("amis").on("patched", (ami) => {
       const amis = [...this.state.amis];
       const idx = amis.findIndex((i) => i._id == ami._id);
-      if (Number.isInteger(idx)) {
+      if (Number.isInteger(idx) && idx > -1) {
         amis[idx] = ami;
         this.setState({ amis });
       }
@@ -193,7 +208,7 @@ export default class App extends Component {
       if (ami.status == "removing") return;
       const amis = [...this.state.amis];
       const idx = amis.findIndex((i) => i._id == ami._id);
-      if (Number.isInteger(idx)) {
+      if (Number.isInteger(idx) && idx > -1) {
         amis.splice(idx, 1);
         this.setState({ amis });
       }
