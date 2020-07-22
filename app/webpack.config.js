@@ -112,9 +112,6 @@ module.exports = (env, argv) => {
                 esModule: true,
               },
             },
-            // {
-            //   loader: "style-loader",
-            // },
             {
               loader: "css-loader",
             },
