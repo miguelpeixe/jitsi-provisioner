@@ -1,6 +1,6 @@
 {
   "name": "jitsi-provisioner-cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Deploy Jitsi Meet servers in less than 3 minutes",
   "repository": {
     "type": "git",
