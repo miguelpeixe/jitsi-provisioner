@@ -140,6 +140,10 @@ export default class App extends Component {
             ready: true,
           });
         });
+    } else {
+      this.setState({
+        ready: true,
+      });
     }
     client.on("login", (auth) => {
       this.setState({ auth });
