@@ -79,7 +79,7 @@ module.exports = () => {
       },
       (err, data) => {
         if (err) {
-          console.error(err.message | err);
+          console.error(err.message || err);
           process.exit(1);
         } else {
           resolve(socket);
