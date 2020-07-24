@@ -98,7 +98,12 @@ module.exports = () => {
 };
 
 module.exports.auth = ({ url, username, password }) => {
+  const spinner = ora().start("Authenticating");
   const socket = new Socket(url);
+  socket.on("error", (err) => {
+    spinner.fail(err.message || err);
+    process.exit(1);
+  });
   return new Promise((resolve, reject) => {
     socket.send(
       "create",
@@ -110,10 +115,12 @@ module.exports.auth = ({ url, username, password }) => {
       },
       (err, data) => {
         if (err) {
-          reject(err);
+          spinner.fail(err.message || err);
+          process.exit(1);
         } else {
           storeConfig(url, data);
-          resolve();
+          spinner.succeed(`Authenticated to ${url}`);
+          resolve(socket);
         }
       }
     );
