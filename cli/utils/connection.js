@@ -3,6 +3,7 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 const Primus = require("primus");
 const Emitter = require("primus-emitter");
+const ora = require("ora");
 
 const APP_PATH = path.join(__dirname, "../..", "app");
 const ENV_PATH = path.join(__dirname, "../..", ".env");
@@ -57,18 +58,24 @@ const storeConfig = (url, data) => {
 module.exports = () => {
   const config = getConfig();
 
+  const spinner = ora().start("Connecting");
+
   if (!config.accessToken) {
     if (process.env.JWT_SECRET) {
       config.accessToken = getToken();
       config.url = "http://localhost:3030";
     } else {
-      console.error("You must authenticate");
+      spinner.fail("You must authenticate");
       process.exit(1);
       return;
     }
   }
 
-  const socket = new Socket(config.url);
+  const socket = new Socket(config.url, { timeout: 2000 });
+  socket.on("error", (err) => {
+    spinner.fail(err.message || err);
+    process.exit(1);
+  });
   return new Promise((resolve, reject) => {
     socket.send(
       "create",
@@ -79,9 +86,10 @@ module.exports = () => {
       },
       (err, data) => {
         if (err) {
-          console.error(err.message || err);
+          spinner.fail(err.message || err);
           process.exit(1);
         } else {
+          spinner.succeed("Connected");
           resolve(socket);
         }
       }
