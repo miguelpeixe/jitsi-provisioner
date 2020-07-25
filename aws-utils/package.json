@@ -1,6 +1,6 @@
 {
   "name": "@jitsi-provisioner/aws-utils",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "AWS utils for Jitsi Provisioner",
   "main": "index.js",
   "repository": {

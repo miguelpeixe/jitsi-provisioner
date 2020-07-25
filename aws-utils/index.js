@@ -33,8 +33,8 @@ module.exports = {
       res = await axios.get(
         "https://raw.githubusercontent.com/powdahound/ec2instances.info/master/www/instances.json"
       );
-    } catch (e) {
-      console.warn("ec2instances.info connection error");
+    } catch (err) {
+      throw new Error(err);
     } finally {
       if (res && res.data && res.data.length) {
         for (const item of res.data) {
