@@ -74,7 +74,7 @@ With demo mode off you can create and delete users using the [custom cli](cli):
 ```
 $ cd cli/
 $ npm install
-$ ./bin/jitsi-provisioner user create myuser mypassword admin
+$ ./bin/jitsi-provisioner user create myuser --password mypassword --role admin
 $ ./bin/jitsi-provisioner user remove myuser
 ```
 
@@ -95,6 +95,8 @@ $ ./bin/jitsi-provisioner user changeRole myuser user
 ## CLI
 
 You can also use the [CLI](cli) to manage your whole setup. If you want to just use the CLI or the API, you can disable the web client completely by setting `NO_CLIENT=1` on your `.env`.
+
+You can also install the CLI globally and connect to remote Jitsi Provisioner apps. [Read more about using the CLI](cli).
 
 ## Volume and data
 
