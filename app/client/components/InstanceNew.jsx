@@ -12,9 +12,9 @@ import {
   InputPicker,
 } from "rsuite";
 
-import client from "api";
+import Instances from "api/instances";
 
-import regions from "regions";
+import regions from "utils/regions";
 
 import Card from "components/Card.jsx";
 import Button from "components/Button.jsx";
@@ -33,7 +33,7 @@ function Explain({ children }) {
   );
 }
 
-export default class NewInstance extends Component {
+export default class InstanceNew extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -50,7 +50,6 @@ export default class NewInstance extends Component {
       region: StringType().isRequired("AWS region is required"),
       type: StringType().isRequired("Instance type is required"),
     });
-    this.service = client.service("instances");
   }
   componentDidUpdate(prevProps, prevState) {
     const { formData } = this.state;
@@ -72,11 +71,10 @@ export default class NewInstance extends Component {
       loading: true,
     });
     if (formData.createAMI) {
-      client.service("amis").create({ region: formData.region });
+      Instances.createAMI(formData.region);
       delete formData.createAMI;
     }
-    this.service
-      .create(formData)
+    Instances.create(formData)
       .then((res) => {
         this.props.onSubmit && this.props.onSubmit(res);
       })
@@ -237,18 +235,6 @@ export default class NewInstance extends Component {
                   <FormControl accepter={Toggle} name="recording" />
                 </FlexTable.Data>
               </FlexTable.Row>
-              {/* <FlexTable.Row>
-                <FlexTable.Head>
-                  <Icon icon="refresh" /> Fast provisioning{" "}
-                  <Explain>
-                    This will reserve the ellastic IP. When requested it will
-                    perform a faster deploy using the AMI.
-                  </Explain>
-                </FlexTable.Head>
-                <FlexTable.Data>
-                  <Toggle disabled={!this.state.createAMI} />
-                </FlexTable.Data>
-              </FlexTable.Row> */}
             </FlexTable>
           </Card.Content>
           <Card.Footer>

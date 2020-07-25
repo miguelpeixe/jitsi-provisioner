@@ -15,10 +15,7 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   margin: 2rem auto;
-  max-width: 450px;
-  @media (max-width: 1120px) {
-    max-width: none;
-  }
+  max-width: 500px;
   @media (max-width: 700px) {
     margin: 0 auto;
   }

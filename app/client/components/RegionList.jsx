@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import client from "api";
 
-import regions from "regions";
+import regions from "utils/regions";
 
 import { Alert, Icon, Tooltip, Whisper } from "rsuite";
 

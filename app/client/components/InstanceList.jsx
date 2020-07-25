@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { Icon } from "rsuite";
+import { Alert, Icon } from "rsuite";
 import { get } from "lodash";
 
-import client from "api";
+import Instances from "api/instances";
 
-import regions from "regions";
-import download from "download";
+import regions from "utils/regions";
+import download from "utils/download";
 
 import Card from "components/Card.jsx";
 import FlexTable from "components/FlexTable.jsx";
@@ -16,34 +16,33 @@ import Timer from "components/Timer.jsx";
 import EstimatedCost from "components/EstimatedCost.jsx";
 
 export default class InstanceList extends Component {
-  constructor(props) {
-    super(props);
-    this.service = client.service("instances");
-  }
   _handleTerminateClick = (instance) => (ev) => {
     ev.preventDefault();
     if (this._canTerminate(instance) && confirm("Are you sure?")) {
-      this.service.patch(instance._id, { action: "terminate" });
+      Instances.terminate(instance).catch((err) => {
+        Alert.error(err.message);
+      });
     }
   };
   _handleProvisionClick = (instance) => (ev) => {
     ev.preventDefault();
     if (this._canRemove(instance)) {
-      this.service.patch(instance._id, { action: "provision" });
+      Instances.provision(instance).catch((err) => {
+        Alert.error(err.message);
+      });
     }
   };
   _handleRemoveClick = (instance) => (ev) => {
     ev.preventDefault();
     if (this._canRemove(instance) && confirm("Are you sure?")) {
-      this.service.patch(instance._id, { action: "remove" });
+      Instances.remove(instance).catch((err) => {
+        Alert.error(err.message);
+      });
     }
-  };
-  _getUrl = (instance) => {
-    return `https://${instance.hostname}`;
   };
   _getLink = (instance) => {
     if (instance.status == "available") {
-      const url = this._getUrl(instance);
+      const url = Instances.getUrl(instance);
       return (
         <a href={url} rel="external" target="_blank">
           {url}
@@ -51,11 +50,6 @@ export default class InstanceList extends Component {
       );
     }
     return "--";
-  };
-  _getServer = (instance) => {
-    const { awsInstances } = this.props;
-    if (!awsInstances.length || !instance) return;
-    return awsInstances.find((item) => item._id == instance);
   };
   _canTerminate = (instance) => {
     return instance.status.match(/failed|running|available|standby/);
@@ -70,15 +64,7 @@ export default class InstanceList extends Component {
   };
   _handleDownloadClick = (instance) => (ev) => {
     ev.preventDefault();
-    client.rest
-      .get(`/instances/${instance._id}?download`, { responseType: "blob" })
-      .then((res) => {
-        download(
-          res.data,
-          `${instance._id}.tar.gz`,
-          res.headers["content-type"]
-        );
-      });
+    Instances.download(instance);
   };
   _hasRecording = (instance) => {
     return !!get(instance, "terraform.vars.jitsi_recording");
@@ -130,7 +116,7 @@ export default class InstanceList extends Component {
                 </FlexTable.Row>
               </FlexTable>
               <ServerInfo
-                instance={this._getServer(instance.type)}
+                instance={Instances.getServer(instance.type)}
                 region={instance.region}
               />
               <Button.Group vertical>
@@ -148,7 +134,7 @@ export default class InstanceList extends Component {
                     block
                     light
                     small
-                    href={`${this._getUrl(instance)}/${
+                    href={`${Instances.getUrl(instance)}/${
                       instance.apiKey
                     }/recordings`}
                     target="_blank"

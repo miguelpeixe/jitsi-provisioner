@@ -19,25 +19,38 @@ module.exports = function instances() {
 
   const instances = program.command("instances [instanceId]");
 
-  instances.description("Jitsi Provisioner Instances").action(async (instanceId) => {
-    const socket = await connection();
-    try {
-      if (instanceId) {
-        socket.send("get", "instances", instanceId, (err, data) => {
-          console.table(pick(data, print));
-          process.exit();
-        });
-      } else {
-        socket.send("find", "instances", {}, (err, data) => {
-          console.table(data, print);
-          process.exit();
-        });
+  instances
+    .description("Jitsi Provisioner Instances")
+    .action(async (instanceId) => {
+      const socket = await connection();
+      const spinner = ora().start("Fetching instances");
+      try {
+        if (instanceId) {
+          socket.send("get", "instances", instanceId, (err, data) => {
+            if (err) {
+              spinner.fail(err.message || err);
+            } else {
+              spinner.succeed("Fetched");
+              console.table(pick(data, print));
+            }
+            process.exit();
+          });
+        } else {
+          socket.send("find", "instances", {}, (err, data) => {
+            if (err) {
+              spinner.fail(err.message || err);
+            } else {
+              spinner.succeed("Fetched");
+              console.table(data, print);
+            }
+            process.exit();
+          });
+        }
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit();
       }
-    } catch (e) {
-      console.error(e.message);
-      process.exit();
-    }
-  });
+    });
 
   instances
     .command("create")
@@ -63,7 +76,7 @@ module.exports = function instances() {
         },
         (err, data) => {
           if (err) {
-            console.error(err.message);
+            spinner.fail(err.message || err);
             process.exit(1);
           } else {
             socket.on("instances patched", (instance) => {
@@ -101,7 +114,7 @@ module.exports = function instances() {
         },
         (err, data) => {
           if (err) {
-            console.error(err.message);
+            spinner.fail(err.message || err);
             process.exit(1);
           } else {
             socket.on("instances patched", (instance) => {
@@ -139,7 +152,7 @@ module.exports = function instances() {
         },
         (err, data) => {
           if (err) {
-            console.error(err.message);
+            spinner.fail(err.message || err);
             process.exit(1);
           } else {
             socket.on("instances patched", (instance) => {
@@ -175,7 +188,7 @@ module.exports = function instances() {
         { action: "remove" },
         (err, data) => {
           if (err) {
-            console.error(err.message);
+            spinner.fail(err.message || err);
             process.exit(1);
           } else {
             socket.on("instances patched", (instance) => {

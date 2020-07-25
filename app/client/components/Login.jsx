@@ -70,6 +70,12 @@ export default class Login extends Component {
             <h3>Authenticate</h3>
           </Card.Header>
           <Card.Content>
+            {DEMO ? (
+              <p>
+                Authenticate with <strong>admin/admin</strong> or{" "}
+                <strong>user/user</strong> credentials.
+              </p>
+            ) : null}
             <FormGroup controlId="username">
               <ControlLabel>Username</ControlLabel>
               <FormControl name="username" />

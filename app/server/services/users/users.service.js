@@ -17,21 +17,29 @@ module.exports = async (app) => {
 
   service.hooks(hooks);
 
-  const demoUser = await service.find({ query: { role: "demo" } });
+  const demoUsers = await service.find({ query: { demo: true } });
 
-  if (demoUser.length) {
-    for (const user of demoUser) {
+  if (demoUsers.length) {
+    for (const user of demoUsers) {
       await service.remove(user._id);
     }
   }
 
   if (app.get("demo")) {
-    logger.info("Creating demo user");
+    logger.info("Creating demo users");
     await service.create({
       _id: "tkNzG1CgFfoWBOtM",
       username: "admin",
       password: "admin",
-      role: "demo",
+      role: "admin",
+      demo: true,
+    });
+    await service.create({
+      _id: "PSLm6VYTUrLXCrHb",
+      username: "user",
+      password: "user",
+      role: "user",
+      demo: true,
     });
   }
 };

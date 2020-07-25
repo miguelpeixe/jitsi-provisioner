@@ -6,7 +6,13 @@ const { disallow } = require("feathers-hooks-common");
 
 const logger = require("../../logger");
 
-const { wait, updateStatus, updateInfo, pushHistory } = require("../../hooks");
+const {
+  wait,
+  updateStatus,
+  updateInfo,
+  pushHistory,
+  restrictToRole,
+} = require("../../hooks");
 
 const {
   checkLimit,
@@ -88,6 +94,25 @@ const handleAction = (options = {}) => {
         default:
           throw new Error("Action not available");
       }
+    }
+    return context;
+  };
+};
+
+const validateAction = (options = {}) => {
+  return async (context) => {
+    const { instanceAction } = context.params;
+    let hooks = [];
+    if (instanceAction) {
+      switch (instanceAction) {
+        case "remove":
+          hooks.push(restrictToRole("admin"));
+          break;
+        default:
+      }
+    }
+    if (hooks.length) {
+      await processHooks.call(this, hooks, context);
     }
     return context;
   };
@@ -208,9 +233,14 @@ module.exports = {
     all: [authenticate("jwt")],
     find: [],
     get: [],
-    create: [checkLimit(), processInstance(), validateData()],
+    create: [
+      restrictToRole("admin"),
+      checkLimit(),
+      processInstance(),
+      validateData(),
+    ],
     update: [disallow("external")],
-    patch: [handleAction(), validatePatch()],
+    patch: [handleAction(), validatePatch(), validateAction()],
     remove: [disallow("external")],
   },
 

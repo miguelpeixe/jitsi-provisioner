@@ -5,110 +5,21 @@ import { Alert, Loader, Icon } from "rsuite";
 
 import client from "api";
 
+import Container from "components/Container.jsx";
+import Header from "components/Header.jsx";
+import Info from "components/Info.jsx";
 import Content from "components/Content.jsx";
+import Spacer from "components/Spacer.jsx";
 import Button from "components/Button.jsx";
 import Card from "components/Card.jsx";
 import Login from "components/Login.jsx";
-import NewInstance from "components/NewInstance.jsx";
+import InstanceNew from "components/InstanceNew.jsx";
 import RegionList from "components/RegionList.jsx";
 import InstanceList from "components/InstanceList.jsx";
-
-import regions from "regions";
 
 Alert.config({
   top: "1rem",
 });
-
-const Container = styled.div`
-  display: flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  @media (max-width: 760px) {
-    flex-direction: column;
-  }
-`;
-
-const Spacer = styled.div`
-  flex: 1 1 100%;
-  display: flex;
-  align-items: center;
-  @media (max-width: 760px) {
-    display: none;
-  }
-`;
-
-const Header = styled.header`
-  flex: 0 0 auto;
-  width: 17%;
-  min-width: 300px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  font-size: 0.9em;
-  text-align: right;
-  border-right: 1px solid rgba(0, 0, 0, 0.2);
-  overflow: auto;
-  color: #fff;
-  h1 {
-    margin: 0 0 1rem;
-    font-size: 1.6em;
-    flex: 0 0 auto;
-    line-height: inherit;
-  }
-  a {
-    color: rgba(255, 255, 255, 0.9);
-    text-decoration: none;
-    font-weight: 600;
-    flex: 0 0 auto;
-  }
-  p {
-    font-size: 0.9em;
-    margin: 0 0 1rem;
-  }
-  @media (max-width: 1120px) {
-    position: static;
-  }
-  @media (max-width: 760px) {
-    width: auto;
-    background: #2f3643;
-    flex-direction: row;
-    align-items: center;
-    padding: 1rem;
-    border-right: 0;
-    margin: 0;
-    text-align: left;
-    * {
-      flex: 0 0 auto;
-    }
-    h1 {
-      flex: 1 1 100%;
-      font-size: 1em;
-      margin: 0;
-    }
-    p {
-      margin: 0 0 0 0.5rem;
-    }
-  }
-  @media (max-width: 370px) {
-    font-size: 0.8em;
-  }
-`;
-
-const Info = styled.aside`
-  flex: 0 0 auto;
-  color: rgba(255, 255, 255, 0.5);
-  @media (max-width: 760px) {
-    display: none;
-  }
-`;
 
 export default class App extends Component {
   constructor(props) {
@@ -156,6 +67,15 @@ export default class App extends Component {
     });
     this.bindInstanceEvents();
     this.bindAMIEvents();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    // Set aws globally to API client
+    if (
+      JSON.stringify(prevState.awsInstances) !=
+      JSON.stringify(this.state.awsInstances)
+    ) {
+      client.set("aws", this.state.awsInstances);
+    }
   }
   bindInstanceEvents = () => {
     this.service.on("created", (instance) => {
@@ -309,7 +229,7 @@ export default class App extends Component {
       <Container>
         <Header>
           <h1>Jitsi Provisioner</h1>
-          {auth && instances.length ? (
+          {auth && auth.user.role == "admin" && instances.length ? (
             <Button
               disabled={!this._canCreate()}
               onClick={this._handleNewClick()}
@@ -323,61 +243,16 @@ export default class App extends Component {
             </Button>
           ) : null}
           <Spacer>
-            <RegionList amis={amis} instances={instances} />
+            {auth && auth.user.role == "admin" ? (
+              <RegionList amis={amis} instances={instances} />
+            ) : null}
           </Spacer>
           {auth ? (
             <p>
               <Button onClick={this._handleLogoutClick}>Logout</Button>
             </p>
           ) : null}
-          <Info>
-            <p>
-              Always remember to check{" "}
-              <a
-                href="https://aws.amazon.com/ec2/pricing/on-demand/"
-                target="_blank"
-                rel="external"
-              >
-                Amazon EC2 pricing table
-              </a>{" "}
-              and your{" "}
-              <a
-                href="https://console.aws.amazon.com/billing/home"
-                target="_blank"
-                rel="external"
-              >
-                billing dashboard
-              </a>
-              .
-            </p>
-            <p>
-              Cost estimates provided by{" "}
-              <a
-                href="https://github.com/powdahound/ec2instances.info"
-                target="_blank"
-                rel="external"
-              >
-                ec2instances.info
-              </a>
-              . The data shown is not guaranteed to be accurate or current.
-            </p>
-            <p>
-              This project is experimental and has no relation to{" "}
-              <a href="https://jitsi.org/" rel="external" target="_blank">
-                Jitsi.org
-              </a>
-              .
-            </p>
-            <p>
-              <a
-                href="https://github.com/miguelpeixe/jitsi-provisioner"
-                target="_blank"
-                rel="external"
-              >
-                <Icon size="2x" icon="github" />
-              </a>
-            </p>
-          </Info>
+          {auth && auth.user.role == "admin" ? <Info /> : null}
         </Header>
         <Content id="content" ref={this.contentRef}>
           {loading ? (
@@ -394,7 +269,7 @@ export default class App extends Component {
               ) : null}
               {!auth ? <Login /> : null}
               {auth && (newInstance || !instances.length) ? (
-                <NewInstance
+                <InstanceNew
                   allowCancel={instances.length}
                   onSubmit={this._handleSubmit}
                   onCancel={this._handleCancel}

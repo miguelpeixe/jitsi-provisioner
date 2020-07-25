@@ -83,6 +83,9 @@ const Content = styled.section`
   h4 {
     font-size: 1em;
   }
+  p {
+    margin: 0 0 1rem;
+  }
   table {
     width: 100%;
     border-spacing: 0;
