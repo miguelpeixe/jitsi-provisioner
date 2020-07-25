@@ -6,10 +6,37 @@ const {
 const { restrictToRole } = require("../../hooks");
 const { disallow } = require("feathers-hooks-common");
 
+const validateCreate = (options = {}) => {
+  return async (context) => {
+    // Require password
+    if (!context.data.username) {
+      throw new Error("Username is required");
+    }
+    // Protect usernames
+    if (context.params.provider && context.data.username.match(/admin|user/)) {
+      throw new Error("Username not allowed");
+    }
+    // Require password
+    if (!context.data.password) {
+      throw new Error("Password is required");
+    }
+    // Unique username
+    const username = await context.service.find({
+      query: { username: context.data.username },
+    });
+    if (username.length) {
+      throw new Error("Username already taken");
+    }
+    // Default role
+    context.data.role = context.data.role || "user";
+    return context;
+  };
+};
+
 const demoBlock = async (context) => {
-  // if (context.app.get("demo") && context.params.provider) {
-  //   throw new Error("Demo mode does not allow this");
-  // }
+  if (context.app.get("demo") && context.params.provider) {
+    throw new Error("Demo mode does not allow this");
+  }
 };
 
 module.exports = {
@@ -18,6 +45,7 @@ module.exports = {
     find: [authenticate("jwt"), restrictToRole("admin")],
     get: [authenticate("jwt")],
     create: [
+      validateCreate(),
       hashPassword("password"),
       demoBlock,
       authenticate("jwt"),
