@@ -69,6 +69,8 @@ module.exports = (app) => {
               context.result.user = await context.app
                 .service("users")
                 .get(payload.sub);
+              // protect password
+              delete context.result.user.password;
             }
           }
           return context;
