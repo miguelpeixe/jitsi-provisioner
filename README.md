@@ -18,7 +18,9 @@ You can see a demo at https://meet.peixe.co.
 - Provision a Jitsi Meet server of any size and in any region of the world
 - Terminate and provision again at any time, preserving allocated elastic IP, hostname and the automatically generated LetsEncrypt certificates
 - Create your Jitsi AMI with one click for even faster provisioning
+- Store history of instance states for cost calculation
 - A [web client](https://meet.peixe.co/) and a [CLI](cli) to easily manage your setup
+- REST and real-time [Primus](https://github.com/primus/primus) API
 
 ## Installation
 
@@ -51,6 +53,8 @@ Start the server with docker-compose. `-d` flag enables detached mode and run th
 $ docker-compose up -d
 ```
 
+Access http://localhost:3030
+
 ## Demo mode
 
 For safety purposes, demo mode is active by default. You can switch it off by setting `DEMO=0` in your `.env` file and restart your container.
@@ -80,6 +84,10 @@ $ ./bin/jitsi-provisioner user remove myuser
 $ ./bin/jitsi-provisioner user changePassword myuser mypassword
 ```
 
+## CLI
+
+You can also use the [CLI](cli) to manage your whole setup. If you want to just use the CLI or the API, you can disable the web client completely by setting `NO_CLIENT=1` on your `.env`.
+
 ## Volume and data
 
 Database and instance configuration data are persisted inside the `DATA_PATH` defined in `.env`, which is `.data/` by default. This variable is not passed to the container, instead used to create a local volume for the container.
@@ -88,15 +96,25 @@ Database and instance configuration data are persisted inside the `DATA_PATH` de
 
 ```
 ├── db ........................... Database directory
+│   ├── amis.db .................. AMIs database
 │   ├── aws.db ................... AWS instance types and prices pulled from ec2instances.info
-│   ├── instances.db ............. Instances database
+│   ├── history.db ............... Instances state history database
+│   ├── instances.db.............. Instances database
 │   └── users.db ................. Users database
+├── amis ......................... AMIs root directory
+│   └── 72df3c ................... AMI directory with config data
+│       ├── terraform.tfstate .... Terraform state file
+│       └── tfcreate ............. Terraform creation plan
 └── instances .................... Instances root directory
-    └── 3fc55 .................... Instance directory with configuration and keys
+    └── 2a6e43 ................... Instance directory with config data and keys
+        ├── eip .................. Directory containing terraform state and plan for the EIP
+        ├── instance ............. Directory containing terraform state and plan for the instance
+        ├── certificate.tar.gz ... LetsEncrypt certificate
+        ├── jitsi.tar.gz ......... Jitsi config
+        ├── recordings.tar.gz .... Jitsi recordings
+        ├── transcripts.tar.gz ... Jitsi transcripts
         ├── key.pem .............. AWS private key for server access
-        ├── key.pem.pub .......... AWS public key
-        ├── terraform.tfstate .... Terraform state file
-        └── tfcreate ............. Terraform instance creation plan
+        └── key.pem.pub .......... AWS public key
 ```
 
 ## Development
