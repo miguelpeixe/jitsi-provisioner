@@ -121,7 +121,7 @@ $ jitsi-provisioner instances b586fe
 
 ```
 $ jitsi-provisioner users --help
-Usage: jitsi-provisioner users [options] [command] [userId]
+Usage: jitsi-provisioner users [options] [command]
 
 Jitsi Provisioner Users
 
@@ -131,5 +131,6 @@ Options:
 Commands:
   create <username> <password>             Create new user
   changePassword <username> <newPassword>  Change user password
+  changeRole <username> <role>             Change user role (admin or user)
   remove <username>                        Remove user
 ```

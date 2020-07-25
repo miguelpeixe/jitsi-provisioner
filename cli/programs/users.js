@@ -67,16 +67,16 @@ module.exports = function users() {
       });
     });
   users
-    .command("remove <username>")
-    .description("Remove user")
-    .action(async (username) => {
+    .command("changeRole <username> <role>")
+    .description("Change user role (admin or user)")
+    .action(async (username, role) => {
       const socket = await connection();
       socket.send("find", "users", { username }, (err, data) => {
         if (!data.length) {
           console.error("User not found");
           process.exit(1);
         } else {
-          socket.send("remove", "users", data[0]._id, (err, data) => {
+          socket.send("patch", "users", data[0]._id, { role }, (err, data) => {
             if (err) {
               console.error(err.message);
               process.exit(1);
@@ -89,16 +89,16 @@ module.exports = function users() {
       });
     });
   users
-    .command("changeRole <username> <role>")
-    .description("Change user role")
-    .action(async (username, role) => {
+    .command("remove <username>")
+    .description("Remove user")
+    .action(async (username) => {
       const socket = await connection();
       socket.send("find", "users", { username }, (err, data) => {
         if (!data.length) {
           console.error("User not found");
           process.exit(1);
         } else {
-          socket.send("patch", "users", data[0]._id, { role }, (err, data) => {
+          socket.send("remove", "users", data[0]._id, (err, data) => {
             if (err) {
               console.error(err.message);
               process.exit(1);
