@@ -129,8 +129,26 @@ Options:
   -h, --help                               display help for command
 
 Commands:
-  create <username> <password>             Create new user
+  create [options] <username>              Create new user
   changePassword <username> <newPassword>  Change user password
   changeRole <username> <role>             Change user role (admin or user)
   remove <username>                        Remove user
+```
+
+### Create new user
+
+```
+$ jitsi-provisioner users create --help
+Usage: jitsi-provisioner users create [options] <username>
+
+Create new user
+
+Options:
+  -p, --password <password>  User password
+  -r, --role <role>          User role (default: "user")
+  -h, --help                 display help for command
+```
+
+```
+$ jitsi-provisioner users create myuser --password mypassword --role admin
 ```

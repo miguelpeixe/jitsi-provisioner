@@ -23,19 +23,26 @@ module.exports = function users() {
   });
 
   users
-    .command("create <username> <password>")
+    .command("create <username>")
+    .option("-p, --password <password>", "User password")
+    .option("-r, --role <role>", "User role", "user")
     .description("Create new user")
-    .action(async (username, password) => {
+    .action(async (username, options) => {
       const socket = await connection();
-      socket.send("create", "users", { username, password }, (err, data) => {
-        if (err) {
-          console.error(err.message);
-          process.exit(1);
-        } else {
-          console.table(data);
-          process.exit();
+      socket.send(
+        "create",
+        "users",
+        { username, password: options.password, role: options.role },
+        (err, data) => {
+          if (err) {
+            console.error(err.message);
+            process.exit(1);
+          } else {
+            console.table(data);
+            process.exit();
+          }
         }
-      });
+      );
     });
   users
     .command("changePassword <username> <newPassword>")
