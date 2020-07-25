@@ -74,7 +74,7 @@ With demo mode off you can create and delete users using the [custom cli](cli):
 ```
 $ cd cli/
 $ npm install
-$ ./bin/jitsi-provisioner user create myuser mypassword
+$ ./bin/jitsi-provisioner user create myuser mypassword admin
 $ ./bin/jitsi-provisioner user remove myuser
 ```
 
@@ -82,6 +82,14 @@ $ ./bin/jitsi-provisioner user remove myuser
 
 ```
 $ ./bin/jitsi-provisioner user changePassword myuser mypassword
+```
+
+### Changing user role
+
+A non-admin user can only provision and terminate available instances. They cannot create new instances or AMIs.
+
+```
+$ ./bin/jitsi-provisioner user changeRole myuser user
 ```
 
 ## CLI
