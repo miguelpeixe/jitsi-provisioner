@@ -25,8 +25,12 @@ export function getUrl(instance) {
   return `https://${instance.hostname}`;
 }
 
+export function getAWS() {
+  return client.get("aws") || [];
+}
+
 export function getServer(type) {
-  const aws = client.get("aws");
+  const aws = getAWS();
   if (!aws.length || !type) return;
   return aws.find((item) => item._id == type);
 }
@@ -47,6 +51,24 @@ export function download(instance) {
     });
 }
 
+export function canTerminate(instance) {
+  return instance.status.match(/failed|running|available|standby/);
+}
+
+export function canRemove(instance) {
+  return instance.status == "terminated";
+}
+
+export function isAvailable(instance) {
+  return instance.status == "available";
+}
+export function isRunning(instance) {
+  return instance.status.match(/available|running/);
+}
+export function isLoading(instance) {
+  return !instance.status.match(/failed|available|standby|terminated/);
+}
+
 export default {
   create,
   provision,
@@ -55,6 +77,12 @@ export default {
   createAMI,
   getUrl,
   getServer,
+  getAWS,
   hasRecording,
   download,
+  canTerminate,
+  canRemove,
+  isAvailable,
+  isRunning,
+  isLoading,
 };

@@ -18,7 +18,7 @@ import EstimatedCost from "components/EstimatedCost.jsx";
 export default class InstanceList extends Component {
   _handleTerminateClick = (instance) => (ev) => {
     ev.preventDefault();
-    if (this._canTerminate(instance) && confirm("Are you sure?")) {
+    if (Instances.canTerminate(instance) && confirm("Are you sure?")) {
       Instances.terminate(instance).catch((err) => {
         Alert.error(err.message);
       });
@@ -26,7 +26,7 @@ export default class InstanceList extends Component {
   };
   _handleProvisionClick = (instance) => (ev) => {
     ev.preventDefault();
-    if (this._canRemove(instance)) {
+    if (Instances.canRemove(instance)) {
       Instances.provision(instance).catch((err) => {
         Alert.error(err.message);
       });
@@ -34,14 +34,14 @@ export default class InstanceList extends Component {
   };
   _handleRemoveClick = (instance) => (ev) => {
     ev.preventDefault();
-    if (this._canRemove(instance) && confirm("Are you sure?")) {
+    if (Instances.canRemove(instance) && confirm("Are you sure?")) {
       Instances.remove(instance).catch((err) => {
         Alert.error(err.message);
       });
     }
   };
   _getLink = (instance) => {
-    if (instance.status == "available") {
+    if (Instances.isAvailable(instance)) {
       const url = Instances.getUrl(instance);
       return (
         <a href={url} rel="external" target="_blank">
@@ -51,30 +51,19 @@ export default class InstanceList extends Component {
     }
     return "--";
   };
-  _canTerminate = (instance) => {
-    return instance.status.match(/failed|running|available|standby/);
-  };
-  _canRemove = (instance) => {
-    return instance.status == "terminated";
-  };
-  _isLoading = (instance) => {
-    return (
-      !this._canTerminate(instance) && !instance.status.match(/terminated/)
-    );
-  };
   _handleDownloadClick = (instance) => (ev) => {
     ev.preventDefault();
     Instances.download(instance);
   };
   render() {
-    const { awsInstances, instances } = this.props;
+    const { instances } = this.props;
     if (!instances || !instances.length) return null;
     return (
       <Card.List>
         {instances.map((instance) => (
           <Card.ListItem
             key={instance._id}
-            loading={this._isLoading(instance) ? 1 : 0}
+            loading={Instances.isLoading(instance)}
           >
             <Card.Header>
               <Icon icon="server" />
@@ -108,7 +97,7 @@ export default class InstanceList extends Component {
                 <FlexTable.Row>
                   <FlexTable.Head>Estimated cost</FlexTable.Head>
                   <FlexTable.Data>
-                    <EstimatedCost instance={instance} aws={awsInstances} />
+                    <EstimatedCost instance={instance} />
                   </FlexTable.Data>
                 </FlexTable.Row>
               </FlexTable>
@@ -125,7 +114,7 @@ export default class InstanceList extends Component {
                 >
                   Download configuration
                 </Button>
-                {instance.status == "available" &&
+                {Instances.isAvailable(instance) &&
                 Instances.hasRecording(instance) ? (
                   <Button
                     block
@@ -143,18 +132,18 @@ export default class InstanceList extends Component {
               </Button.Group>
             </Card.Content>
             <Card.Footer>
-              {instance.status !== "terminated" ? (
+              {Instances.isRunning(instance) ? (
                 <Button.Group>
                   <Button
                     remove
-                    disabled={!this._canTerminate(instance)}
+                    disabled={!Instances.canTerminate(instance)}
                     onClick={this._handleTerminateClick(instance)}
                   >
                     Terminate
                   </Button>
                   <Button
                     jitsi
-                    disabled={instance.status !== "available"}
+                    disabled={!Instances.isAvailable(instance)}
                     href={Instances.getUrl(instance)}
                     target="_blank"
                     rel="external"
@@ -166,13 +155,13 @@ export default class InstanceList extends Component {
                 <Button.Group>
                   <Button
                     remove
-                    disabled={!this._canRemove(instance)}
+                    disabled={!Instances.canRemove(instance)}
                     onClick={this._handleRemoveClick(instance)}
                   >
                     Remove
                   </Button>
                   <Button
-                    disabled={!this._canRemove(instance)}
+                    disabled={!Instances.canRemove(instance)}
                     onClick={this._handleProvisionClick(instance)}
                   >
                     Provision instance

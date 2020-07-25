@@ -32,9 +32,9 @@ export default class App extends Component {
       newHostname: false,
       // data
       auth: null,
+      aws: [],
       amis: [],
       instances: [],
-      awsInstances: [],
     };
     this.service = client.service("instances");
     this.contentRef = React.createRef();
@@ -63,18 +63,15 @@ export default class App extends Component {
       this._fetchAMIs();
     });
     client.on("logout", () => {
-      this.setState({ auth: false, instances: [], amis: [], awsInstances: [] });
+      this.setState({ auth: false, instances: [], amis: [], aws: [] });
     });
     this.bindInstanceEvents();
     this.bindAMIEvents();
   }
   componentDidUpdate(prevProps, prevState) {
     // Set aws globally to API client
-    if (
-      JSON.stringify(prevState.awsInstances) !=
-      JSON.stringify(this.state.awsInstances)
-    ) {
-      client.set("aws", this.state.awsInstances);
+    if (JSON.stringify(prevState.aws) != JSON.stringify(this.state.aws)) {
+      client.set("aws", this.state.aws);
     }
   }
   bindInstanceEvents = () => {
@@ -144,7 +141,7 @@ export default class App extends Component {
       .find()
       .then((data) => {
         let allOptions = [];
-        this.setState({ awsInstances: data });
+        this.setState({ aws: data });
       });
   };
   _fetchInstances = () => {
@@ -213,15 +210,7 @@ export default class App extends Component {
     this.setState({ newInstance: false });
   };
   render() {
-    const {
-      loading,
-      ready,
-      auth,
-      newInstance,
-      awsInstances,
-      amis,
-      instances,
-    } = this.state;
+    const { loading, ready, auth, newInstance, amis, instances } = this.state;
     if (!ready) {
       return <Loader center size="md" inverse />;
     }
@@ -273,11 +262,10 @@ export default class App extends Component {
                   allowCancel={instances.length}
                   onSubmit={this._handleSubmit}
                   onCancel={this._handleCancel}
-                  instances={awsInstances}
                   amis={amis}
                 />
               ) : null}
-              <InstanceList instances={instances} awsInstances={awsInstances} />
+              <InstanceList instances={instances} />
             </>
           )}
         </Content>

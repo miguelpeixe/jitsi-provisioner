@@ -4,6 +4,8 @@ import { Icon, Tooltip, Whisper } from "rsuite";
 
 const EIP_HOURLY_COST = 0.005;
 
+import { getAWS } from "api/instances";
+
 export default class EstimatedCost extends Component {
   constructor(props) {
     super(props);
@@ -12,7 +14,7 @@ export default class EstimatedCost extends Component {
     };
   }
   getInstanceCost = (region, type) => {
-    const { aws } = this.props;
+    const aws = getAWS();
     const instance = aws.find((item) => item._id == type);
     if (instance) {
       return instance.pricing[region];

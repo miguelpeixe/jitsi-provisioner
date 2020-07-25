@@ -59,7 +59,7 @@ export default class InstanceNew extends Component {
   }
   _validate = () => {
     const { formData } = this.state;
-    const server = this._getServer();
+    const server = Instances.getServer(formData.type);
     if (!server.pricing[formData.region]) {
       return false;
     }
@@ -100,9 +100,9 @@ export default class InstanceNew extends Component {
     });
   };
   _getInstanceOptions = () => {
-    const { instances } = this.props;
+    const aws = Instances.getAWS();
     const options = [];
-    for (const instance of instances) {
+    for (const instance of aws) {
       options.push({
         value: instance._id,
         label: instance._id,
@@ -124,12 +124,6 @@ export default class InstanceNew extends Component {
       (option) => formData.region == option.value
     );
     return option;
-  };
-  _getServer = () => {
-    const { instances } = this.props;
-    const instance = this.state.formData.type;
-    if (!instances.length || !instance) return;
-    return instances.find((item) => item._id == instance);
   };
   _hasAmi = () => {
     const { amis } = this.props;
@@ -211,7 +205,7 @@ export default class InstanceNew extends Component {
             </table>
             <ServerInfo
               full
-              instance={this._getServer()}
+              instance={Instances.getServer(formData.type)}
               region={formData.region}
             />
             <FlexTable>
