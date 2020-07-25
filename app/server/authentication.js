@@ -60,5 +60,20 @@ module.exports = (app) => {
         },
       ],
     },
+    after: {
+      create: [
+        async (context) => {
+          if (context.data.strategy == "jwt") {
+            const { payload } = context.result.authentication;
+            if (payload.sub) {
+              context.result.user = await context.app
+                .service("users")
+                .get(payload.sub);
+            }
+          }
+          return context;
+        },
+      ],
+    },
   });
 };
