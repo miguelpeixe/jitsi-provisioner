@@ -1,5 +1,5 @@
 {
-  "name": "jitsi-provisioner-cli",
+  "name": "@jitsi-provisioner/cli",
   "version": "0.0.8",
   "description": "Deploy Jitsi Meet servers in less than 3 minutes",
   "repository": {

@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { Alert, Icon } from "rsuite";
 import { get } from "lodash";
+import { regions } from "@jitsi-provisioner/aws-utils";
 
 import Instances from "api/instances";
 
-import regions from "utils/regions";
 import download from "utils/download";
 
 import Card from "components/Card.jsx";

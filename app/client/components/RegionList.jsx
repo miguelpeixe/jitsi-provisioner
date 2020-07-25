@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import styled from "styled-components";
+import { regions } from "@jitsi-provisioner/aws-utils";
 
 import client from "api";
-
-import regions from "utils/regions";
 
 import { Alert, Icon, Tooltip, Whisper } from "rsuite";
 

@@ -8,3 +8,4 @@ app/public
 app/bundle-report.html
 instance-api
 cli
+aws-utils

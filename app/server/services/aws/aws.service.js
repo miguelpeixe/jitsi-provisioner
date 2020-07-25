@@ -5,6 +5,7 @@ const axios = require("axios");
 const logger = require("../../logger");
 const { authenticate } = require("@feathersjs/authentication").hooks;
 const { disallow } = require("feathers-hooks-common");
+const awsUtils = require("@jitsi-provisioner/aws-utils");
 
 module.exports = async (app) => {
   const Model = new NeDB({
@@ -27,51 +28,19 @@ module.exports = async (app) => {
   });
 
   const updateAws = async () => {
-    let aws;
     try {
-      // Fetch from ec2instances.info
-      aws = await axios.get(
-        "https://raw.githubusercontent.com/powdahound/ec2instances.info/master/www/instances.json"
-      );
-    } catch (e) {
-      logger.warn("ec2instances.info connection error");
-    } finally {
-      if (aws && aws.data && aws.data.length) {
-        // Clear database
+      let promises = [];
+      const instances = await awsUtils.instances();
+      if (instances.length) {
         await service.remove(null, {});
-        const promises = [];
-        for (const item of aws.data) {
-          const awsInstance = {
-            _id: item.instance_type,
-            processor: item.physical_processor,
-            vcpu: item.vCPU,
-            memory: item.memory,
-            clockSpeed: item.clock_speed_ghz,
-            network: item.network_performance,
-            prettyName: item.pretty_name,
-            gpu: {
-              size: item.GPU,
-              memory: item.GPU_memory,
-              model: item.GPU_model,
-            },
-            pricing: {},
-          };
-          for (region in item.pricing) {
-            if (
-              item.pricing[region] &&
-              item.pricing[region].linux &&
-              item.pricing[region].linux.ondemand
-            ) {
-              awsInstance.pricing[region] = item.pricing[region].linux.ondemand;
-            }
-          }
-          promises.push(service.create(awsInstance));
+        for (instance of instances) {
+          promises.push(service.create(instance));
         }
         await Promise.all(promises);
         logger.info("AWS database updated");
-      } else {
-        logger.warn("Unable to update AWS instance types database");
       }
+    } catch (err) {
+      logger.warn(err.message);
     }
   };
 

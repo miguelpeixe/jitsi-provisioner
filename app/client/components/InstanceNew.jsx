@@ -11,10 +11,9 @@ import {
   Toggle,
   InputPicker,
 } from "rsuite";
+import { regions } from "@jitsi-provisioner/aws-utils";
 
 import Instances from "api/instances";
-
-import regions from "utils/regions";
 
 import Card from "components/Card.jsx";
 import Button from "components/Button.jsx";

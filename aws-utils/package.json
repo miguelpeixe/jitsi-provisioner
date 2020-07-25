@@ -1,0 +1,16 @@
+{
+  "name": "@jitsi-provisioner/aws-utils",
+  "version": "0.0.1",
+  "description": "AWS utils for Jitsi Provisioner",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/miguelpeixe/jitsi-provisioner.git"
+  },
+  "author": "Miguel Peixe <miguel@peixe.co>",
+  "homepage": "https://github.com/miguelpeixe/jitsi-provisioner",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.19.2"
+  }
+}
