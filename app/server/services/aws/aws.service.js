@@ -1,11 +1,11 @@
 const nedbService = require("feathers-nedb");
 const NeDB = require("nedb");
 const path = require("path");
-const axios = require("axios");
-const logger = require("../../logger");
+const awsUtils = require("@jitsi-provisioner/aws-utils");
 const { authenticate } = require("@feathersjs/authentication").hooks;
 const { disallow } = require("feathers-hooks-common");
-const awsUtils = require("@jitsi-provisioner/aws-utils");
+
+const logger = require("../../logger");
 
 module.exports = async (app) => {
   const Model = new NeDB({
