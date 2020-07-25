@@ -22,7 +22,7 @@ export function createAMI(region) {
 }
 
 export function getUrl(instance) {
-  return `https://${instance.url}`;
+  return `https://${instance.hostname}`;
 }
 
 export function getServer(type) {

@@ -66,9 +66,6 @@ export default class InstanceList extends Component {
     ev.preventDefault();
     Instances.download(instance);
   };
-  _hasRecording = (instance) => {
-    return !!get(instance, "terraform.vars.jitsi_recording");
-  };
   render() {
     const { awsInstances, instances } = this.props;
     if (!instances || !instances.length) return null;
@@ -128,14 +125,14 @@ export default class InstanceList extends Component {
                 >
                   Download configuration
                 </Button>
-                {instance.status == "running" &&
-                this._hasRecording(instance) ? (
+                {instance.status == "available" &&
+                Instances.hasRecording(instance) ? (
                   <Button
                     block
                     light
                     small
                     href={`${Instances.getUrl(instance)}/${
-                      instance.apiKey
+                      instance.api.key
                     }/recordings`}
                     target="_blank"
                     rel="external"
@@ -158,7 +155,7 @@ export default class InstanceList extends Component {
                   <Button
                     jitsi
                     disabled={instance.status !== "available"}
-                    href={`https://${instance.hostname}`}
+                    href={Instances.getUrl(instance)}
                     target="_blank"
                     rel="external"
                   >
