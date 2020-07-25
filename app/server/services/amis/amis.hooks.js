@@ -2,6 +2,7 @@ const path = require("path");
 const axios = require("axios");
 const { processHooks } = require("@feathersjs/commons").hooks;
 const { authenticate } = require("@feathersjs/authentication").hooks;
+const { restrictToRole } = require("../../hooks");
 
 const logger = require("../../logger");
 const {
@@ -410,10 +411,10 @@ module.exports = {
     all: [authenticate("jwt")],
     find: [],
     get: [],
-    create: [processAMI()],
-    update: [],
-    patch: [],
-    remove: [checkStability(), handleRemove()],
+    create: [restrictToRole("admin"), processAMI()],
+    update: [restrictToRole("admin")],
+    patch: [restrictToRole("admin")],
+    remove: [restrictToRole("admin"), checkStability(), handleRemove()],
   },
 
   after: {
