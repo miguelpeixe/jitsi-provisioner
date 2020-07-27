@@ -11,6 +11,7 @@ import {
   Toggle,
   InputPicker,
 } from "rsuite";
+import { pickBy } from "lodash";
 import { regions } from "@jitsi-provisioner/aws-utils";
 
 import Instances from "api/instances";
@@ -73,7 +74,7 @@ export default class InstanceNew extends Component {
       Instances.createAMI(formData.region);
       delete formData.createAMI;
     }
-    Instances.create(formData)
+    Instances.create(pickBy(formData))
       .then((res) => {
         this.props.onSubmit && this.props.onSubmit(res);
       })

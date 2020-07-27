@@ -3,6 +3,8 @@ const NeDB = require("nedb");
 const path = require("path");
 
 const logger = require("../../logger");
+
+const schema = require("./users.schema");
 const hooks = require("./users.hooks");
 
 module.exports = async (app) => {
@@ -11,9 +13,13 @@ module.exports = async (app) => {
     autoload: true,
   });
 
+  Model.ensureIndex({ fieldName: "username", unique: true });
+
   app.use("/users", nedbService({ Model }));
 
   const service = app.service("users");
+
+  service.schema = schema;
 
   service.hooks(hooks);
 

@@ -3,13 +3,14 @@ const express = require("@feathersjs/express");
 const socketio = require("@feathersjs/socketio");
 const path = require("path");
 
-const logger = require("./logger");
-
 const cloudflare = require("./cloudflare");
 const terraform = require("./terraform");
 const services = require("./services");
 const channels = require("./channels");
 const client = require("./client");
+
+const logger = require("./logger");
+const validateSchema = require("./hooks/validateSchema");
 
 const authentication = require("./authentication");
 
@@ -44,7 +45,7 @@ if (!app.get("noClient")) {
 app.use(express.errorHandler({ logger }));
 
 app.hooks({
-  before: { all: [logger.hook] },
+  before: { all: [logger.hook], create: [validateSchema()] },
   after: { all: [logger.hook] },
   error: { all: [logger.hook] },
 });

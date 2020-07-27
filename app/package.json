@@ -26,6 +26,7 @@
     "@feathersjs/rest-client": "^4.5.7",
     "@feathersjs/socketio": "^4.5.7",
     "@feathersjs/socketio-client": "^4.5.7",
+    "@hapi/joi": "^17.1.1",
     "@jitsi-provisioner/aws-utils": "0.0.2",
     "archiver": "^5.0.0",
     "axios": "^0.19.2",
