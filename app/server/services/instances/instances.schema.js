@@ -4,4 +4,5 @@ module.exports = Joi.object({
   hostname: Joi.string().hostname(),
   type: Joi.string(),
   region: Joi.string(),
+  recording: Joi.boolean(),
 });
