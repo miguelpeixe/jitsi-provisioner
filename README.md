@@ -20,7 +20,7 @@ You can see a demo at https://meet.peixe.co.
 - Create your Jitsi AMI with one click for even faster provisioning
 - Store history of instance states for cost calculation
 - A [web client](https://meet.peixe.co/) and a [CLI](cli) to easily manage your setup
-- REST and real-time [Primus](https://github.com/primus/primus) API
+- REST and real-time [socket.io](https://socket.io/) API
 
 ## Installation
 

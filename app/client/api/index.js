@@ -1,12 +1,13 @@
+import io from "socket.io-client";
 import feathers from "@feathersjs/feathers";
-import primus from "@feathersjs/primus-client";
+import socketio from "@feathersjs/socketio-client";
 import auth from "@feathersjs/authentication-client";
 import axios from "axios";
 
-const socket = new Primus();
+const socket = io();
 const client = feathers();
 
-client.configure(primus(socket));
+client.configure(socketio(socket));
 client.configure(auth({ storageKey: "auth" }));
 
 client.rest = axios.create({

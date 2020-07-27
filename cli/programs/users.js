@@ -3,23 +3,17 @@ const { Command } = require("commander");
 const ora = require("ora");
 
 const connection = require("../utils/connection");
+const getOrFind = require("../utils/getOrFind");
 
 module.exports = function users() {
   const program = new Command();
 
-  const users = program.command("users");
+  const users = program.command("users [userId]");
 
-  users.description("Jitsi Provisioner Users").action(async () => {
-    const socket = await connection();
-    try {
-      socket.send("find", "users", {}, (err, data) => {
-        console.table(data);
-        process.exit();
-      });
-    } catch (e) {
-      console.error(e.message);
-      process.exit();
-    }
+  users.description("Jitsi Provisioner Users").action(async (userId) => {
+    const client = await connection();
+    const service = client.service("users");
+    await getOrFind({ service, id: userId });
   });
 
   users
@@ -28,94 +22,85 @@ module.exports = function users() {
     .option("-r, --role <role>", "User role", "user")
     .description("Create new user")
     .action(async (username, options) => {
-      const socket = await connection();
-      socket.send(
-        "create",
-        "users",
-        { username, password: options.password, role: options.role },
-        (err, data) => {
-          if (err) {
-            console.error(err.message);
-            process.exit(1);
-          } else {
-            console.table(data);
-            process.exit();
-          }
-        }
-      );
+      const spinner = ora().start("Creating user");
+      const client = await connection();
+      const service = client.service("users");
+      try {
+        const data = await service.create({
+          username,
+          password: options.password,
+          role: options.role,
+        });
+        spinner.succeed("Created");
+        console.table(data);
+        process.exit();
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit(1);
+      }
     });
   users
     .command("changePassword <username> <newPassword>")
     .description("Change user password")
     .action(async (username, newPassword) => {
-      const socket = await connection();
-
-      socket.send("find", "users", { username }, (err, data) => {
-        if (!data.length) {
-          console.error("User not found");
-          process.exit(1);
-        } else {
-          socket.send(
-            "patch",
-            "users",
-            data[0]._id,
-            { password: newPassword },
-            (err, data) => {
-              if (err) {
-                console.error(err.message || err);
-                process.exit(1);
-              } else {
-                console.table(data);
-                process.exit();
-              }
-            }
-          );
+      const spinner = ora().start("Changing password");
+      const client = await connection();
+      const service = client.service("users");
+      try {
+        const users = await service.find({ query: { username } });
+        if (!users.length) {
+          throw new Error("User not found");
         }
-      });
+        const user = users[0];
+        await service.patch(user._id, { password: newPassword });
+        spinner.succeed("Password changed");
+        process.exit();
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit(1);
+      }
     });
   users
     .command("changeRole <username> <role>")
     .description("Change user role (admin or user)")
     .action(async (username, role) => {
-      const socket = await connection();
-      socket.send("find", "users", { username }, (err, data) => {
-        if (!data.length) {
-          console.error("User not found");
-          process.exit(1);
-        } else {
-          socket.send("patch", "users", data[0]._id, { role }, (err, data) => {
-            if (err) {
-              console.error(err.message);
-              process.exit(1);
-            } else {
-              console.table(data);
-              process.exit();
-            }
-          });
+      const spinner = ora().start("Changing role");
+      const client = await connection();
+      const service = client.service("users");
+      try {
+        const users = await service.find({ query: { username } });
+        if (!users.length) {
+          throw new Error("User not found");
         }
-      });
+        const user = users[0];
+        await service.patch(user._id, { role });
+        spinner.succeed("Role changed");
+        process.exit();
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit(1);
+      }
     });
   users
     .command("remove <username>")
     .description("Remove user")
     .action(async (username) => {
-      const socket = await connection();
-      socket.send("find", "users", { username }, (err, data) => {
-        if (!data.length) {
-          console.error("User not found");
-          process.exit(1);
-        } else {
-          socket.send("remove", "users", data[0]._id, (err, data) => {
-            if (err) {
-              console.error(err.message);
-              process.exit(1);
-            } else {
-              console.table(data);
-              process.exit();
-            }
-          });
+      const spinner = ora().start("Removing user");
+      const client = await connection();
+      const service = client.service("users");
+      try {
+        const users = await service.find({ query: { username } });
+        if (!users.length) {
+          throw new Error("User not found");
         }
-      });
+        const user = users[0];
+        await service.remove(user._id);
+        spinner.succeed("User removed");
+        process.exit();
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit(1);
+      }
     });
 
   return users;

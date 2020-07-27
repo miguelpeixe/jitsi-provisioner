@@ -1,6 +1,6 @@
 const feathers = require("@feathersjs/feathers");
 const express = require("@feathersjs/express");
-const primus = require("@feathersjs/primus");
+const socketio = require("@feathersjs/socketio");
 const path = require("path");
 
 const logger = require("./logger");
@@ -29,7 +29,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.configure(express.rest());
-app.configure(primus({ transformer: "websockets" }));
+app.configure(socketio());
 
 app.configure(cloudflare);
 app.configure(terraform);

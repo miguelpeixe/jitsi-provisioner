@@ -1,9 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-const Primus = require("primus");
-const Emitter = require("primus-emitter");
-const ora = require("ora");
+
+const feathers = require("@feathersjs/feathers");
+const socketio = require("@feathersjs/socketio-client");
+const io = require("socket.io-client");
+const auth = require("@feathersjs/authentication-client");
+
+const Storage = require("./storage");
 
 const APP_PATH = path.join(__dirname, "../..", "app");
 const ENV_PATH = path.join(__dirname, "../..", ".env");
@@ -12,6 +16,9 @@ const CONFIG_PATH = path.join(
   ".config",
   "jitsi-provisioner.json"
 );
+const AUTH_STORAGE_KEY = "accessToken";
+
+const storage = new Storage(CONFIG_PATH);
 
 if (fs.existsSync(APP_PATH) && fs.existsSync(ENV_PATH)) {
   const appPackage = require(path.join(APP_PATH, "package.json"));
@@ -22,14 +29,18 @@ if (fs.existsSync(APP_PATH) && fs.existsSync(ENV_PATH)) {
   }
 }
 
-const Socket = Primus.createSocket({
-  transformer: "websockets",
-  plugin: {
-    emitter: Emitter,
-  },
-});
+const getClient = (url) => {
+  const socket = io(url);
+  const client = feathers();
+  client.configure(socketio(socket));
+  client.configure(auth({ storage, storageKey: AUTH_STORAGE_KEY }));
+  client.on("error", (err) => {
+    throw new Error(err);
+  });
+  return client;
+};
 
-const getToken = () => {
+const getLocalToken = () => {
   return jwt.sign({ cli: true }, process.env.JWT_SECRET, {
     audience: `https://${process.env.DOMAIN}`,
     issuer: "jitsi-provisioner",
@@ -37,104 +48,37 @@ const getToken = () => {
   });
 };
 
-const getConfig = () => {
-  if (fs.existsSync(CONFIG_PATH)) {
-    const config = fs.readFileSync(CONFIG_PATH);
-    return JSON.parse(config);
-  }
-  return {};
-};
-
-const storeConfig = (url, data) => {
-  fs.writeFileSync(
-    CONFIG_PATH,
-    JSON.stringify({
-      url,
-      accessToken: data.accessToken,
-    })
-  );
-};
-
-module.exports = () => {
-  const config = getConfig();
-
-  const spinner = ora().start("Connecting");
-
-  if (!config.accessToken) {
+module.exports = async () => {
+  let url = await storage.getItem("url");
+  let auth = await storage.getItem("auth");
+  if (!auth) {
     if (process.env.JWT_SECRET) {
-      config.accessToken = getToken();
-      config.url = "http://localhost:3030";
+      url = "http://localhost:3030";
+      auth = getLocalToken();
+      await storage.setItem("url", url);
+      await storage.setItem(AUTH_STORAGE_KEY, auth);
     } else {
-      spinner.fail("You must authenticate");
-      process.exit(1);
-      return;
+      throw new Error("You must authenticate");
     }
   }
-
-  const socket = new Socket(config.url, { timeout: 2000 });
-  socket.on("error", (err) => {
-    spinner.fail(err.message || err);
-    process.exit(1);
+  const client = getClient(url);
+  await client.authenticate({
+    strategy: "jwt",
+    accessToken: auth,
   });
-  return new Promise((resolve, reject) => {
-    socket.send(
-      "create",
-      "authentication",
-      {
-        strategy: "jwt",
-        accessToken: config.accessToken,
-      },
-      (err, data) => {
-        if (err) {
-          spinner.fail(err.message || err);
-          process.exit(1);
-        } else {
-          spinner.succeed("Connected");
-          resolve(socket);
-        }
-      }
-    );
+  return client;
+};
+
+module.exports.auth = async ({ url, username, password }) => {
+  await storage.setItem("url", url);
+  const client = getClient(url);
+  return client.authenticate({
+    strategy: "local",
+    username,
+    password,
   });
 };
 
-module.exports.auth = ({ url, username, password }) => {
-  const spinner = ora().start("Authenticating");
-  const socket = new Socket(url);
-  socket.on("error", (err) => {
-    spinner.fail(err.message || err);
-    process.exit(1);
-  });
-  return new Promise((resolve, reject) => {
-    socket.send(
-      "create",
-      "authentication",
-      {
-        strategy: "local",
-        username,
-        password,
-      },
-      (err, data) => {
-        if (err) {
-          spinner.fail(err.message || err);
-          process.exit(1);
-        } else {
-          storeConfig(url, data);
-          spinner.succeed(`Authenticated to ${url}`);
-          resolve(socket);
-        }
-      }
-    );
-  });
-};
-
-module.exports.clear = () => {
-  return new Promise((resolve, reject) => {
-    fs.unlink(CONFIG_PATH, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
+module.exports.clear = async () => {
+  return await storage.purge();
 };

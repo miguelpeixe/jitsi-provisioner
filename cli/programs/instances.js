@@ -3,8 +3,9 @@ const { Command } = require("commander");
 const ora = require("ora");
 
 const connection = require("../utils/connection");
+const getOrFind = require("../utils/getOrFind");
 
-const print = [
+const fields = [
   "_id",
   "hostname",
   "info",
@@ -22,34 +23,9 @@ module.exports = function instances() {
   instances
     .description("Jitsi Provisioner Instances")
     .action(async (instanceId) => {
-      const socket = await connection();
-      const spinner = ora().start("Fetching instances");
-      try {
-        if (instanceId) {
-          socket.send("get", "instances", instanceId, (err, data) => {
-            if (err) {
-              spinner.fail(err.message || err);
-            } else {
-              spinner.succeed("Fetched");
-              console.table(pick(data, print));
-            }
-            process.exit();
-          });
-        } else {
-          socket.send("find", "instances", {}, (err, data) => {
-            if (err) {
-              spinner.fail(err.message || err);
-            } else {
-              spinner.succeed("Fetched");
-              console.table(data, print);
-            }
-            process.exit();
-          });
-        }
-      } catch (err) {
-        spinner.fail(err.message || err);
-        process.exit();
-      }
+      const client = await connection();
+      const service = client.service("instances");
+      await getOrFind({ service, id: instanceId, fields });
     });
 
   instances
@@ -65,37 +41,31 @@ module.exports = function instances() {
       const spinner = ora({
         prefixText: "Provisioning instance",
       }).start();
-      const socket = await connection();
-      socket.send(
-        "create",
-        "instances",
-        {
+      const client = await connection();
+      const service = client.service("instances");
+      try {
+        const data = await service.create({
           hostname: options.hostname,
           region: options.region,
           type: options.type,
-        },
-        (err, data) => {
-          if (err) {
-            spinner.fail(err.message || err);
-            process.exit(1);
-          } else {
-            socket.on("instances patched", (instance) => {
-              if (instance._id == data._id) {
-                spinner.text = instance.info;
-                if (instance.status == "failed") {
-                  spinner.fail(instance.info || "");
-                  process.exit(1);
-                }
-                if (instance.status == "available" && !instance.info) {
-                  spinner.succeed("Available");
-                  console.table(pick(instance, print));
-                  process.exit();
-                }
-              }
-            });
+        });
+        service.on("patched", async (instance) => {
+          if (instance._id == data._id) {
+            spinner.text = instance.info;
+            if (instance.status == "failed") {
+              spinner.fail(instance.info || "");
+              process.exit(1);
+            }
+            if (instance.status == "available" && !instance.info) {
+              spinner.succeed("Available");
+              await getOrFind({ service, id: instance._id, fields });
+            }
           }
-        }
-      );
+        });
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit(1);
+      }
     });
   instances
     .command("provision <instanceId>")
@@ -104,36 +74,29 @@ module.exports = function instances() {
       const spinner = ora({
         prefixText: "Provisioning instance",
       }).start();
-      const socket = await connection();
-      socket.send(
-        "patch",
-        "instances",
-        instanceId,
-        {
+      const client = await connection();
+      const service = client.service("instances");
+      try {
+        const data = await service.patch(instanceId, {
           action: "provision",
-        },
-        (err, data) => {
-          if (err) {
-            spinner.fail(err.message || err);
-            process.exit(1);
-          } else {
-            socket.on("instances patched", (instance) => {
-              if (instance._id == data._id) {
-                spinner.text = instance.info;
-                if (instance.status == "failed") {
-                  spinner.fail(instance.info || "");
-                  process.exit(1);
-                }
-                if (instance.status == "available" && !instance.info) {
-                  spinner.succeed("Provisioned");
-                  console.table(pick(instance, print));
-                  process.exit();
-                }
-              }
-            });
+        });
+        service.on("patched", async (instance) => {
+          if (instance._id == data._id) {
+            spinner.text = instance.info;
+            if (instance.status == "failed") {
+              spinner.fail(instance.info || "");
+              process.exit(1);
+            }
+            if (instance.status == "available" && !instance.info) {
+              spinner.succeed("Available");
+              await getOrFind({ service, id: instance._id, fields });
+            }
           }
-        }
-      );
+        });
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit(1);
+      }
     });
   instances
     .command("terminate <instanceId>")
@@ -142,36 +105,29 @@ module.exports = function instances() {
       const spinner = ora({
         prefixText: "Terminating instance",
       }).start();
-      const socket = await connection();
-      socket.send(
-        "patch",
-        "instances",
-        instanceId,
-        {
+      const client = await connection();
+      const service = client.service("instances");
+      try {
+        const data = await service.patch(instanceId, {
           action: "terminate",
-        },
-        (err, data) => {
-          if (err) {
-            spinner.fail(err.message || err);
-            process.exit(1);
-          } else {
-            socket.on("instances patched", (instance) => {
-              if (instance._id == data._id) {
-                spinner.text = instance.info;
-                if (instance.status == "failed") {
-                  spinner.fail(instance.info || "");
-                  process.exit(1);
-                }
-                if (instance.status == "terminated" && !instance.info) {
-                  spinner.succeed("Terminated");
-                  console.table(pick(instance, print));
-                  process.exit();
-                }
-              }
-            });
+        });
+        service.on("patched", async (instance) => {
+          if (instance._id == data._id) {
+            spinner.text = instance.info;
+            if (instance.status == "failed") {
+              spinner.fail(instance.info || "");
+              process.exit(1);
+            }
+            if (instance.status == "terminated" && !instance.info) {
+              spinner.succeed("Terminated");
+              await getOrFind({ service, id: instance._id, fields });
+            }
           }
-        }
-      );
+        });
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit(1);
+      }
     });
   instances
     .command("remove <instanceId>")
@@ -180,35 +136,31 @@ module.exports = function instances() {
       const spinner = ora({
         prefixText: "Removing instance",
       }).start();
-      const socket = await connection();
-      socket.send(
-        "patch",
-        "instances",
-        instanceId,
-        { action: "remove" },
-        (err, data) => {
-          if (err) {
-            spinner.fail(err.message || err);
-            process.exit(1);
-          } else {
-            socket.on("instances patched", (instance) => {
-              if (instance._id == data._id) {
-                spinner.text = instance.info;
-                if (instance.status == "failed") {
-                  spinner.fail(instance.info || "");
-                  process.exit(1);
-                }
-              }
-            });
-            socket.on("instances removed", (instance) => {
-              if (instance._id == data._id) {
-                spinner.succeed("Removed");
-                process.exit();
-              }
-            });
+      const client = await connection();
+      const service = client.service("instances");
+      try {
+        const data = await service.patch(instanceId, {
+          action: "remove",
+        });
+        service.on("patched", async (instance) => {
+          if (instance._id == data._id) {
+            spinner.text = instance.info;
+            if (instance.status == "failed") {
+              spinner.fail(instance.info || "");
+              process.exit(1);
+            }
           }
-        }
-      );
+        });
+        service.on("removed", async (instance) => {
+          if (instance._id == data._id) {
+            spinner.succeed("Removed");
+            process.exit();
+          }
+        });
+      } catch (err) {
+        spinner.fail(err.message || err);
+        process.exit(1);
+      }
     });
 
   return instances;

@@ -10,6 +10,11 @@ async function jitsiProvisioner() {
   program.addCommand(require("../programs/users")());
   program.addCommand(require("../programs/instances")());
 
+  process.on("uncaughtException", function (err) {
+    console.error(err.message || err);
+    process.exit(1);
+  });
+
   await program.parseAsync(process.argv);
 }
 
