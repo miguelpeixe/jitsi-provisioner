@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 
-import client from "api";
-
 import Card from "components/Card.jsx";
 import {
   Schema,
@@ -33,11 +31,10 @@ export default class Login extends Component {
     this.setState({
       loading: true,
     });
-    client
-      .authenticate({
-        strategy: "local",
-        ...formData,
-      })
+    API.authenticate({
+      strategy: "local",
+      ...formData,
+    })
       .catch((err) => {
         Alert.error(err.message);
       })

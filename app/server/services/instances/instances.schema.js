@@ -2,7 +2,7 @@ const Joi = require("@hapi/joi");
 
 module.exports = Joi.object({
   hostname: Joi.string().hostname(),
-  type: Joi.string(),
-  region: Joi.string(),
-  recording: Joi.boolean(),
+  type: Joi.string().required().default("t3.large"),
+  region: Joi.string().required().default("us-east-1"),
+  recording: Joi.boolean().default(false),
 });

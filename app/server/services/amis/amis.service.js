@@ -2,6 +2,7 @@ const nedbService = require("feathers-nedb");
 const NeDB = require("nedb");
 const path = require("path");
 
+const schema = require("./amis.schema");
 const hooks = require("./amis.hooks");
 
 module.exports = (app) => {
@@ -13,6 +14,8 @@ module.exports = (app) => {
   app.use("/amis", nedbService({ Model }));
 
   const service = app.service("amis");
+
+  service.schema = schema;
 
   service.hooks(hooks);
 };

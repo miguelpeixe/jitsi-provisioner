@@ -3,8 +3,6 @@ import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
 import { Alert, Loader, Icon } from "rsuite";
 
-import client from "api";
-
 import Container from "components/Container.jsx";
 import Header from "components/Header.jsx";
 import Info from "components/Info.jsx";
@@ -36,15 +34,14 @@ export default class App extends Component {
       amis: [],
       instances: [],
     };
-    this.service = client.service("instances");
+    this.service = API.instances;
     this.contentRef = React.createRef();
   }
   componentDidMount() {
-    if (localStorage.auth) {
-      client
-        .reAuthenticate()
+    if (localStorage.accessToken) {
+      API.reAuthenticate()
         .catch((err) => {
-          client.logout();
+          API.logout();
         })
         .finally(() => {
           this.setState({
@@ -56,23 +53,16 @@ export default class App extends Component {
         ready: true,
       });
     }
-    client.on("login", (auth) => {
+    API.on("login", (auth) => {
       this.setState({ auth });
-      this._fetchAWS();
       this._fetchInstances();
       this._fetchAMIs();
     });
-    client.on("logout", () => {
+    API.on("logout", () => {
       this.setState({ auth: false, instances: [], amis: [], aws: [] });
     });
     this.bindInstanceEvents();
     this.bindAMIEvents();
-  }
-  componentDidUpdate(prevProps, prevState) {
-    // Set aws globally to API client
-    if (JSON.stringify(prevState.aws) != JSON.stringify(this.state.aws)) {
-      client.set("aws", this.state.aws);
-    }
   }
   bindInstanceEvents = () => {
     this.service.on("created", (instance) => {
@@ -105,7 +95,7 @@ export default class App extends Component {
     });
   };
   bindAMIEvents = () => {
-    client.service("amis").on("created", (ami) => {
+    API.service("amis").on("created", (ami) => {
       const amis = [...this.state.amis];
       const idx = amis.findIndex((i) => i._id == ami._id);
       if (Number.isInteger(idx) && idx > -1) {
@@ -117,7 +107,7 @@ export default class App extends Component {
         });
       }
     });
-    client.service("amis").on("patched", (ami) => {
+    API.service("amis").on("patched", (ami) => {
       const amis = [...this.state.amis];
       const idx = amis.findIndex((i) => i._id == ami._id);
       if (Number.isInteger(idx) && idx > -1) {
@@ -125,7 +115,7 @@ export default class App extends Component {
         this.setState({ amis });
       }
     });
-    client.service("amis").on("removed", (ami) => {
+    API.service("amis").on("removed", (ami) => {
       if (ami.status == "removing") return;
       const amis = [...this.state.amis];
       const idx = amis.findIndex((i) => i._id == ami._id);
@@ -134,15 +124,6 @@ export default class App extends Component {
         this.setState({ amis });
       }
     });
-  };
-  _fetchAWS = () => {
-    client
-      .service("aws")
-      .find()
-      .then((data) => {
-        let allOptions = [];
-        this.setState({ aws: data });
-      });
   };
   _fetchInstances = () => {
     this.setState({
@@ -169,8 +150,7 @@ export default class App extends Component {
     this.setState({
       loading: true,
     });
-    client
-      .service("amis")
+    API.service("amis")
       .find({
         query: {
           $sort: {
@@ -189,7 +169,7 @@ export default class App extends Component {
   };
   _handleLogoutClick = (ev) => {
     ev.preventDefault();
-    client.logout();
+    API.logout();
   };
   _canCreate = () => {
     const { instances } = this.state;

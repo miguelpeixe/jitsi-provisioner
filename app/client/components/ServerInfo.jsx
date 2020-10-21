@@ -43,10 +43,26 @@ export default class ServerInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      awsInstance: null,
       collapsed: true,
     };
   }
-  componentDidMount() {}
+  componentDidMount() {
+    this._fetchAWS();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.type != this.props.type) {
+      this._fetchAWS();
+    }
+  }
+  _fetchAWS() {
+    const { type } = this.props;
+    API.aws.get(type).then((data) => {
+      this.setState({
+        awsInstance: data,
+      });
+    });
+  }
   _handleSummaryClick = (ev) => {
     ev.preventDefault();
     this.setState({
@@ -54,9 +70,9 @@ export default class ServerInfo extends Component {
     });
   };
   render() {
-    const { collapsed } = this.state;
-    const { instance, region, full } = this.props;
-    if (!instance) return null;
+    const { awsInstance, collapsed } = this.state;
+    const { region, full } = this.props;
+    if (!awsInstance) return null;
     return (
       <Container>
         {!full ? (
@@ -64,12 +80,12 @@ export default class ServerInfo extends Component {
             <h4>Server info</h4>
             {collapsed ? (
               <>
-                <p>{instance.memory} GiB</p>
+                <p>{awsInstance.memory} GiB</p>
                 <p>
-                  {instance.vcpu}x {instance.clockSpeed} vCPUs
+                  {awsInstance.vcpu}x {awsInstance.clockSpeed} vCPUs
                 </p>
                 <p>
-                  <strong>${instance.pricing[region]}/hour</strong>
+                  <strong>${awsInstance.pricing[region]}/hour</strong>
                 </p>
               </>
             ) : null}
@@ -77,32 +93,32 @@ export default class ServerInfo extends Component {
         ) : null}
         {!collapsed || full ? (
           <div>
-            {instance.pricing[region] ? (
+            {awsInstance.pricing[region] ? (
               <FlexTable>
                 <FlexTable.Row>
                   <FlexTable.Head>Processor</FlexTable.Head>
-                  <FlexTable.Data>{instance.processor}</FlexTable.Data>
+                  <FlexTable.Data>{awsInstance.processor}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>vCPU count</FlexTable.Head>
-                  <FlexTable.Data>{instance.vcpu}</FlexTable.Data>
+                  <FlexTable.Data>{awsInstance.vcpu}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Clock speed</FlexTable.Head>
-                  <FlexTable.Data>{instance.clockSpeed}</FlexTable.Data>
+                  <FlexTable.Data>{awsInstance.clockSpeed}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Memory</FlexTable.Head>
-                  <FlexTable.Data>{instance.memory} GiB</FlexTable.Data>
+                  <FlexTable.Data>{awsInstance.memory} GiB</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Network speed</FlexTable.Head>
-                  <FlexTable.Data>{instance.network}</FlexTable.Data>
+                  <FlexTable.Data>{awsInstance.network}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Estimated cost</FlexTable.Head>
                   <FlexTable.Data>
-                    <strong>${instance.pricing[region]}/hour</strong>
+                    <strong>${awsInstance.pricing[region]}/hour</strong>
                   </FlexTable.Data>
                 </FlexTable.Row>
               </FlexTable>

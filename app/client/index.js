@@ -1,8 +1,12 @@
 import React from "react";
 import ReactDom from "react-dom";
 // import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import API from "@jitsi-provisioner/api";
+import io from "socket.io-client";
 
 import App from "App.jsx";
+
+window.API = new API({ io });
 
 window.DOMAIN = DOMAIN;
 window.DEMO = !!DEMO;

@@ -1,7 +1,7 @@
 /* js-file-download by kennethjiang
  * https://github.com/kennethjiang/js-file-download
  */
-module.exports = function (data, filename, mime, bom) {
+export default function (data, filename, mime, bom) {
   var blobData = typeof bom !== "undefined" ? [bom, data] : [data];
   var blob = new Blob(blobData, { type: mime || "application/octet-stream" });
   if (typeof window.navigator.msSaveBlob !== "undefined") {
@@ -37,4 +37,4 @@ module.exports = function (data, filename, mime, bom) {
       window.URL.revokeObjectURL(blobURL);
     }, 200);
   }
-};
+}

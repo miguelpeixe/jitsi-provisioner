@@ -24,7 +24,7 @@ module.exports = function instances() {
     .description("Jitsi Provisioner Instances")
     .action(async (instanceId) => {
       const client = await connection();
-      const service = client.service("instances");
+      const service = client.instances;
       await getOrFind({ service, id: instanceId, fields });
     });
 
@@ -42,7 +42,7 @@ module.exports = function instances() {
         prefixText: "Provisioning instance",
       }).start();
       const client = await connection();
-      const service = client.service("instances");
+      const service = client.instances;
       try {
         const data = await service.create({
           hostname: options.hostname,
@@ -75,11 +75,9 @@ module.exports = function instances() {
         prefixText: "Provisioning instance",
       }).start();
       const client = await connection();
-      const service = client.service("instances");
+      const service = client.instances;
       try {
-        const data = await service.patch(instanceId, {
-          action: "provision",
-        });
+        const data = await service.provision(instanceId);
         service.on("patched", async (instance) => {
           if (instance._id == data._id) {
             spinner.text = instance.info;
@@ -106,11 +104,9 @@ module.exports = function instances() {
         prefixText: "Terminating instance",
       }).start();
       const client = await connection();
-      const service = client.service("instances");
+      const service = client.instances;
       try {
-        const data = await service.patch(instanceId, {
-          action: "terminate",
-        });
+        const data = await service.terminate(instanceId);
         service.on("patched", async (instance) => {
           if (instance._id == data._id) {
             spinner.text = instance.info;
@@ -137,11 +133,9 @@ module.exports = function instances() {
         prefixText: "Removing instance",
       }).start();
       const client = await connection();
-      const service = client.service("instances");
+      const service = client.instances;
       try {
-        const data = await service.patch(instanceId, {
-          action: "remove",
-        });
+        const data = await service.remove(instanceId);
         service.on("patched", async (instance) => {
           if (instance._id == data._id) {
             spinner.text = instance.info;

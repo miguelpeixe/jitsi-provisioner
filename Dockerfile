@@ -20,9 +20,9 @@ RUN \
   rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
   mkdir -p ${DATA_PATH}
 
-COPY app /app
+COPY app /usr/src/app
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 RUN npm install -g nodemon
 

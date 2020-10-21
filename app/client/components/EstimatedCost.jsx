@@ -4,20 +4,32 @@ import { Icon, Tooltip, Whisper } from "rsuite";
 
 const EIP_HOURLY_COST = 0.005;
 
-import { getAWS } from "api/instances";
-
 export default class EstimatedCost extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      text: this.getText(props.date, props.hourlyPrice),
+      awsInstance: null,
+      text: "",
     };
   }
-  getInstanceCost = (region, type) => {
-    const aws = getAWS();
-    const instance = aws.find((item) => item._id == type);
-    if (instance) {
-      return instance.pricing[region];
+  componentDidMount() {
+    const { instance } = this.props;
+    this.timer = setInterval(() => {
+      this.setState({ text: this.getText() });
+    }, 1000);
+    API.aws.get(instance.type).then((data) => {
+      this.setState({
+        awsInstance: data,
+      });
+    });
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+  getInstanceCost = (region) => {
+    const aws = this.state.awsInstance;
+    if (aws) {
+      return aws.pricing[region];
     }
     return 0;
   };
@@ -90,14 +102,6 @@ export default class EstimatedCost extends Component {
     const currentStatus = instance.history[instance.history.length - 1];
     return currentStatus.status;
   };
-  componentDidMount() {
-    this.timer = setInterval(() => {
-      this.setState({ text: this.getText() });
-    }, 1000);
-  }
-  componentWillUnmount() {
-    clearInterval(this.timer);
-  }
   render() {
     const standbyTooltip = (
       <Tooltip>

@@ -1,0 +1,45 @@
+{
+  "name": "@jitsi-provisioner/api",
+  "version": "0.0.1",
+  "description": "Jitsi Provisioner JavaScript API",
+  "main": "lib/index.js",
+  "module": "lib/index.es.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/miguelpeixe/jitsi-provisioner.git"
+  },
+  "author": "Miguel Peixe <miguel@peixe.co>",
+  "homepage": "https://github.com/miguelpeixe/jitsi-provisioner",
+  "license": "Apache-2.0",
+  "scripts": {
+    "clean": "rm -rf lib && mkdir lib",
+    "build": "npm run clean && rollup -c",
+    "watch": "npm run clean && rollup -c -w",
+    "prepublish": "npm run build"
+  },
+  "dependencies": {
+    "@feathersjs/authentication-client": "^4.5.9",
+    "@feathersjs/feathers": "^4.5.9",
+    "@feathersjs/socketio-client": "^4.5.9",
+    "axios": "^0.20.0",
+    "lodash": "^4.17.20"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-proposal-export-default-from": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/plugin-transform-spread": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@rollup/plugin-commonjs": "^15.1.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "babel-loader": "^8.1.0",
+    "rollup": "^2.32.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4"
+  }
+}

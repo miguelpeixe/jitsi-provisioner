@@ -8,7 +8,7 @@ services:
       - 8888:8888
     volumes:
       - ${DATA_PATH}:/data
-      - ./app:/app
+      - ./app:/usr/src/app
     environment:
       - DEMO
       - NO_CLIENT

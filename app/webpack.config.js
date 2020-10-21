@@ -3,7 +3,7 @@ const webpack = require("webpack");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 
@@ -12,6 +12,7 @@ module.exports = (env, argv) => {
 
   const plugins = [
     new webpack.DefinePlugin({
+      "process.env": {},
       DOMAIN: JSON.stringify(process.env.DOMAIN),
       DEMO: JSON.stringify(!!parseInt(process.env.DEMO)),
       MAX_INSTANCES: JSON.stringify(parseInt(process.env.MAX_INSTANCES)),
@@ -26,8 +27,8 @@ module.exports = (env, argv) => {
       inject: "body",
     }),
     new MiniCssExtractPlugin({
-      filename: "[name].[hash].css",
-      chunkFilename: "[id].[hash].css",
+      filename: "[name].[contenthash].css",
+      chunkFilename: "[id].[contenthash].css",
     }),
   ];
 
@@ -54,7 +55,7 @@ module.exports = (env, argv) => {
   return {
     mode: env.production ? "production" : "development",
     entry,
-    devtool: env.production ? undefined : "#source-map",
+    devtool: env.production ? undefined : "source-map",
     resolve: {
       alias: {
         react: "preact/compat",
@@ -66,7 +67,7 @@ module.exports = (env, argv) => {
     output: {
       path: path.resolve(__dirname, "public"),
       publicPath: "/",
-      filename: env.production ? "[name].[hash].js" : "[name].js",
+      filename: env.production ? "[name].[contenthash].js" : "[name].js",
     },
     plugins,
     optimization: env.production
@@ -74,9 +75,9 @@ module.exports = (env, argv) => {
           splitChunks: {
             maxSize: 250000,
             chunks: "all",
-            name: !env.production,
           },
-          minimizer: [new TerserJSPlugin(), new OptimizeCSSAssetsPlugin()],
+          minimize: true,
+          minimizer: [new TerserJSPlugin(), new CssMinimizerPlugin()],
         }
       : {},
     module: {
@@ -98,7 +99,7 @@ module.exports = (env, argv) => {
               ],
             },
           },
-          exclude: /node_modules/,
+          exclude: /node_modules|..\/api/,
           sideEffects: false,
         },
         {

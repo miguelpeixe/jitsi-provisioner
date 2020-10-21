@@ -12,9 +12,6 @@ import {
   InputPicker,
 } from "rsuite";
 import { pickBy } from "lodash";
-import { regions } from "@jitsi-provisioner/aws-utils";
-
-import Instances from "api/instances";
 
 import Card from "components/Card.jsx";
 import Button from "components/Button.jsx";
@@ -39,6 +36,8 @@ export default class InstanceNew extends Component {
     this.state = {
       loading: false,
       valid: true,
+      awsInstances: [],
+      regions: API.aws.regions(),
       formData: {
         hostname: "",
         region: "us-east-1",
@@ -51,15 +50,22 @@ export default class InstanceNew extends Component {
       type: StringType().isRequired("Instance type is required"),
     });
   }
+  componentDidMount() {
+    API.aws.getInstances().then((data) => {
+      this.setState({ awsInstances: data });
+    });
+  }
   componentDidUpdate(prevProps, prevState) {
     const { formData } = this.state;
     if (JSON.stringify(prevState.formData) != JSON.stringify(formData)) {
-      this.setState({ valid: this._validate() });
+      this._validate().then((valid) => {
+        this.setState({ valid });
+      });
     }
   }
-  _validate = () => {
+  _validate = async () => {
     const { formData } = this.state;
-    const server = Instances.getServer(formData.type);
+    const server = await API.aws.getServer(formData.type);
     if (!server.pricing[formData.region]) {
       return false;
     }
@@ -71,10 +77,11 @@ export default class InstanceNew extends Component {
       loading: true,
     });
     if (formData.createAMI) {
-      Instances.createAMI(formData.region);
+      API.instances.createAMI(formData.region);
       delete formData.createAMI;
     }
-    Instances.create(pickBy(formData))
+    API.instances
+      .create(pickBy(formData))
       .then((res) => {
         this.props.onSubmit && this.props.onSubmit(res);
       })
@@ -92,6 +99,7 @@ export default class InstanceNew extends Component {
     this.props.onCancel && this.props.onCancel();
   };
   _getRegionOptions = () => {
+    const { regions } = this.state;
     return Object.keys(regions).map((value) => {
       return {
         label: regions[value],
@@ -100,7 +108,7 @@ export default class InstanceNew extends Component {
     });
   };
   _getInstanceOptions = () => {
-    const aws = Instances.getAWS();
+    const aws = this.state.awsInstances;
     const options = [];
     for (const instance of aws) {
       options.push({
@@ -138,6 +146,10 @@ export default class InstanceNew extends Component {
   render() {
     const { allowCancel } = this.props;
     const { loading, valid, formData } = this.state;
+    let awsInstance;
+    API.aws.getServer(formData.type).then((data) => {
+      awsInstance = data;
+    });
     return (
       <Card new loading={loading ? 1 : 0}>
         <Form
@@ -203,11 +215,7 @@ export default class InstanceNew extends Component {
                 </tr>
               </tbody>
             </table>
-            <ServerInfo
-              full
-              instance={Instances.getServer(formData.type)}
-              region={formData.region}
-            />
+            <ServerInfo full type={formData.type} region={formData.region} />
             <FlexTable>
               {!this._hasAmi() ? (
                 <FlexTable.Row>

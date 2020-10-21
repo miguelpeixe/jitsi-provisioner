@@ -1,8 +1,5 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import { regions } from "@jitsi-provisioner/aws-utils";
-
-import client from "api";
 
 import { Alert, Icon, Tooltip, Whisper } from "rsuite";
 
@@ -84,19 +81,13 @@ Resources.AMI = function ({ ami, region }) {
       onClick={(ev) => {
         ev.preventDefault();
         if (!ami) {
-          client
-            .service("amis")
-            .create({ region })
-            .catch((err) => {
-              Alert.error(err.message);
-            });
+          API.instances.createAMI(region).catch((err) => {
+            Alert.error(err.message);
+          });
         } else if (ami.status.match(/failed|active/)) {
-          client
-            .service("amis")
-            .remove(ami._id)
-            .catch((err) => {
-              Alert.error(err.message);
-            });
+          API.instances.removeAMI(region).catch((err) => {
+            Alert.error(err.message);
+          });
         }
       }}
     >
@@ -132,7 +123,7 @@ const RegionContainer = styled.div`
 `;
 
 function Region(props) {
-  const { region } = props;
+  const { regions, region } = props;
   const ami = props.amis.find((ami) => ami.region == region);
   const instances = props.instances.filter(
     (instance) => instance.region == region
@@ -155,11 +146,19 @@ export default class RegionList extends Component {
   render() {
     const { amis, instances } = this.props;
     if (!amis.length && !instances.length) return null;
+    const regions = API.aws.regions();
+    console.log(regions);
     return (
       <Container>
         <h2>Regions</h2>
         {Object.keys(regions).map((key) => (
-          <Region key={key} region={key} amis={amis} instances={instances} />
+          <Region
+            regions={regions}
+            key={key}
+            region={key}
+            amis={amis}
+            instances={instances}
+          />
         ))}
       </Container>
     );

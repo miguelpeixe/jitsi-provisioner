@@ -1,7 +1,7 @@
 const nedbService = require("feathers-nedb");
 const NeDB = require("nedb");
 const path = require("path");
-const awsUtils = require("@jitsi-provisioner/aws-utils");
+const API = require("@jitsi-provisioner/api");
 const { authenticate } = require("@feathersjs/authentication").hooks;
 const { disallow } = require("feathers-hooks-common");
 
@@ -30,7 +30,7 @@ module.exports = async (app) => {
   const updateAws = async () => {
     try {
       let promises = [];
-      const instances = await awsUtils.instances();
+      const instances = await new API({ app }).aws.fetchInstances();
       if (instances.length) {
         await service.remove(null, {});
         for (instance of instances) {

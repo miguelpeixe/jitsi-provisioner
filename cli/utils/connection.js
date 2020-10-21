@@ -1,11 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-
-const feathers = require("@feathersjs/feathers");
-const socketio = require("@feathersjs/socketio-client");
 const io = require("socket.io-client");
-const auth = require("@feathersjs/authentication-client");
+
+const API = require("@jitsi-provisioner/api");
 
 const Storage = require("./storage");
 
@@ -16,8 +14,6 @@ const CONFIG_PATH = path.join(
   ".config",
   "jitsi-provisioner.json"
 );
-const AUTH_STORAGE_KEY = "accessToken";
-
 const storage = new Storage(CONFIG_PATH);
 
 if (fs.existsSync(APP_PATH) && fs.existsSync(ENV_PATH)) {
@@ -28,17 +24,6 @@ if (fs.existsSync(APP_PATH) && fs.existsSync(ENV_PATH)) {
     });
   }
 }
-
-const getClient = (url) => {
-  const socket = io(url);
-  const client = feathers();
-  client.configure(socketio(socket));
-  client.configure(auth({ storage, storageKey: AUTH_STORAGE_KEY }));
-  client.on("error", (err) => {
-    throw new Error(err);
-  });
-  return client;
-};
 
 const getLocalToken = () => {
   return jwt.sign({ cli: true }, process.env.JWT_SECRET, {
@@ -56,12 +41,12 @@ module.exports = async () => {
       url = "http://localhost:3030";
       auth = getLocalToken();
       await storage.setItem("url", url);
-      await storage.setItem(AUTH_STORAGE_KEY, auth);
+      await storage.setItem("accessToken", auth);
     } else {
       throw new Error("You must authenticate");
     }
   }
-  const client = getClient(url);
+  const client = new API({ io, url, authStorage: storage });
   await client.authenticate({
     strategy: "jwt",
     accessToken: auth,
@@ -71,7 +56,7 @@ module.exports = async () => {
 
 module.exports.auth = async ({ url, username, password }) => {
   await storage.setItem("url", url);
-  const client = getClient(url);
+  const client = new API({ io, url, authStorage: storage });
   return client.authenticate({
     strategy: "local",
     username,

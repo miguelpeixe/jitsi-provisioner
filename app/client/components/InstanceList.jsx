@@ -1,11 +1,6 @@
 import React, { Component } from "react";
 import { Alert, Icon } from "rsuite";
 import { get } from "lodash";
-import { regions } from "@jitsi-provisioner/aws-utils";
-
-import Instances from "api/instances";
-
-import download from "utils/download";
 
 import Card from "components/Card.jsx";
 import FlexTable from "components/FlexTable.jsx";
@@ -18,31 +13,31 @@ import EstimatedCost from "components/EstimatedCost.jsx";
 export default class InstanceList extends Component {
   _handleTerminateClick = (instance) => (ev) => {
     ev.preventDefault();
-    if (Instances.canTerminate(instance) && confirm("Are you sure?")) {
-      Instances.terminate(instance).catch((err) => {
+    if (API.instances.canTerminate(instance) && confirm("Are you sure?")) {
+      API.instances.terminate(instance).catch((err) => {
         Alert.error(err.message);
       });
     }
   };
   _handleProvisionClick = (instance) => (ev) => {
     ev.preventDefault();
-    if (Instances.canRemove(instance)) {
-      Instances.provision(instance).catch((err) => {
+    if (API.instances.canRemove(instance)) {
+      API.instances.provision(instance).catch((err) => {
         Alert.error(err.message);
       });
     }
   };
   _handleRemoveClick = (instance) => (ev) => {
     ev.preventDefault();
-    if (Instances.canRemove(instance) && confirm("Are you sure?")) {
-      Instances.remove(instance).catch((err) => {
+    if (API.instances.canRemove(instance) && confirm("Are you sure?")) {
+      API.instances.remove(instance).catch((err) => {
         Alert.error(err.message);
       });
     }
   };
   _getLink = (instance) => {
-    if (Instances.isAvailable(instance)) {
-      const url = Instances.getUrl(instance);
+    if (API.instances.isAvailable(instance)) {
+      const url = API.instances.getUrl(instance);
       return (
         <a href={url} rel="external" target="_blank">
           {url}
@@ -53,7 +48,7 @@ export default class InstanceList extends Component {
   };
   _handleDownloadClick = (instance) => (ev) => {
     ev.preventDefault();
-    Instances.download(instance);
+    API.instances.download(instance);
   };
   render() {
     const { instances } = this.props;
@@ -63,7 +58,7 @@ export default class InstanceList extends Component {
         {instances.map((instance) => (
           <Card.ListItem
             key={instance._id}
-            loading={Instances.isLoading(instance)}
+            loading={API.instances.isLoading(instance)}
           >
             <Card.Header>
               <Icon icon="server" />
@@ -80,7 +75,9 @@ export default class InstanceList extends Component {
               <FlexTable>
                 <FlexTable.Row>
                   <FlexTable.Head>Region</FlexTable.Head>
-                  <FlexTable.Data>{regions[instance.region]}</FlexTable.Data>
+                  <FlexTable.Data>
+                    {API.aws.regions(instance.region)}
+                  </FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Type</FlexTable.Head>
@@ -101,10 +98,7 @@ export default class InstanceList extends Component {
                   </FlexTable.Data>
                 </FlexTable.Row>
               </FlexTable>
-              <ServerInfo
-                instance={Instances.getServer(instance.type)}
-                region={instance.region}
-              />
+              <ServerInfo type={instance.type} region={instance.region} />
               <Button.Group vertical>
                 <Button
                   block
@@ -114,13 +108,13 @@ export default class InstanceList extends Component {
                 >
                   Download configuration
                 </Button>
-                {Instances.isAvailable(instance) &&
-                Instances.hasRecording(instance) ? (
+                {API.instances.isAvailable(instance) &&
+                API.instances.hasRecording(instance) ? (
                   <Button
                     block
                     light
                     small
-                    href={`${Instances.getUrl(instance)}/${
+                    href={`${API.instances.getUrl(instance)}/${
                       instance.api.key
                     }/recordings`}
                     target="_blank"
@@ -132,19 +126,19 @@ export default class InstanceList extends Component {
               </Button.Group>
             </Card.Content>
             <Card.Footer>
-              {Instances.isRunning(instance) ? (
+              {API.instances.isRunning(instance) ? (
                 <Button.Group>
                   <Button
                     remove
-                    disabled={!Instances.canTerminate(instance)}
+                    disabled={!API.instances.canTerminate(instance)}
                     onClick={this._handleTerminateClick(instance)}
                   >
                     Terminate
                   </Button>
                   <Button
                     jitsi
-                    disabled={!Instances.isAvailable(instance)}
-                    href={Instances.getUrl(instance)}
+                    disabled={!API.instances.isAvailable(instance)}
+                    href={API.instances.getUrl(instance)}
                     target="_blank"
                     rel="external"
                   >
@@ -155,13 +149,13 @@ export default class InstanceList extends Component {
                 <Button.Group>
                   <Button
                     remove
-                    disabled={!Instances.canRemove(instance)}
+                    disabled={!API.instances.canRemove(instance)}
                     onClick={this._handleRemoveClick(instance)}
                   >
                     Remove
                   </Button>
                   <Button
-                    disabled={!Instances.canRemove(instance)}
+                    disabled={!API.instances.canRemove(instance)}
                     onClick={this._handleProvisionClick(instance)}
                   >
                     Provision instance

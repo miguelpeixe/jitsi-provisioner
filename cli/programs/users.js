@@ -12,7 +12,7 @@ module.exports = function users() {
 
   users.description("Jitsi Provisioner Users").action(async (userId) => {
     const client = await connection();
-    const service = client.service("users");
+    const service = client.users;
     await getOrFind({ service, id: userId });
   });
 
@@ -24,7 +24,7 @@ module.exports = function users() {
     .action(async (username, options) => {
       const spinner = ora().start("Creating user");
       const client = await connection();
-      const service = client.service("users");
+      const service = client.users;
       try {
         const data = await service.create({
           username,
@@ -45,7 +45,7 @@ module.exports = function users() {
     .action(async (username, newPassword) => {
       const spinner = ora().start("Changing password");
       const client = await connection();
-      const service = client.service("users");
+      const service = client.users;
       try {
         const users = await service.find({ query: { username } });
         if (!users.length) {
@@ -66,7 +66,7 @@ module.exports = function users() {
     .action(async (username, role) => {
       const spinner = ora().start("Changing role");
       const client = await connection();
-      const service = client.service("users");
+      const service = client.users;
       try {
         const users = await service.find({ query: { username } });
         if (!users.length) {
@@ -87,7 +87,7 @@ module.exports = function users() {
     .action(async (username) => {
       const spinner = ora().start("Removing user");
       const client = await connection();
-      const service = client.service("users");
+      const service = client.users;
       try {
         const users = await service.find({ query: { username } });
         if (!users.length) {
