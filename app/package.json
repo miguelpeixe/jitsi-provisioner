@@ -29,7 +29,7 @@
     "@hapi/joi": "^17.1.1",
     "@jitsi-provisioner/api": "0.0.1",
     "archiver": "^5.0.2",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "cloudflare": "^2.7.0",
     "feathers-hooks-common": "^5.0.4",
     "feathers-nedb": "^5.1.0",
