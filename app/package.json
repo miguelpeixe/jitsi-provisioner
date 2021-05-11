@@ -34,7 +34,7 @@
     "feathers-hooks-common": "^5.0.4",
     "feathers-nedb": "^5.1.0",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "nanoid": "^3.1.12",
     "nedb": "^1.8.0",
