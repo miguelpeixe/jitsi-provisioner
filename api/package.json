@@ -1,6 +1,6 @@
 {
   "name": "@jitsi-provisioner/api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Jitsi Provisioner JavaScript API",
   "main": "lib/index.js",
   "module": "lib/index.es.js",
@@ -24,7 +24,7 @@
     "@feathersjs/authentication-client": "^4.5.9",
     "@feathersjs/feathers": "^4.5.9",
     "@feathersjs/socketio-client": "^4.5.9",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "lodash": "^4.17.20"
   },
   "devDependencies": {
