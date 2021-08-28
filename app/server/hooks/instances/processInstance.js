@@ -15,6 +15,9 @@ module.exports = (options = {}) => {
     const hostname = data.hostname || `${id}.${domain}`;
 
     const parsedHostname = parseDomain(hostname);
+    if (!domain && !parsedHostname.subDomains?.length) {
+      throw new Error("Domain is not set");
+    }
     const name = parsedHostname.subDomains.join(".");
 
     const enableRecording = !!data.recording;
