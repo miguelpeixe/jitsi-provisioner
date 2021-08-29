@@ -27,4 +27,4 @@ jobs:
           docker buildx build \
             --push \
             --tag miguelpeixe/jitsi-provisioner:latest \
-            --platform linux/amd64,linux/arm,linux/arm64,linux/386 .
+            --platform linux/amd64,linux/arm/v7,linux/arm64/v8 .
