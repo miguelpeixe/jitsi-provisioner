@@ -1,5 +1,6 @@
 node_modules
 data
 terraform/.terraform
+terraform/.terraform.lock.hcl
 public
 bundle-report.html
