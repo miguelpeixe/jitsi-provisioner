@@ -3,9 +3,6 @@ import styled from "styled-components";
 
 import { Alert, Icon, Tooltip, Whisper } from "rsuite";
 
-import Button from "components/Button.jsx";
-import StatusBadge from "components/StatusBadge.jsx";
-
 const Container = styled.section`
   flex: 1 1 auto;
   display: block;
@@ -147,7 +144,6 @@ export default class RegionList extends Component {
     const { amis, instances } = this.props;
     if (!amis.length && !instances.length) return null;
     const regions = API.aws.regions();
-    console.log(regions);
     return (
       <Container>
         <h2>Regions</h2>
