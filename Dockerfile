@@ -13,7 +13,11 @@ RUN \
   rm -rf /var/lib/apt/lists/*
 
 RUN \
-  ARCH="$(dpkg --print-architecture)"; \
+  if [ "$(dpkg --print-architecture)" = "armhf" ]; then \
+    ARCH="arm"; \
+  else \
+    ARCH=$(dpkg --print-architecture); \
+  fi && \
   wget -O tf.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${ARCH}.zip && \
   unzip tf.zip && chmod +x terraform && mv terraform /usr/bin && rm tf.zip && \
   mkdir -p ${DATA_PATH}
