@@ -1,6 +1,6 @@
 FROM node:lts-slim
 
-ENV TERRAFORM_VERSION=0.12.28
+ENV TERRAFORM_VERSION=1.0.5
 ENV DATA_PATH=/data
 
 RUN \
@@ -13,11 +13,9 @@ RUN \
   rm -rf /var/lib/apt/lists/*
 
 RUN \
-  wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-  unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-  chmod +x terraform && \
-  mv terraform /usr/bin && \
-  rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+  ARCH="$(dpkg --print-architecture)"; \
+  wget -O tf.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${ARCH}.zip && \
+  unzip tf.zip && chmod +x terraform && mv terraform /usr/bin && rm tf.zip && \
   mkdir -p ${DATA_PATH}
 
 COPY app /usr/src/app
