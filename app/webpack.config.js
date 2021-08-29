@@ -32,26 +32,21 @@ module.exports = (env, argv) => {
     }),
   ];
 
-  let analyzerOptions = {
-    analyzerMode: "static",
-    reportFilename: path.resolve("bundle-report.html"),
-    openAnalyzer: false,
-  };
-
   if (!env.production) {
     entry.push(
       "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=2000&overlay=false&reload=true"
     );
     plugins.push(new webpack.HotModuleReplacementPlugin());
-    analyzerOptions = {
-      analyzerMode: "server",
-      analyzerHost: "0.0.0.0",
-      analyzerPort: "8888",
-      openAnalyzer: false,
-    };
+    analyzerOptions = plugins.push(
+      new BundleAnalyzerPlugin({
+        analyzerMode: "server",
+        analyzerHost: "0.0.0.0",
+        analyzerPort: "8888",
+        openAnalyzer: false,
+      })
+    );
   }
 
-  plugins.push(new BundleAnalyzerPlugin(analyzerOptions));
   return {
     mode: env.production ? "production" : "development",
     entry,
