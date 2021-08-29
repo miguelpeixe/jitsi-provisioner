@@ -15,7 +15,7 @@ module.exports = (options = {}) => {
     const hostname = data.hostname || `${id}.${domain}`;
 
     const parsedHostname = parseDomain(hostname);
-    if (!domain && !parsedHostname.subDomains?.length) {
+    if (!domain && !parsedHostname.subDomains) {
       throw new Error("Domain is not set");
     }
     const name = parsedHostname.subDomains.join(".");
