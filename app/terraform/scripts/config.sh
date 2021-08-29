@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+export DEBIAN_FRONTEND=noninteractive
+
 IP=$(curl http://checkip.amazonaws.com)
 GET_CERTIFICATE=true
 CERTIFICATE=${certificate}
@@ -89,10 +91,11 @@ if [ $GET_CERTIFICATE = true ]; then
   # Stop nginx for standalone mode
   systemctl stop nginx
 
-  if ! certbot-auto \
-        certonly \
-        --no-bootstrap \
-        --no-self-upgrade \
+  if ! sudo docker run --rm --name certbot \
+        -v /etc/letsencrypt:/etc/letsencrypt \
+        -v /var/lib/letsencrypt:/var/lib/letsencrypt \
+        -p 80:80 \
+        certbot/certbot:latest certonly \
         --noninteractive \
         --standalone \
         --preferred-challenges http \

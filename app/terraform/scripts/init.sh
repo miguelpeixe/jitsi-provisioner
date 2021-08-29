@@ -26,11 +26,6 @@ apt-get install -y --no-install-recommends \
   linux-image-extra-virtual \
   nginx
 
-# Install certbot
-curl -fsSL "https://dl.eff.org/certbot-auto" -o /usr/local/bin/certbot-auto && \
-  chmod +x /usr/local/bin/certbot-auto && \
-  certbot-auto --os-packages-only --noninteractive &
-
 # Install docker compose
 curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && \
   chmod +x /usr/local/bin/docker-compose &
@@ -56,6 +51,9 @@ git clone https://github.com/jitsi/docker-jitsi-meet.git /jitsi/docker && \
 
 # Pull instance api image
 docker pull miguelpeixe/jitsi-provisioner-instance-api:latest &
+
+# Pull certbot image
+docker pull certbot/certbot:latest &
 
 # Wait background scripts before continuing
 wait
