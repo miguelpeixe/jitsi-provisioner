@@ -36,7 +36,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
-    "nanoid": "^3.1.12",
+    "nanoid": "^3.1.31",
     "nedb": "^1.8.0",
     "parse-domain": "^3.0.3",
     "preact": "^10.5.5",
