@@ -18,8 +18,8 @@
   },
   "homepage": "https://github.com/miguelpeixe/jitsi-provisioner#readme",
   "dependencies": {
-    "archiver": "^5.0.2",
-    "express": "^4.17.1",
-    "express-jwt": "^6.0.0"
+    "archiver": "^5.3.0",
+    "express": "^4.17.3",
+    "express-jwt": "^6.1.1"
   }
 }
