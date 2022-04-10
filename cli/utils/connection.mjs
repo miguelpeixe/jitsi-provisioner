@@ -1,11 +1,13 @@
-const fs = require("fs");
-const path = require("path");
-const jwt = require("jsonwebtoken");
-const io = require("socket.io-client");
+import fs from "fs";
+import path, { dirname } from "path";
+import jwt from "jsonwebtoken";
+import io from "socket.io-client";
+import dotenv from "dotenv";
 
-const API = require("@jitsi-provisioner/api");
+import API from "@jitsi-provisioner/api";
+import Storage from "./storage.mjs";
 
-const Storage = require("./storage");
+const __dirname = dirname(new URL(import.meta.url).pathname);
 
 const APP_PATH = path.join(__dirname, "../..", "app");
 const ENV_PATH = path.join(__dirname, "../..", ".env");
@@ -17,9 +19,11 @@ const CONFIG_PATH = path.join(
 const storage = new Storage(CONFIG_PATH);
 
 if (fs.existsSync(APP_PATH) && fs.existsSync(ENV_PATH)) {
-  const appPackage = require(path.join(APP_PATH, "package.json"));
+  const appPackage = JSON.parse(
+    fs.readFileSync(path.join(APP_PATH, "package.json"))
+  );
   if (appPackage.name == "jitsi-provisioner") {
-    require("dotenv").config({
+    dotenv.config({
       path: ENV_PATH,
     });
   }
@@ -33,7 +37,7 @@ const getLocalToken = () => {
   });
 };
 
-module.exports = async () => {
+export default async function connect() {
   let url = await storage.getItem("url");
   let auth = await storage.getItem("auth");
   if (!auth) {
@@ -52,9 +56,9 @@ module.exports = async () => {
     accessToken: auth,
   });
   return client;
-};
+}
 
-module.exports.auth = async ({ url, username, password }) => {
+export async function auth({ url, username, password }) {
   await storage.setItem("url", url);
   const client = new API({ io, url, authStorage: storage });
   return client.authenticate({
@@ -62,8 +66,8 @@ module.exports.auth = async ({ url, username, password }) => {
     username,
     password,
   });
-};
+}
 
-module.exports.clear = async () => {
+export async function clear() {
   return await storage.purge();
-};
+}

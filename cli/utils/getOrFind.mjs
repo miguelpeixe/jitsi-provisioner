@@ -1,6 +1,6 @@
-const { pick } = require("lodash");
+import lodash from "lodash";
 
-module.exports = async ({ service, fields, id }) => {
+const getOrFind = async ({ service, fields, id }) => {
   try {
     let data;
     if (id) {
@@ -12,7 +12,7 @@ module.exports = async ({ service, fields, id }) => {
       if (Array.isArray(data)) {
         console.table(data, fields);
       } else {
-        console.table(pick(data, fields));
+        console.table(lodash.pick(data, fields));
       }
     } else {
       console.table(data);
@@ -22,3 +22,5 @@ module.exports = async ({ service, fields, id }) => {
   }
   process.exit();
 };
+
+export default getOrFind;

@@ -1,6 +1,6 @@
 {
   "name": "@jitsi-provisioner/cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Deploy Jitsi Meet servers in less than 3 minutes",
   "repository": {
     "type": "git",
@@ -13,16 +13,16 @@
     "jitsi-provisioner": "./bin/jitsi-provisioner"
   },
   "dependencies": {
-    "@feathersjs/authentication-client": "^4.5.9",
-    "@feathersjs/feathers": "^4.5.9",
-    "@feathersjs/socketio-client": "^4.5.9",
+    "@feathersjs/authentication-client": "^4.5.13",
+    "@feathersjs/feathers": "^4.5.12",
+    "@feathersjs/socketio-client": "^4.5.13",
     "@jitsi-provisioner/api": "^0.0.2",
-    "commander": "^6.1.0",
-    "dotenv": "^8.2.0",
+    "commander": "^9.1.0",
+    "dotenv": "^16.0.0",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.20",
-    "moment": "^2.29.1",
-    "ora": "^5.1.0",
-    "socket.io-client": "^2.3.1"
+    "lodash": "^4.17.21",
+    "moment": "^2.29.2",
+    "ora": "^6.1.0",
+    "socket.io-client": "^2.4.0"
   }
 }

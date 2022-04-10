@@ -1,9 +1,8 @@
-const { pick } = require("lodash");
-const { Command } = require("commander");
-const ora = require("ora");
+import { Command } from "commander";
+import ora from "ora";
 
-const connection = require("../utils/connection");
-const getOrFind = require("../utils/getOrFind");
+import connection from "../utils/connection.mjs";
+import getOrFind from "../utils/getOrFind.mjs";
 
 const fields = [
   "_id",
@@ -15,7 +14,7 @@ const fields = [
   "type",
 ];
 
-module.exports = function instances() {
+export default function instances() {
   const program = new Command();
 
   const instances = program.command("instances [instanceId]");
@@ -158,4 +157,4 @@ module.exports = function instances() {
     });
 
   return instances;
-};
+}

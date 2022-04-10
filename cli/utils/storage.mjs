@@ -1,6 +1,5 @@
-const fs = require("fs");
-
-module.exports = class FileStorage {
+import fs from "fs";
+class FileStorage {
   constructor(path) {
     this.path = path;
   }
@@ -54,4 +53,6 @@ module.exports = class FileStorage {
     await this.writeConfig(config);
     return value;
   }
-};
+}
+
+export default FileStorage;

@@ -1,9 +1,9 @@
-const { Command } = require("commander");
-const ora = require("ora");
+import { Command } from "commander";
+import ora from "ora";
 
-const connection = require("../utils/connection");
+import connection from "../utils/connection.mjs";
 
-module.exports = function instances() {
+export default function instances() {
   const program = new Command();
 
   const auth = program
@@ -49,4 +49,4 @@ module.exports = function instances() {
     });
 
   return auth;
-};
+}

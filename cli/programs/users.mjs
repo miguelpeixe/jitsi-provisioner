@@ -1,11 +1,10 @@
-const { pick } = require("lodash");
-const { Command } = require("commander");
-const ora = require("ora");
+import { Command } from "commander";
+import ora from "ora";
 
-const connection = require("../utils/connection");
-const getOrFind = require("../utils/getOrFind");
+import connection from "../utils/connection.mjs";
+import getOrFind from "../utils/getOrFind.mjs";
 
-module.exports = function users() {
+export default function users() {
   const program = new Command();
 
   const users = program.command("users [userId]");
@@ -104,4 +103,4 @@ module.exports = function users() {
     });
 
   return users;
-};
+}
