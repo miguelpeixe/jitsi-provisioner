@@ -44,7 +44,9 @@ data "template_cloudinit_config" "default" {
         nginx               = filebase64("web/jitsi.conf"),
         letsencrypt_renew   = filebase64("web/letsencrypt-renew"),
         start_jitsi         = filebase64("scripts/start-jitsi.sh"),
-        certificate         = var.certificate_path != "" ? filebase64(var.certificate_path) : "",
+        # Temporarily disabling certificate restoration as it exceeds the 16kb limit for user_data.
+        # certificate         = var.certificate_path != "" ? filebase64(var.certificate_path) : "",
+        certificate         = "",
         jitsi_recording     = tobool(var.jitsi_recording)
       }
     )
@@ -67,7 +69,9 @@ data "template_cloudinit_config" "from_ami" {
         nginx               = filebase64("web/jitsi.conf"),
         letsencrypt_renew   = filebase64("web/letsencrypt-renew"),
         start_jitsi         = filebase64("scripts/start-jitsi.sh"),
-        certificate         = var.certificate_path != "" ? filebase64(var.certificate_path) : "",
+        # Temporarily disabling certificate restoration as it exceeds the 16kb limit for user_data.
+        # certificate         = var.certificate_path != "" ? filebase64(var.certificate_path) : "",
+        certificate         = "",
         jitsi_recording     = tobool(var.jitsi_recording)
       }
     )
