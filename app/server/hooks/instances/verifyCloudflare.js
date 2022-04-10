@@ -11,13 +11,17 @@ module.exports = (options = {}) => {
     const DEMO = data.demo;
 
     if (!DEMO) {
-      const zone = await getZone(data.hostname);
-      if (!zone) {
-        await fail(
-          service,
-          data._id,
-          "Could not connect to zone in CloudFlare"
-        );
+      try {
+        const zone = await getZone(data.hostname);
+        if (!zone) {
+          await fail(
+            service,
+            data._id,
+            "Could not connect to zone in CloudFlare"
+          );
+        }
+      } catch (err) {
+        await fail(service, data._id, err);
       }
     } else {
       await sleep(1 * 1000);
