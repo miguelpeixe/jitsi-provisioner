@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import styled, { css } from "styled-components";
-import { Alert, Loader, Icon } from "rsuite";
+import { Loader } from "rsuite";
 
 import Container from "components/Container.jsx";
 import Header from "components/Header.jsx";
@@ -14,11 +13,6 @@ import Login from "components/Login.jsx";
 import InstanceNew from "components/InstanceNew.jsx";
 import RegionList from "components/RegionList.jsx";
 import InstanceList from "components/InstanceList.jsx";
-
-Alert.config({
-  top: "1rem",
-});
-
 export default class App extends Component {
   constructor(props) {
     super(props);

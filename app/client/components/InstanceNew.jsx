@@ -1,17 +1,11 @@
 import React, { Component } from "react";
-import styled from "styled-components";
-import {
-  Alert,
-  Schema,
-  Form,
-  FormControl,
-  Icon,
-  Tooltip,
-  Whisper,
-  Toggle,
-  InputPicker,
-} from "rsuite";
+import { Schema, Form, Tooltip, Whisper, Toggle, InputPicker } from "rsuite";
+import { Icon } from "@rsuite/icons";
 import { pickBy } from "lodash";
+
+import { FaQuestionCircle, FaCube } from "react-icons/fa";
+
+import { FaServer } from "react-icons/fa";
 
 import Card from "components/Card.jsx";
 import Button from "components/Button.jsx";
@@ -25,7 +19,7 @@ function Explain({ children }) {
   const tooltip = <Tooltip>{children}</Tooltip>;
   return (
     <Whisper placement="top" trigger="hover" speaker={tooltip}>
-      <Icon icon="question-circle" />
+      <Icon as={FaQuestionCircle} />
     </Whisper>
   );
 }
@@ -86,7 +80,7 @@ export default class InstanceNew extends Component {
         this.props.onSubmit && this.props.onSubmit(res);
       })
       .catch((err) => {
-        Alert.error(err.message);
+        // toaster err.message
       })
       .finally(() => {
         this.setState({
@@ -159,7 +153,7 @@ export default class InstanceNew extends Component {
           formValue={formData}
         >
           <Card.Header>
-            <Icon icon="server" />
+            <Icon as={FaServer} />
             <h3>New instance</h3>
             {allowCancel ? (
               <p>
@@ -175,13 +169,13 @@ export default class InstanceNew extends Component {
                 <tr>
                   <th>Hostname</th>
                   <td>
-                    <FormControl name="hostname" accepter={HostnameInput} />
+                    <Form.Control name="hostname" accepter={HostnameInput} />
                   </td>
                 </tr>
                 <tr>
                   <th>Region</th>
                   <td>
-                    <FormControl
+                    <Form.Control
                       accepter={InputPicker}
                       name="region"
                       block
@@ -193,7 +187,7 @@ export default class InstanceNew extends Component {
                 <tr>
                   <th>Type</th>
                   <td>
-                    <FormControl
+                    <Form.Control
                       accepter={InputPicker}
                       name="type"
                       block
@@ -220,21 +214,21 @@ export default class InstanceNew extends Component {
               {!this._hasAmi() ? (
                 <FlexTable.Row>
                   <FlexTable.Head>
-                    <Icon icon="cube" /> Create AMI{" "}
+                    <Icon as={FaCube} /> Create AMI{" "}
                     <Explain>
                       Create a base image in this region, allowing faster deploy
                       for future instances.
                     </Explain>
                   </FlexTable.Head>
                   <FlexTable.Data>
-                    <FormControl accepter={Toggle} name="createAMI" />
+                    <Form.Control accepter={Toggle} name="createAMI" />
                   </FlexTable.Data>
                 </FlexTable.Row>
               ) : null}
               <FlexTable.Row>
                 <FlexTable.Head>Enable recording</FlexTable.Head>
                 <FlexTable.Data>
-                  <FormControl accepter={Toggle} name="recording" />
+                  <Form.Control accepter={Toggle} name="recording" />
                 </FlexTable.Data>
               </FlexTable.Row>
             </FlexTable>

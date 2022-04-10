@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon } from "rsuite";
 
 const Container = styled.aside`
   flex: 0 0 auto;
@@ -56,7 +55,7 @@ export default function () {
           target="_blank"
           rel="external"
         >
-          <Icon size="2x" icon="github" />
+          GitHub
         </a>
       </p>
     </Container>

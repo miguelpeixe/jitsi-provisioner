@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { Alert, Icon } from "rsuite";
-import { get } from "lodash";
+import { Icon } from "@rsuite/icons";
+import { FaServer } from "react-icons/fa";
 
 import Card from "components/Card.jsx";
 import FlexTable from "components/FlexTable.jsx";
@@ -15,7 +15,7 @@ export default class InstanceList extends Component {
     ev.preventDefault();
     if (API.instances.canTerminate(instance) && confirm("Are you sure?")) {
       API.instances.terminate(instance).catch((err) => {
-        Alert.error(err.message);
+        // toaster err.message
       });
     }
   };
@@ -23,7 +23,7 @@ export default class InstanceList extends Component {
     ev.preventDefault();
     if (API.instances.canRemove(instance)) {
       API.instances.provision(instance).catch((err) => {
-        Alert.error(err.message);
+        // toaster err.message
       });
     }
   };
@@ -31,7 +31,7 @@ export default class InstanceList extends Component {
     ev.preventDefault();
     if (API.instances.canRemove(instance) && confirm("Are you sure?")) {
       API.instances.remove(instance).catch((err) => {
-        Alert.error(err.message);
+        // toaster err.message
       });
     }
   };
@@ -61,7 +61,7 @@ export default class InstanceList extends Component {
             loading={API.instances.isLoading(instance)}
           >
             <Card.Header>
-              <Icon icon="server" />
+              <Icon as={FaServer} />
               <h3>{instance.name}</h3>
               {instance.provisionedAt ? (
                 <p>

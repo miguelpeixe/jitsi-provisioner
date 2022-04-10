@@ -18,7 +18,6 @@ module.exports = (app) => {
     app.use(history());
     app.use(
       webpackDev(compiler, {
-        logLevel: "warn",
         publicPath: webpackConfig.output.publicPath,
       })
     );

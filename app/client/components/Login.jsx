@@ -1,15 +1,7 @@
 import React, { Component } from "react";
-import styled from "styled-components";
 
 import Card from "components/Card.jsx";
-import {
-  Schema,
-  Alert,
-  Form,
-  FormGroup,
-  FormControl,
-  ControlLabel,
-} from "rsuite";
+import { Schema, Form } from "rsuite";
 import Button from "components/Button.jsx";
 
 const { StringType } = Schema.Types;
@@ -36,7 +28,7 @@ export default class Login extends Component {
       ...formData,
     })
       .catch((err) => {
-        Alert.error(err.message);
+        // toaster err.message
       })
       .finally(() => {
         this.setState({
@@ -73,14 +65,14 @@ export default class Login extends Component {
                 <strong>user/user</strong> credentials.
               </p>
             ) : null}
-            <FormGroup controlId="username">
-              <ControlLabel>Username</ControlLabel>
-              <FormControl name="username" />
-            </FormGroup>
-            <FormGroup controlId="password">
-              <ControlLabel>Password</ControlLabel>
-              <FormControl name="password" type="password" />
-            </FormGroup>
+            <Form.Group controlId="username">
+              <Form.ControlLabel>Username</Form.ControlLabel>
+              <Form.Control name="username" />
+            </Form.Group>
+            <Form.Group controlId="password">
+              <Form.ControlLabel>Password</Form.ControlLabel>
+              <Form.Control name="password" type="password" />
+            </Form.Group>
           </Card.Content>
           <Card.Footer>
             <Button type="submit" block disabled={loading}>

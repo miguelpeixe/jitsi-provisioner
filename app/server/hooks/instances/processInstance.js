@@ -1,5 +1,4 @@
 const path = require("path");
-const parseDomain = require("parse-domain").parseDomain;
 const { generateId, randomBytes } = require("../../utils");
 
 module.exports = (options = {}) => {
@@ -14,7 +13,7 @@ module.exports = (options = {}) => {
     const instancePath = path.join(dataPath, "instances", id);
     const hostname = data.hostname || `${id}.${domain}`;
 
-    const parsedHostname = parseDomain(hostname);
+    const parsedHostname = app.parseDomain(hostname);
     if (!domain && !parsedHostname.subDomains) {
       throw new Error("Domain is not set");
     }

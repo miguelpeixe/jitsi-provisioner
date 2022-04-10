@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { Icon, Tooltip, Whisper } from "rsuite";
+import { Tooltip, Whisper } from "rsuite";
+import { InfoRound } from "@rsuite/icons";
 
 const EIP_HOURLY_COST = 0.005;
 
@@ -114,7 +115,7 @@ export default class EstimatedCost extends Component {
         {this.state.text}{" "}
         {this.getCurrentStatusName() == "standby" ? (
           <Whisper placement="top" trigger="hover" speaker={standbyTooltip}>
-            <Icon icon="info" />
+            <InfoRound />
           </Whisper>
         ) : null}
       </span>

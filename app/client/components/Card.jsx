@@ -52,7 +52,7 @@ const cardStyles = css`
     border-radius: 0;
     box-shadow: 0 0 0;
     border: 0;
-    border-bottom: 1px solid rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -136,7 +136,7 @@ const Header = styled.header`
   margin: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   background: rgba(0, 0, 0, 0.05);
-  i {
+  svg {
     flex: 0 0 auto;
     margin-right: 1.5rem;
     color: rgba(0, 0, 0, 0.5);

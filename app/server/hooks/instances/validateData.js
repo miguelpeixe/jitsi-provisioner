@@ -1,11 +1,9 @@
-const parseDomain = require("parse-domain").parseDomain;
-
 module.exports = (options = {}) => {
   return async (context) => {
     const { data } = context;
 
     // Validate hostname
-    const domain = parseDomain(data.hostname);
+    const domain = context.app.parseDomain(data.hostname);
     if (domain.type == "INVALID" || (domain.errors && domain.errors.length)) {
       throw new Error("Invalid hostname");
     }

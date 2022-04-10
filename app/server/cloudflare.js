@@ -1,5 +1,11 @@
 const cloudflare = require("cloudflare");
-const parseDomain = require("parse-domain").parseDomain;
+
+// Import parse-domain package
+let parseDomain;
+(async () => {
+  const package = await import("parse-domain");
+  parseDomain = package.parseDomain;
+})();
 
 const cf = cloudflare({
   email: process.env.EMAIL,

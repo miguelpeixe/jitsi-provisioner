@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 
-import { Alert, Icon, Tooltip, Whisper } from "rsuite";
+import { Tooltip, Whisper } from "rsuite";
+import { Icon } from "@rsuite/icons";
+import { FaServer, FaCube } from "react-icons/fa";
 
 const Container = styled.section`
   flex: 1 1 auto;
@@ -79,19 +81,20 @@ Resources.AMI = function ({ ami, region }) {
         ev.preventDefault();
         if (!ami) {
           API.instances.createAMI(region).catch((err) => {
-            Alert.error(err.message);
+            // toaster err.message
           });
         } else if (ami.status.match(/failed|active/)) {
           API.instances.removeAMI(region).catch((err) => {
-            Alert.error(err.message);
+            // toaster err.message
           });
         }
       }}
     >
       <Whisper placement="top" trigger="hover" speaker={tooltip}>
         <Icon
-          icon="cube"
+          as={FaCube}
           style={style}
+          size="1.8em"
           spin={ami && !ami.status.match(/failed|active/)}
         />
       </Whisper>
@@ -108,7 +111,7 @@ Resources.Instance = function ({ count }) {
   return (
     <Whisper placement="top" trigger="hover" speaker={tooltip}>
       <span>
-        <Icon icon="server" style={style} />
+        <Icon as={FaServer} size="1.8em" style={style} />
         {count ? <Badge>{count}</Badge> : null}
       </span>
     </Whisper>

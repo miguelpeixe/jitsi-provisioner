@@ -16,6 +16,12 @@ const authentication = require("./authentication");
 
 const app = express(feathers());
 
+// Import parse-domain package
+(async () => {
+  const package = await import("parse-domain");
+  app.parseDomain = package.parseDomain;
+})();
+
 app.set("appPath", path.join(__dirname, ".."));
 app.set(
   "dataPath",
