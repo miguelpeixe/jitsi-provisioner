@@ -22,9 +22,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Buildx
+      - name: Build app
         run: |
           docker buildx build \
             --push \
             --tag miguelpeixe/jitsi-provisioner:latest \
             --platform linux/amd64,linux/arm/v7,linux/arm64/v8 .
+      - name: Build instance api
+        run: |
+          docker buildx build \
+            --push \
+            --tag miguelpeixe/jitsi-provisioner-instance-api:latest \
+            --platform linux/amd64,linux/arm/v7,linux/arm64/v8 ./instance-api
