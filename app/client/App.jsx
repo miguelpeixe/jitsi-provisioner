@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import { Loader } from "rsuite";
+import { keyBy } from "lodash";
 
 import Container from "components/Container.jsx";
 import Header from "components/Header.jsx";
@@ -13,6 +14,7 @@ import Login from "components/Login.jsx";
 import InstanceNew from "components/InstanceNew.jsx";
 import RegionList from "components/RegionList.jsx";
 import InstanceList from "components/InstanceList.jsx";
+
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -21,12 +23,12 @@ export default class App extends Component {
       ready: false,
       loading: false,
       newInstance: false,
-      newHostname: false,
       // data
       auth: null,
-      aws: [],
       amis: [],
       instances: [],
+      containers: {},
+      containerMap: {},
     };
     this.service = API.instances;
     this.contentRef = React.createRef();
@@ -51,9 +53,10 @@ export default class App extends Component {
       this.setState({ auth });
       this._fetchInstances();
       this._fetchAMIs();
+      this._fetchContainers();
     });
     API.on("logout", () => {
-      this.setState({ auth: false, instances: [], amis: [], aws: [] });
+      this.setState({ auth: false, instances: [], containers: [], amis: [] });
     });
     this.bindInstanceEvents();
     this.bindAMIEvents();
@@ -67,7 +70,7 @@ export default class App extends Component {
         this.setState({ instances });
       } else {
         this.setState({
-          instances: [instance, ...this.state.instances],
+          instances: [instance, ...instances],
         });
       }
     });
@@ -88,8 +91,40 @@ export default class App extends Component {
       }
     });
   };
+  bindContainerEvents = () => {
+    const service = API.service("containers");
+    service.on("created", (container) => {
+      this.setState({
+        containers: { ...this.state.containers, [container._id]: container },
+        containerMap: {
+          ...this.state.containerMap,
+          [container.instanceId]: {
+            ...this.state.containerMap[container.instanceId],
+            [container._id]: true,
+          },
+        },
+      });
+    });
+    service.on("patched", (container) => {
+      const containers = { ...this.state.containers };
+      containers[container._id] = container;
+      this.setState({ containers });
+    });
+    service.on("removed", (container) => {
+      const containers = { ...this.state.containers };
+      const containerMap = { ...this.state.containerMap };
+      try {
+        delete containers[container._id];
+        delete containerMap[container.instanceId][container._id];
+      } catch (err) {
+        console.warn(err);
+      }
+      this.setState({ containers, containerMap });
+    });
+  };
   bindAMIEvents = () => {
-    API.service("amis").on("created", (ami) => {
+    const service = API.service("amis");
+    service.on("created", (ami) => {
       const amis = [...this.state.amis];
       const idx = amis.findIndex((i) => i._id == ami._id);
       if (Number.isInteger(idx) && idx > -1) {
@@ -97,11 +132,11 @@ export default class App extends Component {
         this.setState({ amis });
       } else {
         this.setState({
-          amis: [ami, ...this.state.amis],
+          amis: [ami, ...amis],
         });
       }
     });
-    API.service("amis").on("patched", (ami) => {
+    service.on("patched", (ami) => {
       const amis = [...this.state.amis];
       const idx = amis.findIndex((i) => i._id == ami._id);
       if (Number.isInteger(idx) && idx > -1) {
@@ -109,7 +144,7 @@ export default class App extends Component {
         this.setState({ amis });
       }
     });
-    API.service("amis").on("removed", (ami) => {
+    service.on("removed", (ami) => {
       if (ami.status == "removing") return;
       const amis = [...this.state.amis];
       const idx = amis.findIndex((i) => i._id == ami._id);
@@ -137,6 +172,22 @@ export default class App extends Component {
       .finally(() => {
         this.setState({
           loading: false,
+        });
+      });
+  };
+  _fetchContainers = () => {
+    API.service("containers")
+      .find()
+      .then((containers) => {
+        const containerMap = {};
+        containers.forEach((container) => {
+          if (!containerMap[container.instanceId])
+            containerMap[container.instanceId] = {};
+          containerMap[container.instanceId][container._id] = true;
+        });
+        this.setState({
+          containers: keyBy(containers, "_id"),
+          containerMap,
         });
       });
   };

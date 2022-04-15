@@ -30,7 +30,7 @@ const registerContainer = (container) => {
 
 const parse = (container) => {
   return {
-    id: container.Id,
+    containerId: container.Id,
     names: container.Names,
     image: container.Image,
     imageId: container.ImageID,

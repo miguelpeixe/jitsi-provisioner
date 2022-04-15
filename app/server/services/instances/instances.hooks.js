@@ -1,5 +1,3 @@
-const path = require("path");
-const axios = require("axios");
 const { processHooks } = require("@feathersjs/commons").hooks;
 const { authenticate } = require("@feathersjs/authentication").hooks;
 const { disallow } = require("feathers-hooks-common");
@@ -18,7 +16,6 @@ const {
   checkLimit,
   processInstance,
   validateData,
-  checkStability,
 } = require("../../hooks/instances");
 
 // Async hooks used by `handleCreate` and `handleRemove`
@@ -34,14 +31,11 @@ const {
   waitApp,
   downloadInstance,
   storeCertificate,
-  finishInstall,
   terminateEIP,
   terminateInstance,
   removeFiles,
   removeDNSRecord,
 } = require("../../hooks/instances");
-
-const utils = require("../../hooks/instances/utils");
 
 const provisionHooks = [
   updateStatus("provisioning"),
@@ -65,7 +59,12 @@ const provisionHooks = [
   storeCertificate(),
   updateInfo(),
   async (context) => {
-    await context.service.patch(context.id || context.result._id, {
+    const instanceId = context.id || context.result._id;
+    // Start monitoring instance.
+    logger.info("Monitoring instance: " + instanceId);
+    context.service.monitor(instanceId);
+
+    await context.service.patch(instanceId, {
       readyAt: new Date(),
     });
   },

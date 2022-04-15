@@ -1,6 +1,7 @@
 const nedbService = require("feathers-nedb");
 const NeDB = require("nedb");
 const path = require("path");
+const axios = require("axios");
 
 const logger = require("../../logger");
 
@@ -28,7 +29,52 @@ module.exports = async (app) => {
 
   service.schema = schema;
 
+  const monitoring = {};
+  const monitorErrorTolerance = 3;
+  const containers = app.service("containers");
+
+  service.monitor = async (instanceId) => {
+    if (monitoring[instanceId]) {
+      return;
+    }
+    monitoring[instanceId] = true;
+
+    const instance = await service.get(instanceId);
+    const { hostname, api } = instance;
+    const baseApi = `https://${hostname}/${api.key}`;
+
+    let errorCount = 0;
+    const interval = setInterval(async () => {
+      try {
+        const res = await axios.get(`${baseApi}/stats`);
+        await containers.upsert({
+          instanceId,
+          containerId: res.data.containerId,
+          ...res.data,
+        });
+      } catch (e) {
+        errorCount++;
+        logger.warn(e);
+      }
+      if (errorCount >= monitorErrorTolerance) {
+        monitoring[instanceId] = false;
+        clearInterval(interval);
+      }
+    }, 5 * 1000);
+  };
+
   service.hooks(hooks);
+
+  // Monitor active instances.
+  const activeInstances = await service.find({
+    query: {
+      demo: false,
+      status: "available",
+    },
+  });
+  for (const instance of activeInstances) {
+    service.monitor(instance._id);
+  }
 
   if (app.get("demo")) {
     const staledInstances = await service.find({

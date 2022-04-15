@@ -1,5 +1,4 @@
 const path = require("path");
-const axios = require("axios");
 const { processHooks } = require("@feathersjs/commons").hooks;
 const { authenticate } = require("@feathersjs/authentication").hooks;
 const { restrictToRole } = require("../../hooks");
