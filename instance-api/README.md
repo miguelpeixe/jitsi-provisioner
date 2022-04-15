@@ -13,6 +13,7 @@ The installation is handled by the provisioner, but for documentation sake:
 ```
 docker run -d \
   --name instance-api \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
   -v /etc/letsencrypt:/data/letsencrypt:ro \
   -v /jitsi/.jitsi-meet-cfg:/data/jitsi:ro \
   -p 8001:8001 \

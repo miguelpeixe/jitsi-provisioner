@@ -1,5 +1,4 @@
 const fs = require("fs");
-const path = require("path");
 const express = require("express");
 const archiver = require("archiver");
 
@@ -7,7 +6,7 @@ const app = express();
 
 app.get("/jitsi", (req, res) => {
   const filePath = "/tmp/jitsi.tar.gz";
-  const jitsiPath = "/data/jitsi";
+  const jitsiPath = req.app.get("jitsiPath");
   const output = fs.createWriteStream(filePath);
   const archive = archiver("tar", {
     gzip: true,

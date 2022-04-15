@@ -13,6 +13,7 @@ REBOOT=false
 docker pull miguelpeixe/jitsi-provisioner-instance-api:latest && \
   docker run -d \
     --name instance-api \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
     -v /etc/letsencrypt:/data/letsencrypt:ro \
     -v /jitsi/data:/data/jitsi:ro \
     -p 8001:8001 \

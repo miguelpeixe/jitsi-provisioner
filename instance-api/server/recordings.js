@@ -6,8 +6,9 @@ const archiver = require("archiver");
 const app = express();
 
 app.get("/recordings", (req, res) => {
+  const jitsiPath = req.app.get("jitsiPath");
   const filePath = "/tmp/recordings.tar.gz";
-  const recordingsPath = "/data/jitsi/jibri/recordings";
+  const recordingsPath = path.join(jitsiPath, "jibri/recordings");
 
   fs.access(recordingsPath, (error) => {
     if (error) {
