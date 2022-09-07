@@ -4,7 +4,7 @@ services:
     image: miguelpeixe/jitsi-provisioner
     restart: unless-stopped
     ports:
-      - 80:3030
+      - 3030
     volumes:
       - ${DATA_PATH}:/data
     environment:

@@ -7,10 +7,8 @@ import App from "App.jsx";
 
 window.API = new API({ io });
 
-window.DOMAIN = DOMAIN;
-window.DEMO = !!DEMO;
-window.MAX_INSTANCES = parseInt(MAX_INSTANCES);
-
 import "app.less";
 
-ReactDom.render(<App />, document.getElementById("app"));
+window.API.getConfig().then((config) => {
+  ReactDom.render(<App {...config} />, document.getElementById("app"));
+});

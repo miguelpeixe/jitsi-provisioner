@@ -11,7 +11,7 @@ export default class Login extends Component {
     super(props);
     this.state = {
       loading: false,
-      formData: DEMO ? { username: "admin", password: "admin" } : {},
+      formData: props.demo ? { username: "admin", password: "admin" } : {},
     };
     this.model = Schema.Model({
       username: StringType().isRequired("Username is required"),
@@ -59,7 +59,7 @@ export default class Login extends Component {
             <h3>Authenticate</h3>
           </Card.Header>
           <Card.Content>
-            {DEMO ? (
+            {this.props.demo ? (
               <p>
                 Authenticate with <strong>admin/admin</strong> or{" "}
                 <strong>user/user</strong> credentials.

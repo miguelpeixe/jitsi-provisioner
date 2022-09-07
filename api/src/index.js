@@ -32,6 +32,8 @@ export default class API {
         authConfig.storage = this.authStorage;
       }
       this._client.configure(auth(authConfig));
+    } else {
+      this._config = this._client.getConfig();
     }
 
     // Setup rest client
@@ -54,6 +56,13 @@ export default class API {
     this.users = new Users(this);
     this.instances = new Instances(this);
     this.history = new Service("history", this);
+  }
+  async getConfig() {
+    if (!this._config) {
+      const res = await this._rest.get("/config");
+      this._config = res.data;
+    }
+    return this._config;
   }
   get(key) {
     return this._client.get(key);

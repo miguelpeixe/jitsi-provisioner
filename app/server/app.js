@@ -30,6 +30,7 @@ app.set(
 app.set("dbPath", path.join(app.get("dataPath"), "db"));
 app.set("domain", process.env.DOMAIN);
 app.set("demo", !!parseInt(process.env.DEMO));
+app.set("maxInstances", parseInt(process.env.MAX_INSTANCES));
 app.set("noClient", !!parseInt(process.env.NO_CLIENT));
 
 app.use(express.json());
@@ -43,6 +44,18 @@ app.configure(terraform);
 app.configure(authentication);
 app.configure(services);
 app.configure(channels);
+
+app.getConfig = () => {
+  const options = ["domain", "demo", "maxInstances", "noClient"];
+  const config = options.reduce((acc, key) => {
+    acc[key] = app.get(key);
+    return acc;
+  }, {});
+  return config;
+};
+app.use("/config", (req, res) => {
+  res.json(app.getConfig());
+});
 
 if (!app.get("noClient")) {
   app.configure(client);

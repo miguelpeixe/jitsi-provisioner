@@ -218,7 +218,9 @@ export default class App extends Component {
   };
   _canCreate = () => {
     const { instances } = this.state;
-    return !window.MAX_INSTANCES || instances.length < window.MAX_INSTANCES;
+    return (
+      !this.props.maxInstances || instances.length < this.props.maxInstances
+    );
   };
   _handleNewClick = () => (ev) => {
     ev.preventDefault();
@@ -249,9 +251,9 @@ export default class App extends Component {
               onClick={this._handleNewClick()}
             >
               New instance
-              {MAX_INSTANCES ? (
+              {this.props.maxInstances ? (
                 <Button.Badge>
-                  {instances.length}/{MAX_INSTANCES}
+                  {instances.length}/{this.props.maxInstances}
                 </Button.Badge>
               ) : null}
             </Button>
@@ -273,7 +275,7 @@ export default class App extends Component {
             <Loader center size="md" inverse />
           ) : (
             <>
-              {window.DEMO ? (
+              {this.props.demo ? (
                 <Card info>
                   <Card.Content>
                     <h4>Demo mode is enabled</h4>
@@ -281,9 +283,10 @@ export default class App extends Component {
                   </Card.Content>
                 </Card>
               ) : null}
-              {!auth ? <Login /> : null}
+              {!auth ? <Login demo={this.props.demo} /> : null}
               {auth && (newInstance || !instances.length) ? (
                 <InstanceNew
+                  domain={this.props.domain}
                   allowCancel={instances.length}
                   onSubmit={this._handleSubmit}
                   onCancel={this._handleCancel}

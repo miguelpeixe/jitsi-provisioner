@@ -24,10 +24,14 @@ RUN \
 
 COPY app /usr/src/app
 
+ENV NODE_ENV="production"
+
 WORKDIR /usr/src/app
 
 RUN npm install -g nodemon
 
-RUN npm install --production=false
+RUN npm ci --include=dev
+
+RUN npm run build
 
 CMD ["npm", "start"]

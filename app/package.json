@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run build && node server/index.js",
+    "start": "node server/index.js",
     "build": "npm run build:setup && npm run build:client",
     "build:setup": "rm -rf public/*",
     "build:client": "webpack --config webpack.config.js --env production"
@@ -26,7 +26,7 @@
     "@feathersjs/rest-client": "^4.5.12",
     "@feathersjs/socketio": "^4.5.13",
     "@feathersjs/socketio-client": "^4.5.13",
-    "@jitsi-provisioner/api": "^0.0.7",
+    "@jitsi-provisioner/api": "^0.0.8",
     "@rsuite/icons": "^1.0.2",
     "archiver": "^5.3.0",
     "axios": "^0.26.1",

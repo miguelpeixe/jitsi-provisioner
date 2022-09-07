@@ -11,12 +11,6 @@ module.exports = (env, argv) => {
   const entry = [path.resolve("client")];
 
   const plugins = [
-    new webpack.DefinePlugin({
-      "process.env": {},
-      DOMAIN: JSON.stringify(process.env.DOMAIN),
-      DEMO: JSON.stringify(!!parseInt(process.env.DEMO)),
-      MAX_INSTANCES: JSON.stringify(parseInt(process.env.MAX_INSTANCES)),
-    }),
     new webpack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment$/,

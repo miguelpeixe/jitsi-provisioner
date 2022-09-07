@@ -169,7 +169,11 @@ export default class InstanceNew extends Component {
                 <tr>
                   <th>Hostname</th>
                   <td>
-                    <Form.Control name="hostname" accepter={HostnameInput} />
+                    <Form.Control
+                      name="hostname"
+                      accepter={HostnameInput}
+                      domain={this.props.domain}
+                    />
                   </td>
                 </tr>
                 <tr>
