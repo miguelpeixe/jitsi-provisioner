@@ -43,7 +43,7 @@ export default class AWS extends Service {
       "eu-north-1": "EU (Stockholm)",
       "eu-south-1": "EU (Milan)",
       "me-south-1": "Middle East (Bahrain)",
-      "me-south-1": "Middle East (UAE)",
+      "me-central-1": "Middle East (UAE)",
       "sa-east-1": "South America (Sao Paulo)",
       "us-east-1": "US East (N. Virginia)",
       "us-east-2": "US East (Ohio)",
