@@ -139,6 +139,6 @@ $ docker-compose -f docker-compose.dev.yml up
 
 Always remember to check [Amazon EC2 pricing table](https://aws.amazon.com/ec2/pricing/on-demand/) and your [billing dashboard](https://console.aws.amazon.com/billing/home).
 
-Cost estimates are provided by [ec2instances.info](https://github.com/powdahound/ec2instances.info) and the data shown is not guaranteed to be accurate or current.
+AWS instance cost estimates are not guaranteed to be accurate or current.
 
 This project is experimental and has no relation to [Jitsi.org](https://jitsi.org/).

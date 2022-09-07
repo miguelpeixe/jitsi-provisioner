@@ -32,15 +32,8 @@ export default function () {
         .
       </p>
       <p>
-        Cost estimates provided by{" "}
-        <a
-          href="https://github.com/powdahound/ec2instances.info"
-          target="_blank"
-          rel="external"
-        >
-          ec2instances.info
-        </a>
-        . The data shown is not guaranteed to be accurate or current.
+        AWS instance cost estimates are not guaranteed to be accurate or
+        current.
       </p>
       <p>
         This project is experimental and has no relation to{" "}

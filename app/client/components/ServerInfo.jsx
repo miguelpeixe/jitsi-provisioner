@@ -96,20 +96,16 @@ export default class ServerInfo extends Component {
             {awsInstance.pricing[region] ? (
               <FlexTable>
                 <FlexTable.Row>
-                  <FlexTable.Head>Processor</FlexTable.Head>
-                  <FlexTable.Data>{awsInstance.processor}</FlexTable.Data>
-                </FlexTable.Row>
-                <FlexTable.Row>
                   <FlexTable.Head>vCPU count</FlexTable.Head>
                   <FlexTable.Data>{awsInstance.vcpu}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
-                  <FlexTable.Head>Clock speed</FlexTable.Head>
-                  <FlexTable.Data>{awsInstance.clockSpeed}</FlexTable.Data>
+                  <FlexTable.Head>Memory</FlexTable.Head>
+                  <FlexTable.Data>{awsInstance.memory}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
-                  <FlexTable.Head>Memory</FlexTable.Head>
-                  <FlexTable.Data>{awsInstance.memory} GiB</FlexTable.Data>
+                  <FlexTable.Head>Storage</FlexTable.Head>
+                  <FlexTable.Data>{awsInstance.storage}</FlexTable.Data>
                 </FlexTable.Row>
                 <FlexTable.Row>
                   <FlexTable.Head>Network speed</FlexTable.Head>

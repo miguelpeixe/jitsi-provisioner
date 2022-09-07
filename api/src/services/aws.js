@@ -28,13 +28,13 @@ export default class AWS extends Service {
   regions(key = false) {
     const regions = {
       "af-south-1": "Africa (Cape Town)",
-      "ap-east-1": "Asia-Pacific (Hong Kong)",
-      "ap-south-1": "Asia-Pacific (Mumbai)",
+      "ap-east-1": "Asia Pacific (Hong Kong)",
+      "ap-south-1": "Asia Pacific (Mumbai)",
       "ap-northeast-3": "Asia Pacific (Osaka-Local)",
-      "ap-northeast-2": "Asia-Pacific (Seoul)",
-      "ap-southeast-1": "Asia-Pacific (Singapore)",
-      "ap-southeast-2": "Asia-Pacific (Sydney)",
-      "ap-northeast-1": "Asia-Pacific (Tokyo)",
+      "ap-northeast-2": "Asia Pacific (Seoul)",
+      "ap-southeast-1": "Asia Pacific (Singapore)",
+      "ap-southeast-2": "Asia Pacific (Sydney)",
+      "ap-northeast-1": "Asia Pacific (Tokyo)",
       "ca-central-1": "Canada (Central)",
       "eu-central-1": "Europe (Frankfurt)",
       "eu-west-1": "Europe (Ireland)",
@@ -57,43 +57,37 @@ export default class AWS extends Service {
     return regions;
   }
   async fetchInstances() {
-    let instances = [];
-    try {
-      const res = await axios.get(
-        "https://raw.githubusercontent.com/powdahound/ec2instances.info/master/www/instances.json"
-      );
-      if (res && res.data && res.data.length) {
-        for (const item of res.data) {
-          const instance = {
-            _id: item.instance_type,
-            processor: item.physical_processor,
-            vcpu: item.vCPU,
-            memory: item.memory,
-            clockSpeed: item.clock_speed_ghz,
-            network: item.network_performance,
-            prettyName: item.pretty_name,
-            gpu: {
-              size: item.GPU,
-              memory: item.GPU_memory,
-              model: item.GPU_model,
-            },
-            pricing: {},
-          };
-          for (const region in item.pricing) {
-            if (
-              item.pricing[region] &&
-              item.pricing[region].linux &&
-              item.pricing[region].linux.ondemand
-            ) {
-              instance.pricing[region] = item.pricing[region].linux.ondemand;
-            }
+    const instanceMap = {};
+    const regionMap = this.regions();
+    for (const region in regionMap) {
+      const regionName = regionMap[region];
+      const url = `https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/${encodeURIComponent(
+        regionName
+      )}/Linux/index.json?timestamp=${new Date().getTime()}`;
+      try {
+        const res = await axios.get(url);
+        const regionInstances = res.data.regions[regionName];
+        for (const instanceKey in regionInstances) {
+          const instance = regionInstances[instanceKey];
+          if (!instanceMap[instance["Instance Type"]]) {
+            instanceMap[instance["Instance Type"]] = {
+              _id: instance["Instance Type"],
+              code: instance["rateCode"],
+              vcpu: instance["vCPU"],
+              memory: instance["Memory"],
+              network: instance["Network Performance"],
+              storage: instance["Storage"],
+              pricing: {},
+            };
           }
-          instances.push(instance);
+          instanceMap[instance["Instance Type"]].pricing[region] = parseFloat(
+            instance["price"]
+          );
         }
+      } catch (err) {
+        continue;
       }
-    } catch (err) {
-      throw new Error(err);
     }
-    return instances;
+    return Object.values(instanceMap);
   }
 }
