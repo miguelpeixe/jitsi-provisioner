@@ -1,6 +1,6 @@
 {
   "name": "@jitsi-provisioner/api",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Jitsi Provisioner JavaScript API",
   "main": "lib/index.js",
   "module": "lib/index.es.js",
