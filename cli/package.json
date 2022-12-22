@@ -19,7 +19,7 @@
     "@jitsi-provisioner/api": "^0.0.8",
     "commander": "^9.1.0",
     "dotenv": "^16.0.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.2",
     "ora": "^6.1.0",
